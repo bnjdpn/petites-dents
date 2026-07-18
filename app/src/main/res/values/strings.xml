@@ -8,8 +8,8 @@
     <string name="mouth_title">Baby teeth</string>
     <string name="mouth_subtitle">Tap a tooth to record teething, eruption and notes.</string>
     <string name="progress_erupted">%1$d of 20 erupted</string>
-    <string name="upper_arch">Upper arch</string>
-    <string name="lower_arch">Lower arch</string>
+    <string name="upper_arch">Upper teeth</string>
+    <string name="lower_arch">Lower teeth</string>
     <string name="scroll_hint">Swipe each arch to see every tooth.</string>
     <string name="state_ghost">Not started</string>
     <string name="state_teething">Teething</string>

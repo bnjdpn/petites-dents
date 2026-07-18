@@ -1,6 +1,7 @@
 package com.bnjdpn.petitesdents.ui
 
 import com.bnjdpn.petitesdents.data.ToothArch
+import com.bnjdpn.petitesdents.data.ToothKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -63,5 +64,15 @@ class DentalArchGeometryTest {
         val placements = DentalArchGeometry.placements(ToothArch.UPPER)
         assertTrue(placements.first().xFraction * 280f >= 24f)
         assertTrue((1f - placements.last().xFraction) * 280f >= 24f)
+    }
+
+    @Test
+    fun eachToothFamilyUsesItsOwnFixedOutline() {
+        assertEquals(ToothFamilyOutline.CENTRAL_INCISOR, ToothKind.CENTRAL_INCISOR.familyOutline)
+        assertEquals(ToothFamilyOutline.LATERAL_INCISOR, ToothKind.LATERAL_INCISOR.familyOutline)
+        assertEquals(ToothFamilyOutline.CANINE, ToothKind.CANINE.familyOutline)
+        assertEquals(ToothFamilyOutline.FIRST_MOLAR, ToothKind.FIRST_MOLAR.familyOutline)
+        assertEquals(ToothFamilyOutline.SECOND_MOLAR, ToothKind.SECOND_MOLAR.familyOutline)
+        assertEquals(5, ToothKind.entries.map { it.familyOutline.color }.toSet().size)
     }
 }

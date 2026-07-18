@@ -1,3 +1,3 @@
-• The mouth diagram now follows realistic horseshoe-shaped upper and lower dental arches.
-• Teeth sit along curved gum bands, scale cleanly across phone and tablet widths, and keep colours tied only to their status.
-• Indicative eruption ages remain available only in the selected tooth's detail sheet.
+• The mouth diagram now labels the upper and lower teeth more directly.
+• Every tooth family has its own fixed outline colour: fuchsia, turquoise, blue, deep blue or charcoal.
+• Fill colour remains dedicated to status: grey for not started, pale yellow for teething and green for erupted.

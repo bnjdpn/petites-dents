@@ -8,8 +8,8 @@
     <string name="mouth_title">Les dents de bébé</string>
     <string name="mouth_subtitle">Touchez une dent pour noter la poussée, la sortie et vos observations.</string>
     <string name="progress_erupted">%1$d dent(s) sortie(s) sur 20</string>
-    <string name="upper_arch">Arcade du haut</string>
-    <string name="lower_arch">Arcade du bas</string>
+    <string name="upper_arch">Dents du haut</string>
+    <string name="lower_arch">Dents du bas</string>
     <string name="scroll_hint">Faites glisser chaque arcade pour voir toutes les dents.</string>
     <string name="state_ghost">Pas commencée</string>
     <string name="state_teething">En poussée</string>

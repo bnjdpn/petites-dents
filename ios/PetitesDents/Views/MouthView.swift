@@ -207,17 +207,9 @@ private struct ToothButton: View {
 
     private var fill: Color {
         switch snapshot.status {
-        case .ghost: Color.secondary.opacity(0.07)
+        case .ghost: PetitesDentsStyle.ghostFill
         case .teething: PetitesDentsStyle.apricot
         case .erupted: PetitesDentsStyle.sage.opacity(0.30)
-        }
-    }
-
-    private var strokeColor: Color {
-        switch snapshot.status {
-        case .ghost: Color.secondary
-        case .teething: PetitesDentsStyle.coral
-        case .erupted: PetitesDentsStyle.sage
         }
     }
 
@@ -246,10 +238,9 @@ private struct ToothButton: View {
                         .fill(fill)
                     ToothShape(kind: snapshot.definition.kind)
                         .stroke(
-                            strokeColor,
+                            snapshot.definition.kind.familyOutline.color,
                             style: StrokeStyle(
-                                lineWidth: snapshot.status == .erupted ? 2.5 : 2,
-                                dash: snapshot.status == .ghost ? [5, 4] : []
+                                lineWidth: 2.5
                             )
                         )
                 }
@@ -425,7 +416,7 @@ private struct StatusLegend: View {
 
     private func color(for status: ToothStatus) -> Color {
         switch status {
-        case .ghost: Color.secondary.opacity(0.35)
+        case .ghost: PetitesDentsStyle.ghostFill
         case .teething: PetitesDentsStyle.apricot
         case .erupted: PetitesDentsStyle.sage
         }

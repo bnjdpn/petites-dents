@@ -5,8 +5,8 @@
 "mouth.title" = "Baby teeth";
 "mouth.subtitle" = "Tap a tooth to record teething, eruption and notes.";
 "mouth.progress" = "%d of 20 erupted";
-"mouth.upper_arch" = "Upper arch";
-"mouth.lower_arch" = "Lower arch";
+"mouth.upper_arch" = "Upper teeth";
+"mouth.lower_arch" = "Lower teeth";
 "mouth.scroll_hint" = "Swipe each arch to see every tooth.";
 "legend.title" = "Status";
 

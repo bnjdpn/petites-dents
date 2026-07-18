@@ -72,4 +72,13 @@ final class DentalArchGeometryTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(placements[0].xFraction * 280, 22)
         XCTAssertGreaterThanOrEqual((1 - placements[9].xFraction) * 280, 22)
     }
+
+    func testEachToothFamilyUsesItsOwnFixedOutline() {
+        XCTAssertEqual(ToothKind.centralIncisor.familyOutline, .centralIncisor)
+        XCTAssertEqual(ToothKind.lateralIncisor.familyOutline, .lateralIncisor)
+        XCTAssertEqual(ToothKind.canine.familyOutline, .canine)
+        XCTAssertEqual(ToothKind.firstMolar.familyOutline, .firstMolar)
+        XCTAssertEqual(ToothKind.secondMolar.familyOutline, .secondMolar)
+        XCTAssertEqual(Set(ToothKind.allCases.map(\.familyOutline)).count, 5)
+    }
 }

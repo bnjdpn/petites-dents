@@ -5,8 +5,8 @@
 "mouth.title" = "Les dents de bébé";
 "mouth.subtitle" = "Touchez une dent pour noter la poussée, la sortie et vos observations.";
 "mouth.progress" = "%d dent(s) sortie(s) sur 20";
-"mouth.upper_arch" = "Arcade du haut";
-"mouth.lower_arch" = "Arcade du bas";
+"mouth.upper_arch" = "Dents du haut";
+"mouth.lower_arch" = "Dents du bas";
 "mouth.scroll_hint" = "Faites glisser chaque arcade pour voir toutes les dents.";
 "legend.title" = "État";
 

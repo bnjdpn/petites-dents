@@ -34,7 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -202,17 +201,12 @@ private fun ToothButton(
         tooth.definition.fdi,
         state,
     )
-    val outline = MaterialTheme.colorScheme.outline
     val fill = when (tooth.record.status) {
-        ToothStatus.GHOST -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f)
+        ToothStatus.GHOST -> GhostFill
         ToothStatus.TEETHING -> Apricot
         ToothStatus.ERUPTED -> Sage.copy(alpha = 0.30f)
     }
-    val strokeColor = when (tooth.record.status) {
-        ToothStatus.GHOST -> outline
-        ToothStatus.TEETHING -> Coral
-        ToothStatus.ERUPTED -> Sage
-    }
+    val strokeColor = tooth.definition.kind.familyOutline.color
     val (toothWidth, toothHeight) = toothVisualSize(tooth.definition.kind, visualScale)
 
     Box(
@@ -237,14 +231,7 @@ private fun ToothButton(
                 path = path,
                 color = strokeColor,
                 style = Stroke(
-                    width = if (tooth.record.status == ToothStatus.ERUPTED) {
-                        2.5.dp.toPx()
-                    } else {
-                        2.dp.toPx()
-                    },
-                    pathEffect = if (tooth.record.status == ToothStatus.GHOST) {
-                        PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx()))
-                    } else null,
+                    width = 2.5.dp.toPx(),
                 ),
             )
         }
@@ -355,7 +342,7 @@ private fun Legend(modifier: Modifier = Modifier) {
                             .clip(RoundedCornerShape(50))
                             .background(
                                 when (status) {
-                                    ToothStatus.GHOST -> MaterialTheme.colorScheme.outlineVariant
+                                    ToothStatus.GHOST -> GhostFill
                                     ToothStatus.TEETHING -> Apricot
                                     ToothStatus.ERUPTED -> Sage
                                 },

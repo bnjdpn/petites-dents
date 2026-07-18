@@ -1,3 +1,3 @@
-• Le schéma de bouche suit désormais la forme anatomique en fer à cheval des arcades du haut et du bas.
-• Les dents suivent des bandes de gencive courbes, s'adaptent aux écrans téléphone et tablette, et leur couleur indique uniquement leur état.
-• La tranche d'âge indicative reste disponible seulement dans la fiche de la dent sélectionnée.
+• Le schéma emploie désormais les libellés « Dents du haut » et « Dents du bas ».
+• Chaque famille de dent possède un contour fixe : fuchsia, turquoise, bleu, bleu foncé ou gris anthracite.
+• Le remplissage reste réservé à l'état : gris, jaune pâle ou vert.
