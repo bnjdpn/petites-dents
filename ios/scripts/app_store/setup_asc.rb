@@ -23,6 +23,7 @@ def parse_options(argv)
     opts.on("--config PATH") { |value| options[:config] = value }
     opts.on("--key-path PATH") { |value| options[:key_path] = value }
     opts.on("--bundle-id ID") { |value| options[:bundle_id] = value }
+    opts.on("--bundle-name NAME") { |value| options[:bundle_name] = value }
     opts.on("--name NAME") { |value| options[:name] = value }
     opts.on("--sku SKU") { |value| options[:sku] = value }
     opts.on("--version VERSION") { |value| options[:version] = value }
@@ -32,6 +33,7 @@ def parse_options(argv)
   config = File.file?(options[:config]) ? JSON.parse(File.read(options[:config])) : {}
   options[:config_data] = config
   options[:bundle_id] ||= config["bundle_id"]
+  options[:bundle_name] ||= config["app_name"] || config["name"] || options[:bundle_id]
   options[:name] ||= config["app_store_name"] || config["name"]
   options[:sku] ||= config["sku"] || options[:bundle_id]
   options[:version] ||= config["version"]
@@ -39,6 +41,7 @@ def parse_options(argv)
   options[:age_rating_path] = File.join(File.dirname(options[:config]), "metadata", "app_rating_config.json")
 
   abort "--bundle-id is required" if options[:bundle_id].to_s.empty?
+  abort "--bundle-name is required" if options[:bundle_name].to_s.empty?
   abort "--name is required" if options[:name].to_s.empty?
   abort "Provide ASC_API_KEY_PATH or APP_STORE_CONNECT_API_KEY_* environment credentials" unless AutonomousAscCredentials.available?(key_path: options[:key_path])
   options
@@ -392,7 +395,7 @@ begin
 
   bundle_result = BundleIdProvisioner.new(client: client).ensure(
     identifier: options[:bundle_id],
-    name: options[:name],
+    name: options[:bundle_name],
     capabilities: definitions.empty? ? [] : ["GAME_CENTER"]
   )
   bundle = bundle_result.fetch(:bundle)
