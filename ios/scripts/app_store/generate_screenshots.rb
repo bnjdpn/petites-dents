@@ -154,6 +154,19 @@ module PetitesDentsScreenshots
         update_receipt(receipt, "booted")
         @runner.run!("xcrun", "simctl", "bootstatus", udid, "-b")
         @runner.run!(
+          "xcrun", "simctl", "spawn", udid,
+          "defaults", "write", "NSGlobalDomain", "AppleLanguages", "-array", language
+        )
+        @runner.run!(
+          "xcrun", "simctl", "spawn", udid,
+          "defaults", "write", "NSGlobalDomain", "AppleLocale", "-string", "#{language}_#{region}"
+        )
+        update_receipt(receipt, "localized")
+        @runner.run!("xcrun", "simctl", "shutdown", udid)
+        @runner.run!("xcrun", "simctl", "boot", udid)
+        @runner.run!("xcrun", "simctl", "bootstatus", udid, "-b")
+        update_receipt(receipt, "localized_and_booted")
+        @runner.run!(
           "xcrun", "simctl", "status_bar", udid, "override",
           "--time", "09:41",
           "--batteryState", "charged",
