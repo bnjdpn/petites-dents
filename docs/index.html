@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Petites Dents support and privacy information.">
+  <title>Petites Dents — Support</title>
+  <style>
+    :root { color-scheme: light; --coral:#ff7068; --rose:#ffd8d2; --cream:#fffaf1; --ink:#211d1b; --muted:#6f6965; --card:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:linear-gradient(160deg,var(--cream),#fff1ed); color:var(--ink); font:17px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(780px,calc(100% - 32px)); margin:auto; padding:28px 0 52px; }
+    nav { display:flex; justify-content:flex-end; }
+    select,input,textarea,button { font:inherit; }
+    select,input,textarea { width:100%; padding:12px; border:1px solid #ddd1cb; border-radius:12px; background:#fff; }
+    header { padding:54px 0 30px; }
+    h1 { margin:0; font-size:clamp(2.8rem,9vw,5rem); line-height:1; letter-spacing:-.05em; }
+    h2 { margin-top:0; }
+    .tagline { color:var(--coral); font-size:1.25rem; font-weight:750; }
+    .card { margin:18px 0; padding:26px; border-radius:24px; background:var(--card); box-shadow:0 14px 40px #6e423010; }
+    .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
+    .feature { padding:18px; border-radius:18px; background:var(--cream); }
+    form { display:grid; gap:14px; }
+    label { display:grid; gap:6px; font-weight:700; }
+    textarea { min-height:150px; resize:vertical; }
+    button { border:0; border-radius:999px; padding:13px 20px; color:#fff; background:var(--coral); font-weight:800; cursor:pointer; }
+    a { color:#d84f49; }
+    .muted,footer { color:var(--muted); }
+    .honeypot { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
+    [data-lang="fr"] { display:none; }
+  </style>
+</head>
+<body>
+<main>
+  <nav>
+    <label>Language
+      <select id="language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </label>
+  </nav>
+
+  <header>
+    <h1>Petites Dents</h1>
+    <p class="tagline" data-lang="en">A calm timeline for every little tooth.</p>
+    <p class="tagline" data-lang="fr">Une chronologie douce pour chaque petite dent.</p>
+  </header>
+
+  <section class="card">
+    <div data-lang="en">
+      <h2>Private by design</h2>
+      <p>Follow all 20 primary teeth, record teething and eruption dates, add notes, review the history, and export a local PDF. No account, server, advertising, analytics, or subscription.</p>
+    </div>
+    <div data-lang="fr">
+      <h2>Privée par conception</h2>
+      <p>Suivez les 20 dents de lait, notez les dates de poussée et de percée, ajoutez des observations, consultez l’historique et exportez un PDF local. Aucun compte, serveur, publicité, suivi ou abonnement.</p>
+    </div>
+    <div class="features">
+      <div class="feature">20 primary teeth<br><span class="muted">20 dents de lait</span></div>
+      <div class="feature">Local PDF export<br><span class="muted">Export PDF local</span></div>
+      <div class="feature">iOS &amp; Android<br><span class="muted">Sans compte</span></div>
+    </div>
+  </section>
+
+  <section id="contact" class="card">
+    <div data-lang="en">
+      <h2>Contact support</h2>
+      <p class="muted">Questions, suggestions, and bug reports are handled through this form.</p>
+    </div>
+    <div data-lang="fr">
+      <h2>Contacter le support</h2>
+      <p class="muted">Les questions, suggestions et signalements passent par ce formulaire.</p>
+    </div>
+    <form action="https://formspree.io/f/mykqbyyw" method="POST">
+      <input type="hidden" name="app" value="Petites Dents">
+      <input type="hidden" name="_subject" value="Petites Dents support request">
+      <label class="honeypot">Leave empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label>
+      <label>Topic / Sujet
+        <select name="category" required>
+          <option>Question</option>
+          <option>Bug</option>
+          <option>Suggestion</option>
+          <option>Privacy / Confidentialité</option>
+          <option>Other / Autre</option>
+        </select>
+      </label>
+      <label>Your email / Votre e-mail<input type="email" name="email" autocomplete="email" required></label>
+      <label>App version / Version de l’app<input type="text" name="app_version" autocomplete="off"></label>
+      <label>iOS / Android version<input type="text" name="os_version" autocomplete="off"></label>
+      <label>Message<textarea name="message" required></textarea></label>
+      <button type="submit">Send / Envoyer</button>
+    </form>
+  </section>
+
+  <footer>
+    <a href="privacy.html">Privacy policy / Politique de confidentialité</a>
+    <p>Petites Dents is a personal log, not a medical device. / Petites Dents est un carnet personnel, pas un dispositif médical.</p>
+  </footer>
+</main>
+<script>
+  const picker = document.getElementById("language");
+  function showLanguage(language) {
+    document.documentElement.lang = language;
+    document.querySelectorAll("[data-lang]").forEach((node) => {
+      node.style.display = node.dataset.lang === language ? "block" : "none";
+    });
+  }
+  picker.addEventListener("change", () => showLanguage(picker.value));
+  if ((navigator.language || "").toLowerCase().startsWith("fr")) { picker.value = "fr"; }
+  showLanguage(picker.value);
+</script>
+</body>
+</html>

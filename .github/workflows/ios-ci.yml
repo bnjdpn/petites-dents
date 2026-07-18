@@ -1,0 +1,145 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: petites-dents-ios-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: iOS Build & Test
+    runs-on: macos-26
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: ios
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up the locked Ruby toolchain
+        uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
+        with:
+          ruby-version: ios/.ruby-version
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Verify the hosted Xcode profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_xcode=$'Xcode 26.3\nBuild version 17C529'
+          test "$(xcodebuild -version)" = "$expected_xcode"
+
+      - name: Install verified XcodeGen
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODEGEN_VERSION="2.46.0"
+          XCODEGEN_SHA256="4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806"
+          XCODEGEN_ARCHIVE="$RUNNER_TEMP/xcodegen-$XCODEGEN_VERSION.zip"
+          XCODEGEN_ROOT="$RUNNER_TEMP/xcodegen-$XCODEGEN_VERSION"
+          curl --fail --location --retry 3 --proto '=https' --tlsv1.2 \
+            --output "$XCODEGEN_ARCHIVE" \
+            "https://github.com/yonaskolb/XcodeGen/releases/download/$XCODEGEN_VERSION/xcodegen.zip"
+          echo "$XCODEGEN_SHA256  $XCODEGEN_ARCHIVE" | shasum -a 256 --check
+          mkdir -p "$XCODEGEN_ROOT"
+          /usr/bin/unzip -q "$XCODEGEN_ARCHIVE" -d "$XCODEGEN_ROOT"
+          echo "$XCODEGEN_ROOT/xcodegen/bin" >> "$GITHUB_PATH"
+          "$XCODEGEN_ROOT/xcodegen/bin/xcodegen" --version | grep -Fx "Version: $XCODEGEN_VERSION"
+
+      - name: Prepare isolated CI scratch and owned simulator
+        id: simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          CI_SCRATCH="$RUNNER_TEMP/petites-dents/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$CI_SCRATCH/DerivedData" "$CI_SCRATCH/SourcePackages" "$CI_SCRATCH/xcresult"
+          runtime="com.apple.CoreSimulator.SimRuntime.iOS-26-2"
+          device_type="com.apple.CoreSimulator.SimDeviceType.iPhone-17"
+          xcrun simctl list runtimes -j | PINNED_RUNTIME="$runtime" bundle exec ruby -rjson -e '
+            runtimes = JSON.parse(STDIN.read).fetch("runtimes")
+            abort "Pinned iOS simulator runtime is unavailable" unless runtimes.any? { |runtime| runtime["identifier"] == ENV.fetch("PINNED_RUNTIME") && runtime["isAvailable"] }
+          '
+          simulator_name="PetitesDents-CI-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          SIMULATOR_UDID="$(xcrun simctl create "$simulator_name" "$device_type" "$runtime")"
+          test -n "$SIMULATOR_UDID"
+          xcrun simctl boot "$SIMULATOR_UDID"
+          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+          {
+            echo "CI_SCRATCH=$CI_SCRATCH"
+            echo "SIMULATOR_UDID=$SIMULATOR_UDID"
+            echo "udid=$SIMULATOR_UDID"
+          } >> "$GITHUB_ENV"
+          echo "udid=$SIMULATOR_UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Generate the Xcode project
+        run: xcodegen generate
+
+      - name: Validate release contract
+        run: bundle exec fastlane release_contract
+
+      - name: Build the app and tests once
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild build-for-testing \
+            -project PetitesDents.xcodeproj \
+            -scheme PetitesDents \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
+            -derivedDataPath "$CI_SCRATCH/DerivedData" \
+            -clonedSourcePackagesDirPath "$CI_SCRATCH/SourcePackages" \
+            -resultBundlePath "$CI_SCRATCH/xcresult/build-for-testing.xcresult" \
+            -parallel-testing-enabled NO \
+            -maximum-parallel-testing-workers 1 \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run unit tests without rebuilding
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild test-without-building \
+            -project PetitesDents.xcodeproj \
+            -scheme PetitesDents \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
+            -derivedDataPath "$CI_SCRATCH/DerivedData" \
+            -clonedSourcePackagesDirPath "$CI_SCRATCH/SourcePackages" \
+            -resultBundlePath "$CI_SCRATCH/xcresult/unit-tests.xcresult" \
+            -only-testing:PetitesDentsTests \
+            -parallel-testing-enabled NO \
+            -maximum-parallel-testing-workers 1 \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload short-lived failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: petites-dents-ios-ci-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.CI_SCRATCH }}/xcresult
+          if-no-files-found: warn
+          retention-days: 3
+          compression-level: 0
+
+      - name: Delete owned simulator
+        if: always() && steps.simulator.outputs.udid != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          udid="${{ steps.simulator.outputs.udid }}"
+          xcrun simctl shutdown "$udid" || true
+          xcrun simctl delete "$udid"

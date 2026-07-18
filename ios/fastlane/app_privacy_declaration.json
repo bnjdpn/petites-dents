@@ -1,0 +1,10 @@
+{
+  "data_collected": false,
+  "tracking": false,
+  "third_party_sdk_data_collection": false,
+  "local_health_log_only": true,
+  "support_form_is_external_and_user_initiated": true,
+  "public_api_supported": false,
+  "live_verified": false,
+  "blocker": "App Store Connect does not expose a supported public API for setting the initial App Privacy questionnaire. The binary and privacy manifest declare no collection or tracking."
+}

@@ -1,0 +1,169 @@
+name: Android Release APK
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: GitHub Release tag to upload to, for example v1.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  upload-apk:
+    name: Build and upload signed APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            tag="${{ github.event.release.tag_name }}"
+          else
+            tag="${{ inputs.tag }}"
+          fi
+          test -n "$tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release tag
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Isolate Gradle user home
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle_user_home="$RUNNER_TEMP/gradle-user-home"
+          mkdir -p "$gradle_user_home"
+          echo "GRADLE_USER_HOME=$gradle_user_home" >> "$GITHUB_ENV"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95
+        with:
+          java-version: "17"
+          distribution: temurin
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@3f131c2cf4c81b318b017cf5d7d6d389bfad3b26
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@3f131c2cf4c81b318b017cf5d7d6d389bfad3b26
+
+      - name: Verify release tag is on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.release.outputs.tag }}"
+          git fetch --no-tags origin main
+          tag_commit="$(git rev-list -n 1 "$tag")"
+          if ! git merge-base --is-ancestor "$tag_commit" origin/main; then
+            echo "Release tag $tag ($tag_commit) is not reachable from origin/main" >&2
+            exit 1
+          fi
+
+      - name: Verify GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.release.outputs.tag }}"
+          test "$(gh release view "$tag" --json isDraft --jq '.isDraft')" = "false"
+          test "$(gh release view "$tag" --json isPrerelease --jq '.isPrerelease')" = "false"
+
+      - name: Build signed release APK
+        env:
+          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in ANDROID_RELEASE_KEYSTORE_BASE64 ANDROID_RELEASE_STORE_PASSWORD ANDROID_RELEASE_KEY_ALIAS ANDROID_RELEASE_KEY_PASSWORD; do
+            test -n "${!name}" || { echo "Missing GitHub secret: $name" >&2; exit 1; }
+          done
+          keystore_path="$RUNNER_TEMP/petites-dents-release.keystore"
+          cleanup() { rm -f "$keystore_path"; }
+          trap cleanup EXIT
+          umask 077
+          printf '%s' "$ANDROID_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
+          test -s "$keystore_path"
+          ANDROID_RELEASE_STORE_FILE="$keystore_path" ./gradlew --no-daemon --stacktrace test assembleRelease
+
+      - name: Require executed unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' reports < <(find app/build/test-results -type f -name 'TEST-*.xml' -print0)
+          if (( ${#reports[@]} == 0 )); then
+            echo "::error::Gradle test produced no JUnit report (NO-SOURCE is forbidden)."
+            exit 1
+          fi
+          grep -Eq '<testsuite[^>]* tests="[1-9][0-9]*"' "${reports[@]}"
+
+      - name: Prepare APK, checksum and provenance receipt
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.release.outputs.tag }}"
+          assets_dir="$RUNNER_TEMP/release-assets"
+          mkdir -p "$assets_dir"
+          apk_path="$assets_dir/petites-dents-${tag}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$apk_path"
+          sha256sum "$apk_path" > "$apk_path.sha256"
+          {
+            printf '{\n'
+            printf '  "tag": "%s",\n' "$tag"
+            printf '  "commit": "%s",\n' "$(git rev-parse HEAD)"
+            printf '  "workflow": "%s",\n' "$GITHUB_WORKFLOW"
+            printf '  "run_id": "%s",\n' "$GITHUB_RUN_ID"
+            printf '  "apk": "%s",\n' "$(basename "$apk_path")"
+            printf '  "sha256": "%s"\n' "$(cut -d ' ' -f 1 "$apk_path.sha256")"
+            printf '}\n'
+          } > "$apk_path.provenance.json"
+          {
+            echo "path=$apk_path"
+            echo "checksum=$apk_path.sha256"
+            echo "receipt=$apk_path.provenance.json"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Verify aligned and signed APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_tools="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d -print | sort -V | tail -n 1)"
+          test -x "$build_tools/zipalign"
+          test -x "$build_tools/apksigner"
+          "$build_tools/zipalign" -c -v 4 "${{ steps.apk.outputs.path }}"
+          "$build_tools/apksigner" verify --verbose --print-certs "${{ steps.apk.outputs.path }}"
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: petites-dents-${{ steps.release.outputs.tag }}-release-evidence
+          path: |
+            ${{ steps.apk.outputs.path }}
+            ${{ steps.apk.outputs.checksum }}
+            ${{ steps.apk.outputs.receipt }}
+          retention-days: 7
+
+      - name: Upload APK to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ steps.release.outputs.tag }}" "${{ steps.apk.outputs.path }}" "${{ steps.apk.outputs.checksum }}" "${{ steps.apk.outputs.receipt }}" --clobber

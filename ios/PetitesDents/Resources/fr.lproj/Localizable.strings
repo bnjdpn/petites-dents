@@ -1,0 +1,85 @@
+"tab.teeth" = "Dents";
+"tab.history" = "Historique";
+"tab.more" = "Plus";
+
+"mouth.title" = "Les dents de bébé";
+"mouth.subtitle" = "Touchez une dent pour noter la poussée, la sortie et vos observations.";
+"mouth.progress" = "%d dent(s) sortie(s) sur 20";
+"mouth.upper_arch" = "Arcade du haut";
+"mouth.lower_arch" = "Arcade du bas";
+"mouth.scroll_hint" = "Faites glisser chaque arcade pour voir toutes les dents.";
+"legend.title" = "État";
+
+"arch.upper" = "supérieure";
+"arch.lower" = "inférieure";
+"side.left" = "gauche";
+"side.right" = "droite";
+"kind.central_incisor" = "incisive centrale";
+"kind.lateral_incisor" = "incisive latérale";
+"kind.canine" = "canine";
+"kind.first_molar" = "première molaire";
+"kind.second_molar" = "deuxième molaire";
+"state.ghost" = "Pas commencée";
+"state.teething" = "En poussée";
+"state.erupted" = "Percée";
+"tooth.full_name" = "%3$@ %1$@ %2$@";
+"tooth.typical_age" = "Apparaît généralement vers %d–%d mois";
+"tooth.accessibility" = "%1$@, dent %2$d, %3$@";
+
+"editor.current_status" = "État actuel";
+"editor.date" = "Date";
+"editor.choose_date" = "Choisir la date";
+"editor.note" = "Note";
+"editor.note_placeholder" = "Symptômes, sommeil, traitement, dosage…";
+"editor.mark_teething" = "Marquer poussée";
+"editor.mark_erupted" = "Marquer percée";
+"editor.save_note" = "Enregistrer la note";
+"editor.reset" = "Réinitialiser la dent";
+"editor.reset_title" = "Réinitialiser cette dent ?";
+"editor.reset_body" = "Les dates et la note de cette dent seront supprimées.";
+"editor.invalid_date_order" = "La date de sortie ne peut pas précéder le début de poussée.";
+
+"history.title" = "Historique des sorties";
+"history.subtitle" = "Les dents percées sont classées par date.";
+"history.empty_title" = "Aucune dent percée pour le moment";
+"history.empty_body" = "Les dents marquées apparaîtront automatiquement ici.";
+"history.erupted_on" = "Percée le %@";
+
+"more.title" = "Vos données";
+"more.subtitle" = "Tout reste sur cet appareil. Aucun compte, aucun serveur et aucun suivi.";
+"more.export_title" = "Récapitulatif PDF";
+"more.export_body" = "Créez un document local à partager avec le pédiatre ou à joindre au carnet de santé.";
+"more.export_button" = "Exporter le récapitulatif PDF";
+"more.help_title" = "Aide et confidentialité";
+"more.support" = "Contacter le support";
+"more.privacy" = "Politique de confidentialité";
+"more.medical_disclaimer" = "Petites Dents est un carnet personnel, pas un dispositif médical. En cas d’inquiétude, contactez un professionnel de santé.";
+
+"tips.title" = "Soutenir Petites Dents";
+"tips.body" = "Les dons sont facultatifs et ne débloquent rien. L’app complète reste toujours gratuite.";
+"tips.loading" = "Chargement des dons facultatifs…";
+"tips.unavailable" = "Les dons sont temporairement indisponibles.";
+"tips.thanks" = "Merci pour votre soutien !";
+"tips.cafe" = "Café";
+"tips.merci" = "Grand merci";
+"tips.soutien" = "Beau soutien";
+
+"pdf.title" = "Petites Dents — récapitulatif des dents de lait";
+"pdf.generated" = "Généré le %@";
+"pdf.summary" = "%d percée(s) · %d en poussée · %d pas commencée(s)";
+"pdf.no_date" = "Aucune date";
+"pdf.teething" = "Poussée : %@";
+"pdf.erupted" = "Percée : %@";
+"pdf.note" = "Note : %@";
+"pdf.filename" = "recapitulatif-petites-dents.pdf";
+"pdf.incomplete" = "Le catalogue complet des 20 dents est requis pour exporter un PDF.";
+
+"seed.note.71" = "Joues rouges et nuit agitée.";
+"seed.note.81" = "La deuxième incisive centrale est sortie cette semaine.";
+"seed.note.61" = "L’anneau de dentition froid a aidé.";
+"seed.note.51" = "La gencive semble un peu gonflée.";
+
+"common.close" = "Fermer";
+"common.cancel" = "Annuler";
+"common.error" = "Une erreur est survenue";
+"common.ok" = "OK";

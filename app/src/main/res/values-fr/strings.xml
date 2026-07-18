@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Petites Dents</string>
+    <string name="tab_teeth">Dents</string>
+    <string name="tab_history">Historique</string>
+    <string name="tab_more">Plus</string>
+
+    <string name="mouth_title">Les dents de bébé</string>
+    <string name="mouth_subtitle">Touchez une dent pour noter la poussée, la sortie et vos observations.</string>
+    <string name="progress_erupted">%1$d dent(s) sortie(s) sur 20</string>
+    <string name="upper_arch">Arcade du haut</string>
+    <string name="lower_arch">Arcade du bas</string>
+    <string name="scroll_hint">Faites glisser chaque arcade pour voir toutes les dents.</string>
+    <string name="state_ghost">Pas commencée</string>
+    <string name="state_teething">En poussée</string>
+    <string name="state_erupted">Percée</string>
+    <string name="legend_title">État</string>
+
+    <string name="arch_upper">supérieure</string>
+    <string name="arch_lower">inférieure</string>
+    <string name="side_left">gauche</string>
+    <string name="side_right">droite</string>
+    <string name="kind_central_incisor">incisive centrale</string>
+    <string name="kind_lateral_incisor">incisive latérale</string>
+    <string name="kind_canine">canine</string>
+    <string name="kind_first_molar">première molaire</string>
+    <string name="kind_second_molar">deuxième molaire</string>
+    <string name="tooth_full_name">%3$s %1$s %2$s</string>
+    <string name="tooth_accessibility">%1$s, dent %2$s, %3$s</string>
+    <string name="typical_age">Apparaît généralement vers %1$d–%2$d mois</string>
+
+    <string name="editor_title">Détail de la dent</string>
+    <string name="current_status">État actuel : %1$s</string>
+    <string name="date_label">Date</string>
+    <string name="date_today">Aujourd’hui</string>
+    <string name="choose_date">Choisir la date</string>
+    <string name="note_label">Note</string>
+    <string name="note_placeholder">Symptômes, sommeil, traitement, dosage…</string>
+    <string name="save_note">Enregistrer la note</string>
+    <string name="mark_teething">Marquer poussée</string>
+    <string name="mark_erupted">Marquer percée</string>
+    <string name="reset_tooth">Réinitialiser la dent</string>
+    <string name="close">Fermer</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm_reset_title">Réinitialiser cette dent ?</string>
+    <string name="confirm_reset_body">Les dates et la note de cette dent seront supprimées.</string>
+    <string name="invalid_date_order">La date de sortie ne peut pas précéder le début de poussée.</string>
+
+    <string name="history_title">Historique des sorties</string>
+    <string name="history_subtitle">Les dents percées sont classées par date.</string>
+    <string name="history_empty_title">Aucune dent percée pour le moment</string>
+    <string name="history_empty_body">Les dents marquées apparaîtront automatiquement ici.</string>
+    <string name="teething_started">Poussée commencée le %1$s</string>
+    <string name="erupted_on">Percée le %1$s</string>
+
+    <string name="more_title">Vos données</string>
+    <string name="more_subtitle">Tout reste sur ce téléphone. Aucun compte, aucun serveur et aucun suivi.</string>
+    <string name="export_pdf">Exporter le récapitulatif PDF</string>
+    <string name="export_pdf_detail">Crée un document local à partager avec le pédiatre ou à joindre au carnet de santé.</string>
+    <string name="share_pdf">Partager le récapitulatif Petites Dents</string>
+    <string name="export_failed">Le PDF n’a pas pu être créé. Réessayez.</string>
+    <string name="support_title">Aide et confidentialité</string>
+    <string name="support">Contacter le support</string>
+    <string name="privacy">Politique de confidentialité</string>
+    <string name="medical_disclaimer">Petites Dents est un carnet personnel, pas un dispositif médical. En cas d’inquiétude, contactez un professionnel de santé.</string>
+
+    <string name="pdf_title">Petites Dents — récapitulatif des dents de lait</string>
+    <string name="pdf_generated">Généré le %1$s</string>
+    <string name="pdf_summary">%1$d percée(s) · %2$d en poussée · %3$d pas commencée(s)</string>
+    <string name="pdf_no_date">Aucune date</string>
+    <string name="pdf_teething">Poussée : %1$s</string>
+    <string name="pdf_erupted">Percée : %1$s</string>
+    <string name="pdf_note">Note : %1$s</string>
+    <string name="pdf_filename">recapitulatif-petites-dents.pdf</string>
+</resources>

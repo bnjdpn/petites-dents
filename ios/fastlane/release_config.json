@@ -1,0 +1,98 @@
+{
+  "app_name": "Petites Dents",
+  "app_slug": "PetitesDents",
+  "app_store_name": "Petites Dents: Baby Teeth",
+  "bundle_id": "com.bnjdpn.petitesdents",
+  "sku": "petites-dents-ios",
+  "team_id": "767SX34A7Z",
+  "project": "ios/PetitesDents.xcodeproj",
+  "scheme": "PetitesDents",
+  "version": "1.0.0",
+  "primary_locale": "en-US",
+  "artifact_root": "Builds/AppStore/PetitesDents",
+  "temporary_state_root": "/private/tmp/apps-factory/PetitesDents",
+  "app_preview_applicable": false,
+  "app_preview_policy": {
+    "applicable": false,
+    "review_each_release": true,
+    "reason": "Petites Dents is a static local record with no app-owned deterministic motion source. Its interaction model and complete feature set are accurately represented by the current localized screenshot matrix."
+  },
+  "required_screenshot_display_types": [
+    "APP_IPHONE_67",
+    "APP_IPAD_PRO_3GEN_129"
+  ],
+  "media_locales": [
+    "en-US",
+    "en-GB",
+    "fr-FR"
+  ],
+  "screenshot_scenes": [
+    "01_Mouth",
+    "02_ToothDetail",
+    "03_History",
+    "04_ExportAndSupport"
+  ],
+  "simulator_runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "simulators": [
+    {
+      "name_suffix": "iPhone-17-Pro-Max",
+      "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max",
+      "screenshot_type": "APP_IPHONE_67",
+      "screenshot_dimensions": [1320, 2868]
+    },
+    {
+      "name_suffix": "iPad-Pro-13-M4",
+      "device_type": "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4-8GB",
+      "screenshot_type": "APP_IPAD_PRO_3GEN_129",
+      "screenshot_dimensions": [2064, 2752]
+    }
+  ],
+  "price": "0.00",
+  "pricing": {
+    "target_price": "0.00",
+    "territory": "FRA"
+  },
+  "iap": [
+    {
+      "product_id": "com.bnjdpn.petitesdents.tip.cafe",
+      "reference_name": "Petites Dents Tip Cafe",
+      "type": "CONSUMABLE",
+      "price_fra": "0.99",
+      "localizations": {
+        "en-US": { "name": "Coffee", "description": "Optional tip. Unlocks no features." },
+        "en-GB": { "name": "Coffee", "description": "Optional tip. Unlocks no features." },
+        "fr-FR": { "name": "Café", "description": "Don facultatif. Ne débloque aucune fonctionnalité." }
+      }
+    },
+    {
+      "product_id": "com.bnjdpn.petitesdents.tip.merci",
+      "reference_name": "Petites Dents Tip Merci",
+      "type": "CONSUMABLE",
+      "price_fra": "2.99",
+      "localizations": {
+        "en-US": { "name": "Big thanks", "description": "Optional tip. Unlocks no features." },
+        "en-GB": { "name": "Big thanks", "description": "Optional tip. Unlocks no features." },
+        "fr-FR": { "name": "Grand merci", "description": "Don facultatif. Ne débloque aucune fonctionnalité." }
+      }
+    },
+    {
+      "product_id": "com.bnjdpn.petitesdents.tip.soutien",
+      "reference_name": "Petites Dents Tip Soutien",
+      "type": "CONSUMABLE",
+      "price_fra": "5.99",
+      "localizations": {
+        "en-US": { "name": "Strong support", "description": "Optional tip. Unlocks no features." },
+        "en-GB": { "name": "Strong support", "description": "Optional tip. Unlocks no features." },
+        "fr-FR": { "name": "Beau soutien", "description": "Don facultatif. Ne débloque aucune fonctionnalité." }
+      }
+    }
+  ],
+  "iap_products": [
+    "com.bnjdpn.petitesdents.tip.cafe",
+    "com.bnjdpn.petitesdents.tip.merci",
+    "com.bnjdpn.petitesdents.tip.soutien"
+  ],
+  "iap_review_screenshot": "../Builds/AppStore/PetitesDents/iap-review/tip-jar-settings.png",
+  "leaderboard_ids": [],
+  "leaderboards": []
+}

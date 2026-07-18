@@ -1,0 +1,85 @@
+"tab.teeth" = "Teeth";
+"tab.history" = "History";
+"tab.more" = "More";
+
+"mouth.title" = "Baby teeth";
+"mouth.subtitle" = "Tap a tooth to record teething, eruption and notes.";
+"mouth.progress" = "%d of 20 erupted";
+"mouth.upper_arch" = "Upper arch";
+"mouth.lower_arch" = "Lower arch";
+"mouth.scroll_hint" = "Swipe each arch to see every tooth.";
+"legend.title" = "Status";
+
+"arch.upper" = "upper";
+"arch.lower" = "lower";
+"side.left" = "left";
+"side.right" = "right";
+"kind.central_incisor" = "central incisor";
+"kind.lateral_incisor" = "lateral incisor";
+"kind.canine" = "canine";
+"kind.first_molar" = "first molar";
+"kind.second_molar" = "second molar";
+"state.ghost" = "Not started";
+"state.teething" = "Teething";
+"state.erupted" = "Erupted";
+"tooth.full_name" = "%1$@ %2$@ %3$@";
+"tooth.typical_age" = "Usually appears around %d–%d months";
+"tooth.accessibility" = "%1$@, tooth %2$d, %3$@";
+
+"editor.current_status" = "Current status";
+"editor.date" = "Date";
+"editor.choose_date" = "Choose date";
+"editor.note" = "Notes";
+"editor.note_placeholder" = "Symptoms, sleep, treatment, dosage…";
+"editor.mark_teething" = "Mark teething";
+"editor.mark_erupted" = "Mark erupted";
+"editor.save_note" = "Save note";
+"editor.reset" = "Reset tooth";
+"editor.reset_title" = "Reset this tooth?";
+"editor.reset_body" = "The dates and note for this tooth will be deleted.";
+"editor.invalid_date_order" = "The eruption date cannot be before the teething date.";
+
+"history.title" = "Eruption history";
+"history.subtitle" = "Erupted teeth are sorted by date.";
+"history.empty_title" = "No erupted teeth yet";
+"history.empty_body" = "Marked teeth will appear here automatically.";
+"history.erupted_on" = "Erupted %@";
+
+"more.title" = "Your data";
+"more.subtitle" = "Everything stays on this device. No account, no server and no tracking.";
+"more.export_title" = "PDF summary";
+"more.export_body" = "Create a local report to share with a paediatrician or keep with the health record.";
+"more.export_button" = "Export PDF summary";
+"more.help_title" = "Help & Privacy";
+"more.support" = "Contact support";
+"more.privacy" = "Privacy policy";
+"more.medical_disclaimer" = "Petites Dents is a personal log, not a medical device. Contact a healthcare professional if you are concerned.";
+
+"tips.title" = "Support Petites Dents";
+"tips.body" = "Optional tips unlock nothing. The complete app always remains free.";
+"tips.loading" = "Loading optional tips…";
+"tips.unavailable" = "Tips are temporarily unavailable.";
+"tips.thanks" = "Thank you for your support!";
+"tips.cafe" = "Coffee";
+"tips.merci" = "Big thanks";
+"tips.soutien" = "Strong support";
+
+"pdf.title" = "Petites Dents — baby teeth summary";
+"pdf.generated" = "Generated %@";
+"pdf.summary" = "%d erupted · %d teething · %d not started";
+"pdf.no_date" = "No date";
+"pdf.teething" = "Teething: %@";
+"pdf.erupted" = "Erupted: %@";
+"pdf.note" = "Note: %@";
+"pdf.filename" = "petites-dents-summary.pdf";
+"pdf.incomplete" = "The complete 20-tooth catalog is required to export a PDF.";
+
+"seed.note.71" = "Red cheeks and a restless night.";
+"seed.note.81" = "The second central incisor appeared this week.";
+"seed.note.61" = "Cold teething ring helped.";
+"seed.note.51" = "Gums look slightly swollen.";
+
+"common.close" = "Close";
+"common.cancel" = "Cancel";
+"common.error" = "Something went wrong";
+"common.ok" = "OK";

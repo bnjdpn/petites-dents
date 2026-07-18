@@ -1,0 +1,447 @@
+# frozen_string_literal: true
+
+require "fileutils"
+require "json"
+require "openssl"
+require "pathname"
+require "rbconfig"
+require "shellwords"
+require "time"
+
+default_platform(:ios)
+skip_docs
+
+PETITES_DENTS_REPO_ROOT = File.expand_path("../..", __dir__)
+PETITES_DENTS_IOS_ROOT = File.join(PETITES_DENTS_REPO_ROOT, "ios")
+PETITES_DENTS_CONFIG_PATH = File.join(__dir__, "release_config.json")
+PETITES_DENTS_BUNDLE_ID = "com.bnjdpn.petitesdents"
+PETITES_DENTS_SCHEME = "PetitesDents"
+PETITES_DENTS_VERSION = "1.0.0"
+PETITES_DENTS_TEAM_ID = "767SX34A7Z"
+
+def petites_dents_config
+  @petites_dents_config ||= JSON.parse(File.read(PETITES_DENTS_CONFIG_PATH))
+end
+
+def petites_dents_run_id
+  candidate = ENV.fetch(
+    "PETITES_DENTS_RELEASE_RUN_ID",
+    Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+  )
+  unless candidate.match?(/\A[A-Za-z0-9][A-Za-z0-9_-]{0,63}\z/)
+    UI.user_error!("Invalid PETITES_DENTS_RELEASE_RUN_ID: #{candidate.inspect}")
+  end
+  ENV["PETITES_DENTS_RELEASE_RUN_ID"] = candidate
+  @petites_dents_run_id ||= candidate
+end
+
+def petites_dents_repo_path(*components)
+  candidate = File.expand_path(File.join(PETITES_DENTS_REPO_ROOT, *components))
+  prefix = "#{File.realpath(PETITES_DENTS_REPO_ROOT)}#{File::SEPARATOR}"
+  UI.user_error!("Path escaped Petites Dents repository: #{candidate}") unless candidate.start_with?(prefix)
+
+  current = PETITES_DENTS_REPO_ROOT
+  Pathname.new(candidate).relative_path_from(Pathname.new(PETITES_DENTS_REPO_ROOT)).each_filename do |component|
+    current = File.join(current, component)
+    UI.user_error!("Path traverses a symbolic link: #{current}") if File.symlink?(current)
+  end
+  candidate
+end
+
+def petites_dents_run_root
+  petites_dents_repo_path(
+    petites_dents_config.fetch("artifact_root"),
+    petites_dents_run_id
+  )
+end
+
+def petites_dents_release_path(name)
+  petites_dents_repo_path(
+    petites_dents_config.fetch("artifact_root"),
+    petites_dents_run_id,
+    name
+  )
+end
+
+def petites_dents_prepare_release_paths
+  %w[screenshots app_previews archives logs].each do |directory|
+    FileUtils.mkdir_p(petites_dents_release_path(directory))
+  end
+  temporary = File.join(
+    petites_dents_config.fetch("temporary_state_root"),
+    petites_dents_run_id,
+    "ios-release"
+  )
+  FileUtils.mkdir_p(temporary)
+  temporary
+end
+
+def petites_dents_load_api_key
+  key_path = ENV["ASC_API_KEY_PATH"]
+  if !key_path.to_s.empty?
+    expanded = File.expand_path(key_path)
+    UI.user_error!("ASC API key does not exist: #{expanded}") unless File.file?(expanded)
+    stored = JSON.parse(File.read(expanded))
+    key_id = stored["key_id"]
+    issuer_id = stored["issuer_id"]
+    key_content = stored["key"] || stored["key_content"]
+    is_base64 = stored["is_key_content_base64"] == true
+  else
+    key_id = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+    issuer_id = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+    key_content = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+    is_base64 = ENV["APP_STORE_CONNECT_API_KEY_IS_BASE64"] == "1"
+  end
+
+  UI.user_error!("Missing App Store Connect key id") if key_id.to_s.empty?
+  UI.user_error!("Missing App Store Connect issuer id") if issuer_id.to_s.empty?
+  UI.user_error!("Missing App Store Connect private key") if key_content.to_s.empty?
+
+  app_store_connect_api_key(
+    key_id: key_id,
+    issuer_id: issuer_id,
+    key_content: key_content,
+    is_key_content_base64: is_base64,
+    in_house: false
+  )
+end
+
+def petites_dents_run_asc_tool(command, *arguments)
+  script = File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "#{command}.rb")
+  UI.user_error!("Missing app-local ASC tool: #{script}") unless File.file?(script)
+  tool_arguments = [*arguments, "--config", PETITES_DENTS_CONFIG_PATH]
+  key_path = ENV["ASC_API_KEY_PATH"]
+  tool_arguments.concat(["--key-path", File.expand_path(key_path)]) unless key_path.to_s.empty?
+  sh(RbConfig.ruby, script, *tool_arguments)
+end
+
+def petites_dents_review_information
+  values = {
+    first_name: ENV["ASC_REVIEW_FIRST_NAME"],
+    last_name: ENV["ASC_REVIEW_LAST_NAME"],
+    phone_number: ENV["ASC_REVIEW_PHONE_NUMBER"],
+    email_address: ENV["ASC_REVIEW_EMAIL_ADDRESS"]
+  }
+  missing = values.select { |_key, value| value.to_s.strip.empty? }.keys
+  UI.user_error!("Missing private App Review contact values: #{missing.join(', ')}") unless missing.empty?
+  notes_path = File.join(__dir__, "metadata", "review_information", "notes.txt")
+  values.merge(notes: File.read(notes_path).strip)
+end
+
+def petites_dents_next_build_number(api_key:)
+  latest = app_store_build_number(
+    api_key: api_key,
+    app_identifier: PETITES_DENTS_BUNDLE_ID,
+    version: PETITES_DENTS_VERSION,
+    live: false,
+    initial_build_number: 0
+  )
+  [latest.to_i + 1, 1].max
+end
+
+def petites_dents_setup_signing(api_key)
+  temporary = petites_dents_prepare_release_paths
+  signing_path = File.join(temporary, "signing")
+  FileUtils.mkdir_p(signing_path)
+  get_certificates(
+    api_key: api_key,
+    platform: "ios",
+    team_id: PETITES_DENTS_TEAM_ID,
+    output_path: signing_path
+  )
+  certificate_path = lane_context[SharedValues::CERT_FILE_PATH]
+  certificate_id = lane_context[SharedValues::CERT_CERTIFICATE_ID]
+  UI.user_error!("Apple Distribution certificate was not downloaded") unless File.file?(certificate_path)
+  UI.user_error!("Apple Distribution certificate id is missing") if certificate_id.to_s.empty?
+
+  certificate = OpenSSL::X509::Certificate.new(File.binread(certificate_path))
+  @petites_dents_certificate_sha1 = OpenSSL::Digest::SHA1.hexdigest(certificate.to_der).upcase
+  get_provisioning_profile(
+    api_key: api_key,
+    app_identifier: PETITES_DENTS_BUNDLE_ID,
+    platform: "ios",
+    team_id: PETITES_DENTS_TEAM_ID,
+    force: true,
+    cert_id: certificate_id,
+    provisioning_name: "PetitesDents_AppStore",
+    output_path: signing_path
+  )
+  @petites_dents_profile_name = lane_context[SharedValues::SIGH_NAME]
+  UI.user_error!("Petites Dents App Store profile is missing") if @petites_dents_profile_name.to_s.empty?
+end
+
+def petites_dents_signing_xcargs(build_number)
+  [
+    "MARKETING_VERSION=#{PETITES_DENTS_VERSION}",
+    "CURRENT_PROJECT_VERSION=#{build_number}",
+    "CODE_SIGN_STYLE=Manual",
+    "DEVELOPMENT_TEAM=#{PETITES_DENTS_TEAM_ID}",
+    "CODE_SIGN_IDENTITY=#{@petites_dents_certificate_sha1.shellescape}",
+    "PROVISIONING_PROFILE_SPECIFIER=#{@petites_dents_profile_name.shellescape}"
+  ].join(" ")
+end
+
+def petites_dents_export_options
+  {
+    method: "app-store-connect",
+    signingStyle: "manual",
+    teamID: PETITES_DENTS_TEAM_ID,
+    signingCertificate: @petites_dents_certificate_sha1,
+    provisioningProfiles: {
+      PETITES_DENTS_BUNDLE_ID => @petites_dents_profile_name
+    }
+  }
+end
+
+def petites_dents_release_manifest_path
+  petites_dents_release_path("logs/release.json")
+end
+
+def petites_dents_write_release_manifest(build_number:, ipa:)
+  payload = {
+    "app" => "Petites Dents",
+    "bundle_id" => PETITES_DENTS_BUNDLE_ID,
+    "version" => PETITES_DENTS_VERSION,
+    "build" => build_number.to_s,
+    "run_id" => petites_dents_run_id,
+    "ipa" => File.expand_path(ipa)
+  }
+  File.write(petites_dents_release_manifest_path, JSON.pretty_generate(payload))
+  payload
+end
+
+def petites_dents_release_manifest
+  path = petites_dents_release_manifest_path
+  UI.user_error!("Missing release manifest: #{path}; run build_release first") unless File.file?(path)
+  payload = JSON.parse(File.read(path))
+  UI.user_error!("Release manifest bundle mismatch") unless payload["bundle_id"] == PETITES_DENTS_BUNDLE_ID
+  UI.user_error!("Release manifest version mismatch") unless payload["version"] == PETITES_DENTS_VERSION
+  payload
+end
+
+def petites_dents_strict_status(expected_build:, require_submission: false)
+  arguments = [
+    "--version", PETITES_DENTS_VERSION,
+    "--expected-build", expected_build.to_s,
+    "--strict",
+    "--require-selected-build"
+  ]
+  arguments << "--require-review-submission" if require_submission
+  petites_dents_run_asc_tool("status", *arguments)
+end
+
+def petites_dents_review_workflow(command:, expected_build:)
+  output = petites_dents_run_asc_tool(
+    "review_submission",
+    command,
+    "--version", PETITES_DENTS_VERSION,
+    "--expected-build", expected_build.to_s,
+    "--apply",
+    "--wait-timeout", "1800",
+    "--poll-interval", "30",
+    "--json"
+  )
+  json_line = output.to_s.lines.reverse.find { |line| line.lstrip.start_with?("{") }
+  UI.user_error!("Review helper returned no JSON result") unless json_line
+  JSON.parse(json_line)
+rescue JSON::ParserError => error
+  UI.user_error!("Invalid review helper result: #{error.message}")
+end
+
+def petites_dents_iap_review_screenshot
+  File.join(
+    petites_dents_release_path("screenshots"),
+    "fr-FR",
+    "PetitesDents_APP_IPHONE_67_04_ExportAndSupport.png"
+  )
+end
+
+platform :ios do
+  desc "Create or verify the bundle id, ASC app, version, and age rating"
+  lane :setup_asc do
+    petites_dents_run_asc_tool("setup_asc")
+  end
+
+  desc "Validate the complete local release contract without ASC writes"
+  lane :release_contract do
+    sh(RbConfig.ruby, File.join(PETITES_DENTS_IOS_ROOT, "scripts", "release_contract.rb"), "--check")
+  end
+
+  desc "Read live version, build, media, price, IAP, and review state"
+  lane :asc_status do
+    petites_dents_run_asc_tool("status", "--version", PETITES_DENTS_VERSION)
+  end
+
+  desc "Upload localized ASO metadata, age rating, and private review contact"
+  lane :metadata do
+    upload_to_app_store(
+      api_key: petites_dents_load_api_key,
+      app_identifier: PETITES_DENTS_BUNDLE_ID,
+      app_version: PETITES_DENTS_VERSION,
+      metadata_path: File.join(__dir__, "metadata"),
+      app_rating_config_path: File.join(__dir__, "metadata", "app_rating_config.json"),
+      app_review_information: petites_dents_review_information,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true,
+      run_precheck_before_submit: false
+    )
+  end
+
+  desc "Capture the complete localized screenshot matrix on run-owned simulators"
+  lane :screenshots do
+    petites_dents_prepare_release_paths
+    sh(
+      RbConfig.ruby,
+      File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "generate_screenshots.rb"),
+      "--app-root", PETITES_DENTS_REPO_ROOT,
+      "--run-id", petites_dents_run_id
+    )
+  end
+
+  desc "Document that App Preview video is not applicable for this release"
+  lane :app_previews do
+    policy = petites_dents_config.fetch("app_preview_policy")
+    UI.user_error!("App Preview policy must be reviewed for every release") unless policy["review_each_release"] == true
+    UI.user_error!("This lane only supports the declared non-applicable policy") unless policy["applicable"] == false
+    UI.message("No App Preview applicable: #{policy.fetch('reason')}")
+  end
+
+  desc "Validate source provenance and every locale-device-scene screenshot cell"
+  lane :media_contract do
+    sh(
+      RbConfig.ruby,
+      File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "media_contract.rb"),
+      "--run-root", petites_dents_run_root
+    )
+  end
+
+  desc "Upload only the current run's localized screenshots"
+  lane :upload_screenshots do
+    media_contract
+    upload_to_app_store(
+      api_key: petites_dents_load_api_key,
+      app_identifier: PETITES_DENTS_BUNDLE_ID,
+      app_version: PETITES_DENTS_VERSION,
+      screenshots_path: petites_dents_release_path("screenshots"),
+      skip_binary_upload: true,
+      skip_metadata: true,
+      overwrite_screenshots: true,
+      force: true,
+      run_precheck_before_submit: false
+    )
+  end
+
+  desc "Validate the non-applicable App Preview decision without uploading video"
+  lane :upload_previews do
+    app_previews
+    previews = Dir.glob(File.join(petites_dents_release_path("app_previews"), "**", "*.{mov,mp4}"))
+    UI.user_error!("Unexpected App Preview files for a non-applicable release") unless previews.empty?
+  end
+
+  desc "Build one signed App Store archive using the next live ASC build number"
+  lane :build_release do
+    temporary = petites_dents_prepare_release_paths
+    api_key = petites_dents_load_api_key
+    build_number = petites_dents_next_build_number(api_key: api_key)
+    petites_dents_setup_signing(api_key)
+    ipa = build_app(
+      project: File.join(PETITES_DENTS_IOS_ROOT, "PetitesDents.xcodeproj"),
+      scheme: PETITES_DENTS_SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: petites_dents_release_path("archives"),
+      output_name: "PetitesDents.ipa",
+      archive_path: File.join(petites_dents_release_path("archives"), "PetitesDents.xcarchive"),
+      derived_data_path: File.join(temporary, "DerivedData"),
+      buildlog_path: petites_dents_release_path("logs"),
+      xcargs: petites_dents_signing_xcargs(build_number),
+      export_options: petites_dents_export_options
+    )
+    ipa ||= File.join(petites_dents_release_path("archives"), "PetitesDents.ipa")
+    UI.user_error!("Expected App Store IPA was not produced: #{ipa}") unless File.file?(ipa)
+    petites_dents_write_release_manifest(build_number: build_number, ipa: ipa)
+  end
+
+  desc "Upload the exact run IPA and attach its processed build to version 1.0.0"
+  lane :upload_release do
+    manifest = petites_dents_release_manifest
+    ipa = manifest.fetch("ipa")
+    UI.user_error!("Release manifest IPA does not exist: #{ipa}") unless File.file?(ipa)
+    upload_to_app_store(
+      api_key: petites_dents_load_api_key,
+      app_identifier: PETITES_DENTS_BUNDLE_ID,
+      app_version: PETITES_DENTS_VERSION,
+      ipa: ipa,
+      skip_screenshots: true,
+      skip_metadata: true,
+      force: true,
+      run_precheck_before_submit: false
+    )
+    petites_dents_review_workflow(
+      command: "select-build",
+      expected_build: manifest.fetch("build")
+    )
+    petites_dents_strict_status(expected_build: manifest.fetch("build"))
+  end
+
+  desc "Submit the exact selected build and three optional tips for App Review"
+  lane :submit_review do
+    manifest = petites_dents_release_manifest
+    petites_dents_review_information
+    petites_dents_strict_status(expected_build: manifest.fetch("build"))
+    petites_dents_review_workflow(
+      command: "submit",
+      expected_build: manifest.fetch("build")
+    )
+    petites_dents_strict_status(
+      expected_build: manifest.fetch("build"),
+      require_submission: true
+    )
+  end
+
+  desc "Execute ASO, media, free pricing, tips, build, upload, submission, and readback"
+  lane :release_quick do
+    UI.message("Using release run #{petites_dents_run_id}")
+    release_contract
+    screenshots
+    media_contract
+    setup_asc
+    ENV["PETITES_DENTS_APPLY_ASC"] = "1"
+    ENV["IAP_REVIEW_SCREENSHOT"] = petites_dents_iap_review_screenshot
+    pricing
+    iap_sync
+    metadata
+    upload_screenshots
+    upload_previews
+    build_release
+    upload_release
+    asc_status
+    submit_review
+    manifest = petites_dents_release_manifest
+    petites_dents_strict_status(
+      expected_build: manifest.fetch("build"),
+      require_submission: true
+    )
+  end
+
+  desc "Read free pricing, or apply it with PETITES_DENTS_APPLY_ASC=1"
+  lane :pricing do
+    apply = ENV["PETITES_DENTS_APPLY_ASC"] == "1"
+    arguments = [apply ? "set" : "check", "--target-price", "0.00", "--territory", "FRA"]
+    arguments << "--apply" if apply
+    petites_dents_run_asc_tool("pricing", *arguments)
+  end
+
+  desc "Read current in-app purchase state"
+  lane :iap_status do
+    petites_dents_run_asc_tool("iap_status")
+  end
+
+  desc "Verify the three tips; mutation requires PETITES_DENTS_APPLY_ASC=1"
+  lane :iap_sync do
+    arguments = []
+    arguments << "--apply" if ENV["PETITES_DENTS_APPLY_ASC"] == "1"
+    petites_dents_run_asc_tool("iap_sync", *arguments)
+  end
+end

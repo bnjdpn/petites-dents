@@ -1,0 +1,5 @@
+Petites Dents is a private local log for the 20 primary teeth. Tap a tooth to record a teething date, an eruption date, and a free note. The History tab lists erupted teeth chronologically. The More tab creates a local PDF through the system share sheet.
+
+No account, server, advertising, analytics, tracking, or demo credentials are required. All dental records remain on the device. The app is a personal log and does not diagnose or provide medical treatment.
+
+The More tab also contains three optional consumable tips: Coffee, Big thanks, and Strong support. They unlock no feature, content, entitlement, service, or account. The complete app remains free. Tap any listed amount to display Apple's standard StoreKit purchase confirmation.

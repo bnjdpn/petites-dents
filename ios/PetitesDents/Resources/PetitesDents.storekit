@@ -1,0 +1,50 @@
+{
+  "identifier" : "A8EA6504-3FEC-41BC-A808-B9CA8F2D788D",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "DA44A6A6-A0DC-499F-A4D6-8B285F8E6C61",
+      "localizations" : [
+        { "description" : "Optional tip. Unlocks no features.", "displayName" : "Coffee", "locale" : "en_US" },
+        { "description" : "Don facultatif. Ne débloque aucune fonctionnalité.", "displayName" : "Café", "locale" : "fr_FR" }
+      ],
+      "productID" : "com.bnjdpn.petitesdents.tip.cafe",
+      "referenceName" : "Petites Dents Tip Cafe",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "FB3DDF2D-CAC8-434E-8826-053DBECA169D",
+      "localizations" : [
+        { "description" : "Optional tip. Unlocks no features.", "displayName" : "Big thanks", "locale" : "en_US" },
+        { "description" : "Don facultatif. Ne débloque aucune fonctionnalité.", "displayName" : "Grand merci", "locale" : "fr_FR" }
+      ],
+      "productID" : "com.bnjdpn.petitesdents.tip.merci",
+      "referenceName" : "Petites Dents Tip Merci",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "5.99",
+      "familyShareable" : false,
+      "internalID" : "3AA5061B-1EE0-46BA-A76E-09375466B1BE",
+      "localizations" : [
+        { "description" : "Optional tip. Unlocks no features.", "displayName" : "Strong support", "locale" : "en_US" },
+        { "description" : "Don facultatif. Ne débloque aucune fonctionnalité.", "displayName" : "Beau soutien", "locale" : "fr_FR" }
+      ],
+      "productID" : "com.bnjdpn.petitesdents.tip.soutien",
+      "referenceName" : "Petites Dents Tip Soutien",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "fr_FR",
+    "_storefront" : "FRA",
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [],
+  "version" : { "major" : 4, "minor" : 0 }
+}
