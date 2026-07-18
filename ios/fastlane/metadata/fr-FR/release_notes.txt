@@ -1,7 +1,3 @@
-Bienvenue dans Petites Dents.
-
-• Suivez les 20 dents de lait sur un schéma interactif des deux arcades.
-• Notez les dates de poussée et de percée ainsi que vos observations.
-• Consultez les dents percées dans l'ordre chronologique.
-• Exportez un récapitulatif PDF privé et local.
-• Utilisez toutes les fonctions sans compte, publicité, abonnement ni serveur.
+• Le schéma de bouche suit désormais la forme anatomique en fer à cheval des arcades du haut et du bas.
+• Les dents suivent des bandes de gencive courbes, s'adaptent aux écrans téléphone et tablette, et leur couleur indique uniquement leur état.
+• La tranche d'âge indicative reste disponible seulement dans la fiche de la dent sélectionnée.

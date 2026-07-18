@@ -4,9 +4,10 @@ import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,10 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +46,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bnjdpn.petitesdents.R
 import com.bnjdpn.petitesdents.data.ToothArch
@@ -95,34 +99,19 @@ fun MouthScreen(
                 .fillMaxWidth()
                 .padding(top = 18.dp),
         ) {
-            Column(modifier = Modifier.padding(vertical = 18.dp)) {
-                ToothArchRow(
+            Column(modifier = Modifier.padding(vertical = 16.dp)) {
+                ToothArchDiagram(
                     title = stringResource(R.string.upper_arch),
                     teeth = teeth.filter { it.definition.arch == ToothArch.UPPER },
-                    isUpper = true,
+                    arch = ToothArch.UPPER,
                     onSelect = onSelect,
                 )
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 28.dp, vertical = 8.dp)
-                        .height(42.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(CoralSoft.copy(alpha = 0.55f)),
-                )
-
-                ToothArchRow(
+                ToothArchDiagram(
                     title = stringResource(R.string.lower_arch),
                     teeth = teeth.filter { it.definition.arch == ToothArch.LOWER },
-                    isUpper = false,
+                    arch = ToothArch.LOWER,
                     onSelect = onSelect,
-                )
-                Text(
-                    text = stringResource(R.string.scroll_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
                 )
             }
         }
@@ -132,38 +121,78 @@ fun MouthScreen(
 }
 
 @Composable
-private fun ToothArchRow(
+private fun ToothArchDiagram(
     title: String,
     teeth: List<ToothSnapshot>,
-    isUpper: Boolean,
+    arch: ToothArch,
     onSelect: (ToothSnapshot) -> Unit,
 ) {
-    val offsets = if (isUpper) listOf(11, 7, 4, 2, 0, 0, 2, 4, 7, 11)
-    else listOf(0, 2, 4, 7, 11, 11, 7, 4, 2, 0)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 2.dp),
+        )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val diagramWidth = maxWidth
+            val diagramHeight = DentalArchGeometry.heightForWidth(diagramWidth.value).dp
+            val visualScale = (diagramWidth.value / 350f).coerceIn(0.92f, 2.40f)
+            val touchWidth = maxOf(48f, 40f * visualScale).dp
+            val touchHeight = maxOf(56f, 52f * visualScale).dp
+            val placements = DentalArchGeometry.placements(arch)
+            val teethByFdi = teeth.associateBy { it.definition.fdi }
+            val positionedTeeth = DentalArchGeometry.expectedFdis(arch).mapIndexedNotNull { index, fdi ->
+                teethByFdi[fdi]?.let { index to it }
+            }
 
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
-    )
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 12.dp),
-    ) {
-        teeth.forEachIndexed { index, tooth ->
-            Box(modifier = Modifier.padding(top = offsets[index].dp)) {
-                ToothButton(tooth = tooth, onClick = { onSelect(tooth) })
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(diagramHeight),
+            ) {
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    drawPath(
+                        path = gumPath(size, arch),
+                        color = CoralSoft.copy(alpha = 0.72f),
+                        style = Stroke(
+                            width = 42.dp.toPx() * visualScale,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round,
+                        ),
+                    )
+                }
+
+                positionedTeeth.forEach { (index, tooth) ->
+                    val placement = placements[index]
+                    ToothButton(
+                        tooth = tooth,
+                        toothRotation = placement.rotationDegrees,
+                        visualScale = visualScale,
+                        touchWidth = touchWidth,
+                        touchHeight = touchHeight,
+                        onClick = { onSelect(tooth) },
+                        modifier = Modifier.absoluteOffset(
+                            x = (diagramWidth.value * placement.xFraction).dp - touchWidth / 2,
+                            y = (diagramHeight.value * placement.yFraction).dp - touchHeight / 2,
+                        ),
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ToothButton(tooth: ToothSnapshot, onClick: () -> Unit) {
+private fun ToothButton(
+    tooth: ToothSnapshot,
+    toothRotation: Float,
+    visualScale: Float,
+    touchWidth: Dp,
+    touchHeight: Dp,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val name = tooth.definition.localizedName(context)
     val state = stringResource(tooth.record.status.stringResource)
@@ -175,15 +204,21 @@ private fun ToothButton(tooth: ToothSnapshot, onClick: () -> Unit) {
     )
     val outline = MaterialTheme.colorScheme.outline
     val fill = when (tooth.record.status) {
-        ToothStatus.GHOST -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f)
+        ToothStatus.GHOST -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.14f)
         ToothStatus.TEETHING -> Apricot
-        ToothStatus.ERUPTED -> Color(0xFFFFFEF8)
+        ToothStatus.ERUPTED -> Sage.copy(alpha = 0.30f)
     }
+    val strokeColor = when (tooth.record.status) {
+        ToothStatus.GHOST -> outline
+        ToothStatus.TEETHING -> Coral
+        ToothStatus.ERUPTED -> Sage
+    }
+    val (toothWidth, toothHeight) = toothVisualSize(tooth.definition.kind, visualScale)
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(width = 48.dp, height = 58.dp)
+        modifier = modifier
+            .size(width = touchWidth, height = touchHeight)
             .testTag("tooth-${tooth.definition.fdi}")
             .semantics(mergeDescendants = true) {
                 contentDescription = description
@@ -191,16 +226,24 @@ private fun ToothButton(tooth: ToothSnapshot, onClick: () -> Unit) {
             }
             .clickable(onClick = onClick),
     ) {
-        Canvas(modifier = Modifier.size(width = 36.dp, height = 46.dp)) {
-            val path = toothPath(size)
+        Canvas(
+            modifier = Modifier
+                .size(width = toothWidth, height = toothHeight)
+                .rotate(toothRotation),
+        ) {
+            val path = toothPath(size, tooth.definition.kind)
             drawPath(path, color = fill, style = Fill)
             drawPath(
                 path = path,
-                color = if (tooth.record.status == ToothStatus.TEETHING) Coral else outline,
+                color = strokeColor,
                 style = Stroke(
-                    width = if (tooth.record.status == ToothStatus.ERUPTED) 2.5f else 2f,
+                    width = if (tooth.record.status == ToothStatus.ERUPTED) {
+                        2.5.dp.toPx()
+                    } else {
+                        2.dp.toPx()
+                    },
                     pathEffect = if (tooth.record.status == ToothStatus.GHOST) {
-                        PathEffect.dashPathEffect(floatArrayOf(7f, 6f))
+                        PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx()))
                     } else null,
                 ),
             )
@@ -216,7 +259,72 @@ private fun ToothButton(tooth: ToothSnapshot, onClick: () -> Unit) {
     }
 }
 
-private fun toothPath(size: Size): Path = Path().apply {
+private fun toothVisualSize(kind: ToothKind, scale: Float): Pair<Dp, Dp> {
+    val (width, height) = when (kind) {
+        ToothKind.CENTRAL_INCISOR -> 27f to 39f
+        ToothKind.LATERAL_INCISOR -> 24f to 37f
+        ToothKind.CANINE -> 26f to 41f
+        ToothKind.FIRST_MOLAR -> 31f to 40f
+        ToothKind.SECOND_MOLAR -> 34f to 43f
+    }
+    return (width * scale).dp to (height * scale).dp
+}
+
+private fun gumPath(size: Size, arch: ToothArch): Path = Path().apply {
+    val outerY = if (arch == ToothArch.UPPER) size.height * 0.76f else size.height * 0.24f
+    val shoulderY = if (arch == ToothArch.UPPER) size.height * 0.43f else size.height * 0.57f
+    val centerY = if (arch == ToothArch.UPPER) size.height * 0.235f else size.height * 0.765f
+
+    moveTo(size.width * 0.090f, outerY)
+    cubicTo(
+        size.width * 0.12f,
+        shoulderY,
+        size.width * 0.28f,
+        centerY,
+        size.width * 0.50f,
+        centerY,
+    )
+    cubicTo(
+        size.width * 0.72f,
+        centerY,
+        size.width * 0.88f,
+        shoulderY,
+        size.width * 0.910f,
+        outerY,
+    )
+}
+
+private fun toothPath(size: Size, kind: ToothKind): Path = when (kind) {
+    ToothKind.CENTRAL_INCISOR, ToothKind.LATERAL_INCISOR -> incisorPath(size)
+    ToothKind.CANINE -> caninePath(size)
+    ToothKind.FIRST_MOLAR, ToothKind.SECOND_MOLAR -> molarPath(size)
+}
+
+private fun incisorPath(size: Size): Path = Path().apply {
+    val w = size.width
+    val h = size.height
+    moveTo(w * 0.50f, h * 0.04f)
+    cubicTo(w * 0.28f, -h * 0.01f, w * 0.10f, h * 0.11f, w * 0.14f, h * 0.29f)
+    cubicTo(w * 0.17f, h * 0.49f, w * 0.28f, h * 0.70f, w * 0.40f, h * 0.94f)
+    cubicTo(w * 0.44f, h * 1.01f, w * 0.56f, h * 1.01f, w * 0.60f, h * 0.94f)
+    cubicTo(w * 0.72f, h * 0.70f, w * 0.83f, h * 0.49f, w * 0.86f, h * 0.29f)
+    cubicTo(w * 0.90f, h * 0.11f, w * 0.72f, -h * 0.01f, w * 0.50f, h * 0.04f)
+    close()
+}
+
+private fun caninePath(size: Size): Path = Path().apply {
+    val w = size.width
+    val h = size.height
+    moveTo(w * 0.50f, h * 0.01f)
+    cubicTo(w * 0.40f, h * 0.10f, w * 0.10f, h * 0.13f, w * 0.13f, h * 0.34f)
+    cubicTo(w * 0.17f, h * 0.56f, w * 0.31f, h * 0.77f, w * 0.43f, h * 0.96f)
+    cubicTo(w * 0.46f, h * 1.01f, w * 0.54f, h * 1.01f, w * 0.57f, h * 0.96f)
+    cubicTo(w * 0.69f, h * 0.77f, w * 0.83f, h * 0.56f, w * 0.87f, h * 0.34f)
+    cubicTo(w * 0.90f, h * 0.13f, w * 0.60f, h * 0.10f, w * 0.50f, h * 0.01f)
+    close()
+}
+
+private fun molarPath(size: Size): Path = Path().apply {
     val w = size.width
     val h = size.height
     moveTo(w * 0.50f, h * 0.08f)

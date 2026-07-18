@@ -2,6 +2,29 @@ import XCTest
 
 @MainActor
 final class PetitesDentsUITests: XCTestCase {
+    func testAllTeethAreExposedAndRepresentativeTargetsOpenTheEditor() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        dismissAppleIntelligenceBannerIfNeeded()
+
+        XCTAssertTrue(app.scrollViews["screen.mouth"].waitForExistence(timeout: 10))
+        let expectedFDIs = [65, 64, 63, 62, 61, 51, 52, 53, 54, 55,
+                            75, 74, 73, 72, 71, 81, 82, 83, 84, 85]
+        for fdi in expectedFDIs {
+            XCTAssertTrue(app.buttons["tooth-\(fdi)"].exists, "Missing tooth \(fdi)")
+        }
+
+        for fdi in [65, 61, 55, 75, 71, 85] {
+            let tooth = app.buttons["tooth-\(fdi)"]
+            XCTAssertTrue(tooth.isHittable, "Tooth \(fdi) is not hittable")
+            tooth.tap()
+            XCTAssertTrue(app.datePickers["editor.date"].waitForExistence(timeout: 5))
+            app.buttons["editor.close"].tap()
+        }
+    }
+
     func testStoreScreenshots() throws {
         continueAfterFailure = false
         let app = XCUIApplication()

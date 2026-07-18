@@ -1,7 +1,3 @@
-Welcome to Petites Dents.
-
-• Follow all 20 primary teeth on an interactive upper and lower mouth diagram.
-• Record teething and eruption dates plus free notes.
-• Review erupted teeth in chronological order.
-• Export a private local PDF summary.
-• Use every feature without an account, advert, subscription, or server.
+• The mouth diagram now follows realistic horseshoe-shaped upper and lower dental arches.
+• Teeth sit along curved gum bands, scale cleanly across phone and tablet widths, and keep colours tied only to their status.
+• Indicative eruption ages remain available only in the selected tooth's detail sheet.

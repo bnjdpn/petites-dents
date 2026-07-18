@@ -16,7 +16,7 @@ PETITES_DENTS_IOS_ROOT = File.join(PETITES_DENTS_REPO_ROOT, "ios")
 PETITES_DENTS_CONFIG_PATH = File.join(__dir__, "release_config.json")
 PETITES_DENTS_BUNDLE_ID = "com.bnjdpn.petitesdents"
 PETITES_DENTS_SCHEME = "PetitesDents"
-PETITES_DENTS_VERSION = "1.0.0"
+PETITES_DENTS_VERSION = "1.0.1"
 PETITES_DENTS_TEAM_ID = "767SX34A7Z"
 
 def petites_dents_config
@@ -363,7 +363,7 @@ platform :ios do
     petites_dents_write_release_manifest(build_number: build_number, ipa: ipa)
   end
 
-  desc "Upload the exact run IPA and attach its processed build to version 1.0.0"
+  desc "Upload the exact run IPA and attach its processed build to version 1.0.1"
   lane :upload_release do
     manifest = petites_dents_release_manifest
     ipa = manifest.fetch("ipa")

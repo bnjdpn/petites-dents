@@ -14,7 +14,7 @@ end
 def parse_options(argv)
   options = {
     platform: "IOS",
-    version: "1.0.0",
+    version: "1.0.1",
     primary_locale: "en-US",
     config: File.join(app_root, "fastlane", "release_config.json"),
     key_path: ENV["ASC_API_KEY_PATH"] || File.join(app_root, "fastlane", "asc_api_key.json")
@@ -148,8 +148,9 @@ def ensure_app_store_version(client, app_id, version_string, platform)
   end
   return existing if existing
 
-  # Chrome creates the first editable version as `1.0`. Treat it as the same
-  # semantic version as the release contract's `1.0.0` and align it in place;
+  # App Store Connect may create the first editable version as `1.0`. Treat it
+  # as a semantic equivalent when the configured release matches it and align
+  # it in place;
   # ASC refuses a second version while that initial draft exists.
   equivalent = versions.find do |version|
     EDITABLE_APP_STORE_VERSION_STATES.include?(version.dig("attributes", "appStoreState")) &&
