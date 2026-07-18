@@ -14,7 +14,7 @@ end
 def parse_options(argv)
   options = {
     platform: "IOS",
-    version: "1.0.4",
+    version: "1.0.5",
     primary_locale: "en-US",
     config: File.join(app_root, "fastlane", "release_config.json"),
     key_path: ENV["ASC_API_KEY_PATH"] || File.join(app_root, "fastlane", "asc_api_key.json")

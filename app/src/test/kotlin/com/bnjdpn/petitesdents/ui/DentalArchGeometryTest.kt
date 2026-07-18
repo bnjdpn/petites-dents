@@ -32,6 +32,26 @@ class DentalArchGeometryTest {
     }
 
     @Test
+    fun everyToothCenterSitsOnTheGumCenterline() {
+        val expectedUpperY = listOf(
+            0.760f,
+            0.439536f,
+            0.324106f,
+            0.264567f,
+            0.238481f,
+            0.238481f,
+            0.264567f,
+            0.324106f,
+            0.439536f,
+            0.760f,
+        )
+
+        DentalArchGeometry.placements(ToothArch.UPPER).forEachIndexed { index, placement ->
+            assertEquals(expectedUpperY[index], placement.yFraction, 0.000001f)
+        }
+    }
+
+    @Test
     fun placementsAndRotationsAreSymmetric() {
         val upper = DentalArchGeometry.placements(ToothArch.UPPER)
         val lower = DentalArchGeometry.placements(ToothArch.LOWER)

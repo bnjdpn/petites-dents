@@ -156,7 +156,7 @@ private fun ToothArchDiagram(
                         path = gumPath(size, arch),
                         color = CoralSoft.copy(alpha = 0.72f),
                         style = Stroke(
-                            width = 42.dp.toPx() * visualScale,
+                            width = 44.dp.toPx() * visualScale,
                             cap = StrokeCap.Round,
                             join = StrokeJoin.Round,
                         ),
@@ -245,15 +245,17 @@ private fun ToothButton(
                 drawPath(
                     path = path,
                     color = if (tooth.record.status == ToothStatus.GHOST) {
-                        strokeColor.copy(alpha = 0.40f)
+                        strokeColor.copy(alpha = 0.55f)
                     } else {
                         strokeColor
                     },
                     style = Stroke(
                         width = 2.5.dp.toPx(),
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round,
                         pathEffect = if (tooth.record.status == ToothStatus.GHOST) {
                             PathEffect.dashPathEffect(
-                                floatArrayOf(4.dp.toPx(), 3.dp.toPx()),
+                                floatArrayOf(2.5.dp.toPx(), 2.dp.toPx()),
                             )
                         } else {
                             null
@@ -267,35 +269,50 @@ private fun ToothButton(
 
 private fun toothVisualSize(kind: ToothKind, scale: Float): Pair<Dp, Dp> {
     val (width, height) = when (kind) {
-        ToothKind.CENTRAL_INCISOR -> 27f to 39f
-        ToothKind.LATERAL_INCISOR -> 24f to 37f
-        ToothKind.CANINE -> 26f to 41f
-        ToothKind.FIRST_MOLAR -> 31f to 40f
-        ToothKind.SECOND_MOLAR -> 34f to 43f
+        ToothKind.CENTRAL_INCISOR -> 32f to 44f
+        ToothKind.LATERAL_INCISOR -> 30f to 43f
+        ToothKind.CANINE -> 31f to 45f
+        ToothKind.FIRST_MOLAR -> 34f to 46f
+        ToothKind.SECOND_MOLAR -> 36f to 48f
     }
     return (width * scale).dp to (height * scale).dp
 }
 
 private fun gumPath(size: Size, arch: ToothArch): Path = Path().apply {
-    val outerY = if (arch == ToothArch.UPPER) size.height * 0.76f else size.height * 0.24f
-    val shoulderY = if (arch == ToothArch.UPPER) size.height * 0.43f else size.height * 0.57f
-    val centerY = if (arch == ToothArch.UPPER) size.height * 0.235f else size.height * 0.765f
+    val outerYFraction = if (arch == ToothArch.UPPER) {
+        DentalArchGeometry.GUM_OUTER_Y
+    } else {
+        1f - DentalArchGeometry.GUM_OUTER_Y
+    }
+    val shoulderYFraction = if (arch == ToothArch.UPPER) {
+        DentalArchGeometry.GUM_SHOULDER_Y
+    } else {
+        1f - DentalArchGeometry.GUM_SHOULDER_Y
+    }
+    val centerYFraction = if (arch == ToothArch.UPPER) {
+        DentalArchGeometry.GUM_CENTER_Y
+    } else {
+        1f - DentalArchGeometry.GUM_CENTER_Y
+    }
+    val outerY = size.height * outerYFraction
+    val shoulderY = size.height * shoulderYFraction
+    val centerY = size.height * centerYFraction
 
-    moveTo(size.width * 0.090f, outerY)
+    moveTo(size.width * DentalArchGeometry.GUM_OUTER_X, outerY)
     cubicTo(
-        size.width * 0.12f,
+        size.width * DentalArchGeometry.GUM_CONTROL_1_X,
         shoulderY,
-        size.width * 0.28f,
+        size.width * DentalArchGeometry.GUM_CONTROL_2_X,
         centerY,
-        size.width * 0.50f,
+        size.width * DentalArchGeometry.GUM_CENTER_X,
         centerY,
     )
     cubicTo(
-        size.width * 0.72f,
+        size.width * (1f - DentalArchGeometry.GUM_CONTROL_2_X),
         centerY,
-        size.width * 0.88f,
+        size.width * (1f - DentalArchGeometry.GUM_CONTROL_1_X),
         shoulderY,
-        size.width * 0.910f,
+        size.width * (1f - DentalArchGeometry.GUM_OUTER_X),
         outerY,
     )
 }
@@ -303,13 +320,13 @@ private fun gumPath(size: Size, arch: ToothArch): Path = Path().apply {
 private fun detailedToothPath(size: Size): Path = Path().apply {
     val w = size.width
     val h = size.height
-    moveTo(w * 0.50f, h * 0.08f)
-    cubicTo(w * 0.28f, -h * 0.02f, w * 0.10f, h * 0.12f, w * 0.14f, h * 0.35f)
-    cubicTo(w * 0.18f, h * 0.58f, w * 0.26f, h * 0.88f, w * 0.38f, h * 0.93f)
-    cubicTo(w * 0.46f, h * 0.96f, w * 0.44f, h * 0.72f, w * 0.50f, h * 0.70f)
-    cubicTo(w * 0.56f, h * 0.72f, w * 0.54f, h * 0.96f, w * 0.62f, h * 0.93f)
-    cubicTo(w * 0.74f, h * 0.88f, w * 0.82f, h * 0.58f, w * 0.86f, h * 0.35f)
-    cubicTo(w * 0.90f, h * 0.12f, w * 0.72f, -h * 0.02f, w * 0.50f, h * 0.08f)
+    moveTo(w * 0.50f, h * 0.06f)
+    cubicTo(w * 0.25f, -h * 0.03f, w * 0.08f, h * 0.12f, w * 0.13f, h * 0.36f)
+    cubicTo(w * 0.18f, h * 0.62f, w * 0.22f, h * 0.90f, w * 0.32f, h * 0.96f)
+    cubicTo(w * 0.40f, h, w * 0.41f, h * 0.64f, w * 0.50f, h * 0.60f)
+    cubicTo(w * 0.59f, h * 0.64f, w * 0.60f, h, w * 0.68f, h * 0.96f)
+    cubicTo(w * 0.78f, h * 0.90f, w * 0.82f, h * 0.62f, w * 0.87f, h * 0.36f)
+    cubicTo(w * 0.92f, h * 0.12f, w * 0.75f, -h * 0.03f, w * 0.50f, h * 0.06f)
     close()
 }
 

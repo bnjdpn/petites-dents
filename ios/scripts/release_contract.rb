@@ -12,7 +12,7 @@ module PetitesDentsReleaseContract
   APP_NAME = "Petites Dents"
   BUNDLE_ID = "com.bnjdpn.petitesdents"
   TEAM_ID = "767SX34A7Z"
-  VERSION = "1.0.4"
+  VERSION = "1.0.5"
   SUPPORT_URL = "https://bnjdpn.github.io/petites-dents/#contact"
   PRIVACY_URL = "https://bnjdpn.github.io/petites-dents/privacy.html"
   FORMSPREE_ENDPOINT = "https://formspree.io/f/mykqbyyw"
@@ -91,8 +91,8 @@ module PetitesDentsReleaseContract
       android = read("app/build.gradle.kts")
       if android
         add("Android application id mismatch") unless android.include?('applicationId = "com.bnjdpn.petitesdents"')
-        add("Android version mismatch") unless android.include?('versionName = "1.0.4"')
-        add("Android version code mismatch") unless android.include?("versionCode = 5")
+        add("Android version mismatch") unless android.include?('versionName = "1.0.5"')
+        add("Android version code mismatch") unless android.include?("versionCode = 6")
         add("Android target SDK must be 36") unless android.include?("targetSdk = 36")
       end
 

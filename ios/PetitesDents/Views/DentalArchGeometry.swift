@@ -7,6 +7,14 @@ struct DentalArchPlacement: Equatable {
 }
 
 enum DentalArchGeometry {
+    static let gumOuterX: CGFloat = 0.090
+    static let gumOuterY: CGFloat = 0.760
+    static let gumControl1X: CGFloat = 0.120
+    static let gumShoulderY: CGFloat = 0.430
+    static let gumControl2X: CGFloat = 0.280
+    static let gumCenterX: CGFloat = 0.500
+    static let gumCenterY: CGFloat = 0.235
+
     private static let upperFDIs = [65, 64, 63, 62, 61, 51, 52, 53, 54, 55]
     private static let lowerFDIs = [75, 74, 73, 72, 71, 81, 82, 83, 84, 85]
 
@@ -23,18 +31,7 @@ enum DentalArchGeometry {
         0.910,
     ]
 
-    private static let upperYFractions: [CGFloat] = [
-        0.760,
-        0.590,
-        0.430,
-        0.310,
-        0.235,
-        0.235,
-        0.310,
-        0.430,
-        0.590,
-        0.760,
-    ]
+    private static let upperYFractions = xFractions.map { upperGumYFraction(atX: $0) }
 
     private static let tangentRotations: [CGFloat] = [
         -17,
@@ -68,5 +65,34 @@ enum DentalArchGeometry {
 
     static func expectedFDIs(for arch: ToothArch) -> [Int] {
         arch == .upper ? upperFDIs : lowerFDIs
+    }
+
+    private static func upperGumYFraction(atX xFraction: CGFloat) -> CGFloat {
+        let leftX = min(xFraction, 1 - xFraction)
+        var low: CGFloat = 0
+        var high: CGFloat = 1
+        for _ in 0..<32 {
+            let middle = (low + high) / 2
+            if cubic(gumOuterX, gumControl1X, gumControl2X, gumCenterX, middle) < leftX {
+                low = middle
+            } else {
+                high = middle
+            }
+        }
+        return cubic(gumOuterY, gumShoulderY, gumCenterY, gumCenterY, (low + high) / 2)
+    }
+
+    private static func cubic(
+        _ start: CGFloat,
+        _ control1: CGFloat,
+        _ control2: CGFloat,
+        _ end: CGFloat,
+        _ t: CGFloat
+    ) -> CGFloat {
+        let inverse = 1 - t
+        return inverse * inverse * inverse * start
+            + 3 * inverse * inverse * t * control1
+            + 3 * inverse * t * t * control2
+            + t * t * t * end
     }
 }

@@ -104,7 +104,7 @@ private struct ToothArchDiagram: View {
                     .stroke(
                         PetitesDentsStyle.coralSoft.opacity(0.72),
                         style: StrokeStyle(
-                            lineWidth: 42 * visualScale,
+                            lineWidth: 44 * visualScale,
                             lineCap: .round,
                             lineJoin: .round
                         )
@@ -180,20 +180,35 @@ private struct ArchGumShape: Shape {
     let arch: ToothArch
 
     func path(in rect: CGRect) -> Path {
-        let outerY = arch == .upper ? rect.height * 0.76 : rect.height * 0.24
-        let shoulderY = arch == .upper ? rect.height * 0.43 : rect.height * 0.57
-        let centerY = arch == .upper ? rect.height * 0.235 : rect.height * 0.765
+        let outerYFraction = arch == .upper
+            ? DentalArchGeometry.gumOuterY
+            : 1 - DentalArchGeometry.gumOuterY
+        let shoulderYFraction = arch == .upper
+            ? DentalArchGeometry.gumShoulderY
+            : 1 - DentalArchGeometry.gumShoulderY
+        let centerYFraction = arch == .upper
+            ? DentalArchGeometry.gumCenterY
+            : 1 - DentalArchGeometry.gumCenterY
+        let outerY = rect.height * outerYFraction
+        let shoulderY = rect.height * shoulderYFraction
+        let centerY = rect.height * centerYFraction
         var path = Path()
-        path.move(to: CGPoint(x: rect.width * 0.090, y: outerY))
+        path.move(to: CGPoint(x: rect.width * DentalArchGeometry.gumOuterX, y: outerY))
         path.addCurve(
-            to: CGPoint(x: rect.width * 0.50, y: centerY),
-            control1: CGPoint(x: rect.width * 0.12, y: shoulderY),
-            control2: CGPoint(x: rect.width * 0.28, y: centerY)
+            to: CGPoint(x: rect.width * DentalArchGeometry.gumCenterX, y: centerY),
+            control1: CGPoint(x: rect.width * DentalArchGeometry.gumControl1X, y: shoulderY),
+            control2: CGPoint(x: rect.width * DentalArchGeometry.gumControl2X, y: centerY)
         )
         path.addCurve(
-            to: CGPoint(x: rect.width * 0.910, y: outerY),
-            control1: CGPoint(x: rect.width * 0.72, y: centerY),
-            control2: CGPoint(x: rect.width * 0.88, y: shoulderY)
+            to: CGPoint(x: rect.width * (1 - DentalArchGeometry.gumOuterX), y: outerY),
+            control1: CGPoint(
+                x: rect.width * (1 - DentalArchGeometry.gumControl2X),
+                y: centerY
+            ),
+            control2: CGPoint(
+                x: rect.width * (1 - DentalArchGeometry.gumControl1X),
+                y: shoulderY
+            )
         )
         return path
     }
@@ -209,15 +224,15 @@ private struct ToothButton: View {
         let baseSize: CGSize
         switch snapshot.definition.kind {
         case .centralIncisor:
-            baseSize = CGSize(width: 27, height: 39)
+            baseSize = CGSize(width: 32, height: 44)
         case .lateralIncisor:
-            baseSize = CGSize(width: 24, height: 37)
+            baseSize = CGSize(width: 30, height: 43)
         case .canine:
-            baseSize = CGSize(width: 26, height: 41)
+            baseSize = CGSize(width: 31, height: 45)
         case .firstMolar:
-            baseSize = CGSize(width: 31, height: 40)
+            baseSize = CGSize(width: 34, height: 46)
         case .secondMolar:
-            baseSize = CGSize(width: 34, height: 43)
+            baseSize = CGSize(width: 36, height: 48)
         }
         return CGSize(width: baseSize.width * visualScale, height: baseSize.height * visualScale)
     }
@@ -266,11 +281,13 @@ private struct ToothButton: View {
             DetailedToothShape()
                 .stroke(
                     snapshot.definition.kind.familyOutline.color.opacity(
-                        snapshot.status == .ghost ? 0.40 : 1
+                        snapshot.status == .ghost ? 0.55 : 1
                     ),
                     style: StrokeStyle(
                         lineWidth: 2.5,
-                        dash: snapshot.status == .ghost ? [4, 3] : []
+                        lineCap: .round,
+                        lineJoin: .round,
+                        dash: snapshot.status == .ghost ? [2.5, 2] : []
                     )
                 )
         }
@@ -284,36 +301,36 @@ private struct DetailedToothShape: Shape {
         let w = rect.width
         let h = rect.height
         var path = Path()
-        path.move(to: CGPoint(x: w * 0.50, y: h * 0.08))
+        path.move(to: CGPoint(x: w * 0.50, y: h * 0.06))
         path.addCurve(
-            to: CGPoint(x: w * 0.14, y: h * 0.35),
-            control1: CGPoint(x: w * 0.28, y: -h * 0.02),
-            control2: CGPoint(x: w * 0.10, y: h * 0.12)
+            to: CGPoint(x: w * 0.13, y: h * 0.36),
+            control1: CGPoint(x: w * 0.25, y: -h * 0.03),
+            control2: CGPoint(x: w * 0.08, y: h * 0.12)
         )
         path.addCurve(
-            to: CGPoint(x: w * 0.38, y: h * 0.93),
-            control1: CGPoint(x: w * 0.18, y: h * 0.58),
-            control2: CGPoint(x: w * 0.26, y: h * 0.88)
+            to: CGPoint(x: w * 0.32, y: h * 0.96),
+            control1: CGPoint(x: w * 0.18, y: h * 0.62),
+            control2: CGPoint(x: w * 0.22, y: h * 0.90)
         )
         path.addCurve(
-            to: CGPoint(x: w * 0.50, y: h * 0.70),
-            control1: CGPoint(x: w * 0.46, y: h * 0.96),
-            control2: CGPoint(x: w * 0.44, y: h * 0.72)
+            to: CGPoint(x: w * 0.50, y: h * 0.60),
+            control1: CGPoint(x: w * 0.40, y: h),
+            control2: CGPoint(x: w * 0.41, y: h * 0.64)
         )
         path.addCurve(
-            to: CGPoint(x: w * 0.62, y: h * 0.93),
-            control1: CGPoint(x: w * 0.56, y: h * 0.72),
-            control2: CGPoint(x: w * 0.54, y: h * 0.96)
+            to: CGPoint(x: w * 0.68, y: h * 0.96),
+            control1: CGPoint(x: w * 0.59, y: h * 0.64),
+            control2: CGPoint(x: w * 0.60, y: h)
         )
         path.addCurve(
-            to: CGPoint(x: w * 0.86, y: h * 0.35),
-            control1: CGPoint(x: w * 0.74, y: h * 0.88),
-            control2: CGPoint(x: w * 0.82, y: h * 0.58)
+            to: CGPoint(x: w * 0.87, y: h * 0.36),
+            control1: CGPoint(x: w * 0.78, y: h * 0.90),
+            control2: CGPoint(x: w * 0.82, y: h * 0.62)
         )
         path.addCurve(
-            to: CGPoint(x: w * 0.50, y: h * 0.08),
-            control1: CGPoint(x: w * 0.90, y: h * 0.12),
-            control2: CGPoint(x: w * 0.72, y: -h * 0.02)
+            to: CGPoint(x: w * 0.50, y: h * 0.06),
+            control1: CGPoint(x: w * 0.92, y: h * 0.12),
+            control2: CGPoint(x: w * 0.75, y: -h * 0.03)
         )
         path.closeSubpath()
         return path

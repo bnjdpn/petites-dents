@@ -24,6 +24,28 @@ final class DentalArchGeometryTests: XCTestCase {
         XCTAssertEqual(lower[4].yFraction, lower[5].yFraction, accuracy: 0.0001)
     }
 
+    func testEveryToothCenterSitsOnTheGumCenterline() {
+        let expectedUpperY: [CGFloat] = [
+            0.760,
+            0.439536,
+            0.324106,
+            0.264567,
+            0.238481,
+            0.238481,
+            0.264567,
+            0.324106,
+            0.439536,
+            0.760,
+        ]
+
+        for (placement, expectedY) in zip(
+            DentalArchGeometry.placements(for: .upper),
+            expectedUpperY
+        ) {
+            XCTAssertEqual(placement.yFraction, expectedY, accuracy: 0.000001)
+        }
+    }
+
     func testPlacementsAndRotationsAreSymmetric() {
         let upper = DentalArchGeometry.placements(for: .upper)
         let lower = DentalArchGeometry.placements(for: .lower)
