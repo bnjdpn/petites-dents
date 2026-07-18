@@ -38,10 +38,10 @@ module PetitesDentsScreenshots
   end
 
   class Generator
-    LANGUAGE = {
-      "en-US" => ["en", "en_US"],
-      "en-GB" => ["en-GB", "en_GB"],
-      "fr-FR" => ["fr", "fr_FR"]
+    TEST_LOCALE = {
+      "en-US" => ["en", "US"],
+      "en-GB" => ["en", "GB"],
+      "fr-FR" => ["fr", "FR"]
     }.freeze
 
     def initialize(app_root:, run_id:)
@@ -125,7 +125,7 @@ module PetitesDentsScreenshots
     end
 
     def capture_cell(locale, simulator)
-      language, apple_locale = LANGUAGE.fetch(locale)
+      language, region = TEST_LOCALE.fetch(locale)
       cell_id = "#{locale.gsub(/[^A-Za-z0-9]/, "_")}-#{simulator.fetch("name_suffix")}"
       cell_root = File.join(@temporary_root, cell_id)
       FileUtils.mkdir_p(cell_root)
@@ -173,13 +173,11 @@ module PetitesDentsScreenshots
           "-derivedDataPath", derived_path,
           "-resultBundlePath", result_path,
           "-only-testing:PetitesDentsUITests/PetitesDentsUITests/testStoreScreenshots",
+          "-testLanguage", language,
+          "-testRegion", region,
           "-parallel-testing-enabled", "NO",
           "-maximum-parallel-testing-workers", "1",
           "-maximum-concurrent-test-simulator-destinations", "1",
-          environment: {
-            "SCREENSHOT_LANGUAGE" => language,
-            "SCREENSHOT_LOCALE" => apple_locale
-          },
           chdir: File.join(@app_root, "ios")
         )
 
