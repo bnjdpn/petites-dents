@@ -25,13 +25,31 @@ final class PetitesDentsUITests: XCTestCase {
         capture("02_ToothDetail")
         app.buttons["editor.close"].tap()
 
-        app.tabBars.buttons.element(boundBy: 1).tap()
+        tapTab(in: app, identifier: "tab.history", label: language.hasPrefix("fr") ? "Historique" : "History")
         XCTAssertTrue(app.scrollViews["screen.history"].waitForExistence(timeout: 5))
         capture("03_History")
 
-        app.tabBars.buttons.element(boundBy: 2).tap()
+        tapTab(in: app, identifier: "tab.more", label: language.hasPrefix("fr") ? "Plus" : "More")
         XCTAssertTrue(app.scrollViews["screen.more"].waitForExistence(timeout: 5))
         capture("04_ExportAndSupport")
+    }
+
+    private func tapTab(in app: XCUIApplication, identifier: String, label: String) {
+        for elementType in [XCUIElement.ElementType.button, .cell, .other] {
+            let identified = app.descendants(matching: elementType).matching(identifier: identifier).firstMatch
+            if identified.exists {
+                identified.tap()
+                return
+            }
+
+            let labelled = app.descendants(matching: elementType)[label]
+            if labelled.exists {
+                labelled.tap()
+                return
+            }
+        }
+
+        XCTFail("Could not find tab \(identifier)")
     }
 
     private func capture(_ name: String) {
