@@ -218,7 +218,13 @@ private fun ToothButton(
     ) {
         if (tooth.record.status == ToothStatus.ERUPTED) {
             Image(
-                painter = painterResource(R.drawable.tooth_erupted_character),
+                painter = painterResource(
+                    if (tooth.definition.arch == ToothArch.UPPER) {
+                        R.drawable.tooth_erupted_character_upper
+                    } else {
+                        R.drawable.tooth_erupted_character
+                    },
+                ),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(
@@ -232,7 +238,7 @@ private fun ToothButton(
                     .size(width = toothWidth, height = toothHeight)
                     .rotate(toothRotation),
             ) {
-                val path = toothPath(size, tooth.definition.kind)
+                val path = detailedToothPath(size)
                 if (tooth.record.status == ToothStatus.TEETHING) {
                     drawPath(path, color = Apricot, style = Fill)
                 }
@@ -294,37 +300,7 @@ private fun gumPath(size: Size, arch: ToothArch): Path = Path().apply {
     )
 }
 
-private fun toothPath(size: Size, kind: ToothKind): Path = when (kind) {
-    ToothKind.CENTRAL_INCISOR, ToothKind.LATERAL_INCISOR -> incisorPath(size)
-    ToothKind.CANINE -> caninePath(size)
-    ToothKind.FIRST_MOLAR, ToothKind.SECOND_MOLAR -> molarPath(size)
-}
-
-private fun incisorPath(size: Size): Path = Path().apply {
-    val w = size.width
-    val h = size.height
-    moveTo(w * 0.50f, h * 0.04f)
-    cubicTo(w * 0.28f, -h * 0.01f, w * 0.10f, h * 0.11f, w * 0.14f, h * 0.29f)
-    cubicTo(w * 0.17f, h * 0.49f, w * 0.28f, h * 0.70f, w * 0.40f, h * 0.94f)
-    cubicTo(w * 0.44f, h * 1.01f, w * 0.56f, h * 1.01f, w * 0.60f, h * 0.94f)
-    cubicTo(w * 0.72f, h * 0.70f, w * 0.83f, h * 0.49f, w * 0.86f, h * 0.29f)
-    cubicTo(w * 0.90f, h * 0.11f, w * 0.72f, -h * 0.01f, w * 0.50f, h * 0.04f)
-    close()
-}
-
-private fun caninePath(size: Size): Path = Path().apply {
-    val w = size.width
-    val h = size.height
-    moveTo(w * 0.50f, h * 0.01f)
-    cubicTo(w * 0.40f, h * 0.10f, w * 0.10f, h * 0.13f, w * 0.13f, h * 0.34f)
-    cubicTo(w * 0.17f, h * 0.56f, w * 0.31f, h * 0.77f, w * 0.43f, h * 0.96f)
-    cubicTo(w * 0.46f, h * 1.01f, w * 0.54f, h * 1.01f, w * 0.57f, h * 0.96f)
-    cubicTo(w * 0.69f, h * 0.77f, w * 0.83f, h * 0.56f, w * 0.87f, h * 0.34f)
-    cubicTo(w * 0.90f, h * 0.13f, w * 0.60f, h * 0.10f, w * 0.50f, h * 0.01f)
-    close()
-}
-
-private fun molarPath(size: Size): Path = Path().apply {
+private fun detailedToothPath(size: Size): Path = Path().apply {
     val w = size.width
     val h = size.height
     moveTo(w * 0.50f, h * 0.08f)

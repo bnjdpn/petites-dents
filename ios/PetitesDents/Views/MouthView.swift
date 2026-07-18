@@ -226,7 +226,11 @@ private struct ToothButton: View {
         Button(action: action) {
             Group {
                 if snapshot.status == .erupted {
-                    Image("EruptedToothCharacter")
+                    Image(
+                        snapshot.definition.arch == .upper
+                            ? "EruptedToothCharacterUpper"
+                            : "EruptedToothCharacter"
+                    )
                         .resizable()
                         .scaledToFit()
                         .frame(width: 34 * visualScale, height: 40 * visualScale)
@@ -256,10 +260,10 @@ private struct ToothButton: View {
     private var schematicTooth: some View {
         ZStack {
             if snapshot.status == .teething {
-                ToothShape(kind: snapshot.definition.kind)
+                DetailedToothShape()
                     .fill(PetitesDentsStyle.apricot)
             }
-            ToothShape(kind: snapshot.definition.kind)
+            DetailedToothShape()
                 .stroke(
                     snapshot.definition.kind.familyOutline.color.opacity(
                         snapshot.status == .ghost ? 0.40 : 1
@@ -275,89 +279,8 @@ private struct ToothButton: View {
     }
 }
 
-private struct ToothShape: Shape {
-    let kind: ToothKind
-
+private struct DetailedToothShape: Shape {
     func path(in rect: CGRect) -> Path {
-        switch kind {
-        case .centralIncisor, .lateralIncisor:
-            incisorPath(in: rect)
-        case .canine:
-            caninePath(in: rect)
-        case .firstMolar, .secondMolar:
-            molarPath(in: rect)
-        }
-    }
-
-    private func incisorPath(in rect: CGRect) -> Path {
-        let w = rect.width
-        let h = rect.height
-        var path = Path()
-        path.move(to: CGPoint(x: w * 0.50, y: h * 0.04))
-        path.addCurve(
-            to: CGPoint(x: w * 0.14, y: h * 0.29),
-            control1: CGPoint(x: w * 0.28, y: -h * 0.01),
-            control2: CGPoint(x: w * 0.10, y: h * 0.11)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.40, y: h * 0.94),
-            control1: CGPoint(x: w * 0.17, y: h * 0.49),
-            control2: CGPoint(x: w * 0.28, y: h * 0.70)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.60, y: h * 0.94),
-            control1: CGPoint(x: w * 0.44, y: h * 1.01),
-            control2: CGPoint(x: w * 0.56, y: h * 1.01)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.86, y: h * 0.29),
-            control1: CGPoint(x: w * 0.72, y: h * 0.70),
-            control2: CGPoint(x: w * 0.83, y: h * 0.49)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.50, y: h * 0.04),
-            control1: CGPoint(x: w * 0.90, y: h * 0.11),
-            control2: CGPoint(x: w * 0.72, y: -h * 0.01)
-        )
-        path.closeSubpath()
-        return path
-    }
-
-    private func caninePath(in rect: CGRect) -> Path {
-        let w = rect.width
-        let h = rect.height
-        var path = Path()
-        path.move(to: CGPoint(x: w * 0.50, y: h * 0.01))
-        path.addCurve(
-            to: CGPoint(x: w * 0.13, y: h * 0.34),
-            control1: CGPoint(x: w * 0.40, y: h * 0.10),
-            control2: CGPoint(x: w * 0.10, y: h * 0.13)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.43, y: h * 0.96),
-            control1: CGPoint(x: w * 0.17, y: h * 0.56),
-            control2: CGPoint(x: w * 0.31, y: h * 0.77)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.57, y: h * 0.96),
-            control1: CGPoint(x: w * 0.46, y: h * 1.01),
-            control2: CGPoint(x: w * 0.54, y: h * 1.01)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.87, y: h * 0.34),
-            control1: CGPoint(x: w * 0.69, y: h * 0.77),
-            control2: CGPoint(x: w * 0.83, y: h * 0.56)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.50, y: h * 0.01),
-            control1: CGPoint(x: w * 0.90, y: h * 0.13),
-            control2: CGPoint(x: w * 0.60, y: h * 0.10)
-        )
-        path.closeSubpath()
-        return path
-    }
-
-    private func molarPath(in rect: CGRect) -> Path {
         let w = rect.width
         let h = rect.height
         var path = Path()
