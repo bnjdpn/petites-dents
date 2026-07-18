@@ -39,11 +39,8 @@ jobs:
           java-version: "17"
           distribution: temurin
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@3f131c2cf4c81b318b017cf5d7d6d389bfad3b26
-
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@3f131c2cf4c81b318b017cf5d7d6d389bfad3b26
+        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2; validates the wrapper by default
 
       - name: Run unit tests
         run: ./gradlew --no-daemon --stacktrace test
