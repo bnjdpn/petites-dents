@@ -1,6 +1,7 @@
 package com.bnjdpn.petitesdents.ui
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,11 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,12 +32,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -201,11 +202,6 @@ private fun ToothButton(
         tooth.definition.fdi,
         state,
     )
-    val fill = when (tooth.record.status) {
-        ToothStatus.GHOST -> GhostFill
-        ToothStatus.TEETHING -> Apricot
-        ToothStatus.ERUPTED -> Sage.copy(alpha = 0.30f)
-    }
     val strokeColor = tooth.definition.kind.familyOutline.color
     val (toothWidth, toothHeight) = toothVisualSize(tooth.definition.kind, visualScale)
 
@@ -220,28 +216,45 @@ private fun ToothButton(
             }
             .clickable(onClick = onClick),
     ) {
-        Canvas(
-            modifier = Modifier
-                .size(width = toothWidth, height = toothHeight)
-                .rotate(toothRotation),
-        ) {
-            val path = toothPath(size, tooth.definition.kind)
-            drawPath(path, color = fill, style = Fill)
-            drawPath(
-                path = path,
-                color = strokeColor,
-                style = Stroke(
-                    width = 2.5.dp.toPx(),
+        if (tooth.record.status == ToothStatus.ERUPTED) {
+            Image(
+                painter = painterResource(R.drawable.tooth_erupted_character),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(
+                    width = (34f * visualScale).dp,
+                    height = (40f * visualScale).dp,
                 ),
             )
-        }
-        if (tooth.record.status == ToothStatus.ERUPTED) {
-            Icon(
-                imageVector = Icons.Rounded.Check,
-                contentDescription = null,
-                tint = Sage,
-                modifier = Modifier.size(19.dp),
-            )
+        } else {
+            Canvas(
+                modifier = Modifier
+                    .size(width = toothWidth, height = toothHeight)
+                    .rotate(toothRotation),
+            ) {
+                val path = toothPath(size, tooth.definition.kind)
+                if (tooth.record.status == ToothStatus.TEETHING) {
+                    drawPath(path, color = Apricot, style = Fill)
+                }
+                drawPath(
+                    path = path,
+                    color = if (tooth.record.status == ToothStatus.GHOST) {
+                        strokeColor.copy(alpha = 0.40f)
+                    } else {
+                        strokeColor
+                    },
+                    style = Stroke(
+                        width = 2.5.dp.toPx(),
+                        pathEffect = if (tooth.record.status == ToothStatus.GHOST) {
+                            PathEffect.dashPathEffect(
+                                floatArrayOf(4.dp.toPx(), 3.dp.toPx()),
+                            )
+                        } else {
+                            null
+                        },
+                    ),
+                )
+            }
         }
     }
 }
@@ -336,18 +349,33 @@ private fun Legend(modifier: Modifier = Modifier) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             ToothStatus.entries.forEach { status ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(
-                                when (status) {
-                                    ToothStatus.GHOST -> GhostFill
-                                    ToothStatus.TEETHING -> Apricot
-                                    ToothStatus.ERUPTED -> Sage
-                                },
-                            ),
-                    )
+                    when (status) {
+                        ToothStatus.GHOST -> Canvas(Modifier.size(12.dp)) {
+                            drawCircle(
+                                color = Ink.copy(alpha = 0.40f),
+                                style = Stroke(
+                                    width = 1.5.dp.toPx(),
+                                    pathEffect = PathEffect.dashPathEffect(
+                                        floatArrayOf(2.dp.toPx(), 2.dp.toPx()),
+                                    ),
+                                ),
+                            )
+                        }
+
+                        ToothStatus.TEETHING -> Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(Apricot),
+                        )
+
+                        ToothStatus.ERUPTED -> Image(
+                            painter = painterResource(R.drawable.tooth_erupted_character),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
                     Text(
                         text = stringResource(status.stringResource),
                         style = MaterialTheme.typography.bodySmall,

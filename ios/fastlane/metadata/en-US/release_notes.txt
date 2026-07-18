@@ -1,3 +1,3 @@
-• The mouth diagram now labels the upper and lower teeth more directly.
-• Every tooth family has its own fixed outline color: fuchsia, turquoise, blue, deep blue or charcoal.
-• Fill color remains dedicated to status: grey for not started, pale yellow for teething and green for erupted.
+• Tooth-family outlines now use a soft, muted palette.
+• Not-started teeth are discreet again with dashed outlines, while teething teeth keep their pale-yellow fill.
+• A small 3D tooth character now celebrates every erupted tooth and makes progress instantly recognizable.

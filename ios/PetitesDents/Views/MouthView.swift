@@ -205,14 +205,6 @@ private struct ToothButton: View {
     let visualScale: CGFloat
     let action: () -> Void
 
-    private var fill: Color {
-        switch snapshot.status {
-        case .ghost: PetitesDentsStyle.ghostFill
-        case .teething: PetitesDentsStyle.apricot
-        case .erupted: PetitesDentsStyle.sage.opacity(0.30)
-        }
-    }
-
     private var visualSize: CGSize {
         let baseSize: CGSize
         switch snapshot.definition.kind {
@@ -232,25 +224,14 @@ private struct ToothButton: View {
 
     var body: some View {
         Button(action: action) {
-            ZStack {
-                ZStack {
-                    ToothShape(kind: snapshot.definition.kind)
-                        .fill(fill)
-                    ToothShape(kind: snapshot.definition.kind)
-                        .stroke(
-                            snapshot.definition.kind.familyOutline.color,
-                            style: StrokeStyle(
-                                lineWidth: 2.5
-                            )
-                        )
-                }
-                .frame(width: visualSize.width, height: visualSize.height)
-                .rotationEffect(.degrees(toothRotation))
-
+            Group {
                 if snapshot.status == .erupted {
-                    Image(systemName: "checkmark")
-                        .font(.caption.bold())
-                        .foregroundStyle(PetitesDentsStyle.sage)
+                    Image("EruptedToothCharacter")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 34 * visualScale, height: 40 * visualScale)
+                } else {
+                    schematicTooth
                 }
             }
             .frame(
@@ -270,6 +251,27 @@ private struct ToothButton: View {
             )
         )
         .accessibilityValue(snapshot.status.localizedName)
+    }
+
+    private var schematicTooth: some View {
+        ZStack {
+            if snapshot.status == .teething {
+                ToothShape(kind: snapshot.definition.kind)
+                    .fill(PetitesDentsStyle.apricot)
+            }
+            ToothShape(kind: snapshot.definition.kind)
+                .stroke(
+                    snapshot.definition.kind.familyOutline.color.opacity(
+                        snapshot.status == .ghost ? 0.40 : 1
+                    ),
+                    style: StrokeStyle(
+                        lineWidth: 2.5,
+                        dash: snapshot.status == .ghost ? [4, 3] : []
+                    )
+                )
+        }
+        .frame(width: visualSize.width, height: visualSize.height)
+        .rotationEffect(.degrees(toothRotation))
     }
 }
 
@@ -403,9 +405,7 @@ private struct StatusLegend: View {
             HStack(spacing: 16) {
                 ForEach(ToothStatus.allCases, id: \.self) { status in
                     HStack(spacing: 5) {
-                        Circle()
-                            .fill(color(for: status))
-                            .frame(width: 12, height: 12)
+                        marker(for: status)
                         Text(status.localizedName)
                             .font(.caption)
                     }
@@ -414,11 +414,25 @@ private struct StatusLegend: View {
         }
     }
 
-    private func color(for status: ToothStatus) -> Color {
+    @ViewBuilder
+    private func marker(for status: ToothStatus) -> some View {
         switch status {
-        case .ghost: PetitesDentsStyle.ghostFill
-        case .teething: PetitesDentsStyle.apricot
-        case .erupted: PetitesDentsStyle.sage
+        case .ghost:
+            Circle()
+                .stroke(
+                    PetitesDentsStyle.ink.opacity(0.40),
+                    style: StrokeStyle(lineWidth: 1.5, dash: [2, 2])
+                )
+                .frame(width: 12, height: 12)
+        case .teething:
+            Circle()
+                .fill(PetitesDentsStyle.apricot)
+                .frame(width: 12, height: 12)
+        case .erupted:
+            Image("EruptedToothCharacter")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 18, height: 18)
         }
     }
 }

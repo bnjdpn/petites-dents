@@ -1,3 +1,3 @@
-• Le schéma emploie désormais les libellés « Dents du haut » et « Dents du bas ».
-• Chaque famille de dent possède un contour fixe : fuchsia, turquoise, bleu, bleu foncé ou gris anthracite.
-• Le remplissage reste réservé à l'état : gris, jaune pâle ou vert.
+• Les contours des familles de dents adoptent une palette douce et désaturée.
+• Les dents non commencées redeviennent discrètes avec un contour pointillé, tandis que les dents en poussée gardent leur remplissage jaune pâle.
+• Une petite dent-personnage 3D célèbre désormais chaque dent percée et rend l'avancement immédiatement reconnaissable.

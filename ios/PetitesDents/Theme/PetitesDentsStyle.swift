@@ -5,7 +5,6 @@ enum PetitesDentsStyle {
     static let coralSoft = Color(red: 1.00, green: 0.85, blue: 0.82)
     static let apricot = Color(red: 1.00, green: 0.90, blue: 0.78)
     static let sage = Color(red: 0.51, green: 0.61, blue: 0.48)
-    static let ghostFill = Color(red: 0.89, green: 0.88, blue: 0.88)
     static let cream = Color(red: 1.00, green: 0.98, blue: 0.95)
     static let ink = Color(red: 0.20, green: 0.17, blue: 0.16)
 }
@@ -20,15 +19,15 @@ enum ToothFamilyOutline: String, CaseIterable {
     var color: Color {
         switch self {
         case .centralIncisor:
-            Color(red: 0.85, green: 0.25, blue: 0.51)
+            Color(red: 176.0 / 255.0, green: 110.0 / 255.0, blue: 97.0 / 255.0)
         case .lateralIncisor:
-            Color(red: 0.08, green: 0.62, blue: 0.65)
+            Color(red: 99.0 / 255.0, green: 135.0 / 255.0, blue: 125.0 / 255.0)
         case .canine:
-            Color(red: 0.23, green: 0.51, blue: 0.96)
+            Color(red: 102.0 / 255.0, green: 131.0 / 255.0, blue: 158.0 / 255.0)
         case .firstMolar:
-            Color(red: 0.03, green: 0.35, blue: 0.52)
+            Color(red: 86.0 / 255.0, green: 108.0 / 255.0, blue: 122.0 / 255.0)
         case .secondMolar:
-            Color(red: 0.21, green: 0.21, blue: 0.21)
+            Color(red: 123.0 / 255.0, green: 105.0 / 255.0, blue: 96.0 / 255.0)
         }
     }
 }
