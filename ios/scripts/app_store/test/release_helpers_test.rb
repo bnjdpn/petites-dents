@@ -155,6 +155,13 @@ class ReleaseHelpersTest
     assert_empty errors
   end
 
+  def test_fastfile_uses_repository_absolute_metadata_paths
+    fastfile = File.read(File.expand_path("../../../fastlane/Fastfile", __dir__))
+
+    assert_includes fastfile, 'PETITES_DENTS_METADATA_ROOT = File.join(PETITES_DENTS_FASTLANE_ROOT, "metadata")'
+    refute fastfile.include?('File.join(__dir__, "metadata"')
+  end
+
   private
 
   def assert(condition, message = "assertion failed")
