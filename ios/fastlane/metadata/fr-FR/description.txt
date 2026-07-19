@@ -3,14 +3,14 @@ Petites Dents transforme les 20 dents de lait en une chronologie simple et rassu
 BOUCHE INTERACTIVE
 Visualisez les arcades du haut et du bas dans l'ordre anatomique. Chaque dent possède un état clair : pas commencée, en poussée ou percée.
 
-DATES ET OBSERVATIONS
-Touchez une dent pour noter le début de la poussée, la date de percée et toute observation utile. Vous pouvez saisir directement une percée ou réinitialiser une dent à tout moment.
+DATES, ÂGES ET OBSERVATIONS
+Ajoutez la date de naissance de votre bébé pour connaître son âge exact à chaque percée. Touchez une dent pour noter le début de la poussée, la date de percée et toute observation utile. Vous pouvez saisir directement une percée ou réinitialiser une dent à tout moment.
 
 HISTORIQUE CHRONOLOGIQUE
-Retrouvez les dents percées par date et gardez les étapes importantes à portée de main.
+Retrouvez les dents percées par date, avec l'âge exact de votre bébé, et gardez les étapes importantes à portée de main.
 
 RÉCAPITULATIF PDF LOCAL
-Créez un PDF lisible avec le schéma complet, les dates et les notes. Partagez-le via la feuille système avec le pédiatre ou conservez-le avec le carnet de santé.
+Créez un PDF lisible avec le schéma complet, la date de naissance, les âges à la percée, les dates et les notes. Partagez-le via la feuille système avec le pédiatre ou conservez-le avec le carnet de santé.
 
 PRIVÉE PAR CONCEPTION
 Aucun compte, serveur applicatif, publicité, outil d'analyse ou suivi. Le carnet dentaire reste sur votre appareil.

@@ -1,4 +1,4 @@
-Petites Dents is a private local log for the 20 primary teeth. Tap a tooth to record a teething date, an eruption date, and a free note. The History tab lists erupted teeth chronologically. The More tab creates a local PDF through the system share sheet.
+Petites Dents is a private local log for the 20 primary teeth. In the More tab, set the baby's date of birth. Tap a tooth to record a teething date, an eruption date, and a free note. The History tab lists erupted teeth chronologically and shows the baby's exact age for every erupted tooth. The PDF export includes the birth date, eruption ages, dates, and notes and opens through the system share sheet.
 
 No account, server, advertising, analytics, tracking, or demo credentials are required. All dental records remain on the device. The app is a personal log and does not diagnose or provide medical treatment.
 

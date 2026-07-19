@@ -3,14 +3,14 @@ Petites Dents turns the 20 primary teeth into a simple, reassuring timeline for 
 INTERACTIVE MOUTH
 See upper and lower arches in anatomical order. Every tooth has one clear state: not started, teething, or erupted.
 
-DATES AND NOTES
-Tap any tooth to record when teething began, when the tooth erupted, and any observation you want to remember. You can record an eruption directly or reset a tooth at any time.
+DATES, AGES, AND NOTES
+Add your baby's date of birth to see their exact age at each eruption. Tap any tooth to record when teething began, when the tooth erupted, and any observation you want to remember. You can record an eruption directly or reset a tooth at any time.
 
 CHRONOLOGICAL HISTORY
-Review erupted teeth in date order and keep important milestones easy to find.
+Review erupted teeth in date order, with the baby's exact age, and keep important milestones easy to find.
 
 LOCAL PDF SUMMARY
-Create a readable PDF with the full diagram, dates, and notes. Share it through the system sheet with a paediatrician or keep it with the child's health record.
+Create a readable PDF with the full diagram, birth date, eruption ages, dates, and notes. Share it through the system sheet with a paediatrician or keep it with the child's health record.
 
 PRIVATE BY DESIGN
 No account, application server, advertising, analytics, or tracking. Dental records remain on your device.

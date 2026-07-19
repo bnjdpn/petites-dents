@@ -1,3 +1,4 @@
-• Tooth-family outlines now use a soft, muted palette.
-• Not-started teeth are discreet again with dashed outlines, while teething teeth keep their pale-yellow fill.
-• A small 3D tooth character now celebrates every erupted tooth and makes progress instantly recognisable.
+• Add your baby's date of birth to personalise the timeline.
+• History now shows the baby's exact age when each tooth erupted.
+• PDF export includes the birth date and exact eruption age for every erupted tooth.
+• Softer tooth-family outlines and clearer eruption states keep both dental arches calm and readable.
