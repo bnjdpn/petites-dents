@@ -265,6 +265,11 @@ platform :ios do
   desc "Validate the complete local release contract without ASC writes"
   lane :release_contract do
     sh(RbConfig.ruby, File.join(PETITES_DENTS_IOS_ROOT, "scripts", "release_contract.rb"), "--check")
+    sh(
+      RbConfig.ruby,
+      "-I", File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "test"),
+      File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "test", "release_helpers_test.rb")
+    )
   end
 
   desc "Read live version, build, media, price, IAP, and review state"

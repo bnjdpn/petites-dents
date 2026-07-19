@@ -548,7 +548,9 @@ def strict_errors(payload, options)
   end
 
   game_center = payload.fetch("game_center")
-  errors << "Game Center detail is not configured" unless game_center["configured"]
+  game_center_required =
+    options.fetch(:expected_leaderboards).any? || options.fetch(:leaderboard_definitions).any?
+  errors << "Game Center detail is not configured" if game_center_required && !game_center["configured"]
   errors << "missing Game Center leaderboards: #{game_center["missing_ids"].join(',')}" unless game_center["missing_ids"].empty?
   errors << "unexpected Game Center leaderboards: #{game_center["unexpected_ids"].join(',')}" unless game_center["unexpected_ids"].empty?
   options.fetch(:leaderboard_definitions).each do |definition|
@@ -599,7 +601,7 @@ def strict_errors(payload, options)
   end
 
   game_center_app_version = payload.fetch("game_center_app_version")
-  unless game_center_app_version["configured"] && game_center_app_version["enabled"]
+  if game_center_required && !(game_center_app_version["configured"] && game_center_app_version["enabled"])
     errors << "Game Center is not enabled for marketing version #{options[:version]}"
   end
 

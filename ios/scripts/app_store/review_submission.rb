@@ -61,7 +61,7 @@ class ReviewSubmissionCoordinator
         attributes: { contentRightsDeclaration: "DOES_NOT_USE_THIRD_PARTY_CONTENT" }
       }
     })
-    ensure_game_center_app_version(version.fetch("id"))
+    ensure_game_center_app_version(version.fetch("id")) unless @leaderboard_version_ids.empty?
 
     @selected_version = version
     @selected_build = build
@@ -453,6 +453,8 @@ class ReviewSubmissionCoordinator
 end
 
 def review_leaderboard_version_ids(client, app_id, expected_vendor_ids)
+  return [] if expected_vendor_ids.empty?
+
   detail_response = client.get("/v1/apps/#{app_id}/gameCenterDetail", {}, optional: true)
   detail = detail_response && detail_response["data"]
   raise ReviewSubmissionError, "Game Center detail is not configured" unless detail

@@ -26,6 +26,11 @@
     "en-GB",
     "fr-FR"
   ],
+  "required_locales": [
+    "en-US",
+    "en-GB",
+    "fr-FR"
+  ],
   "screenshot_scenes": [
     "01_Mouth",
     "02_ToothDetail",
