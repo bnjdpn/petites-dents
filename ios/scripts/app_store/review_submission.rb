@@ -18,14 +18,14 @@ class ReviewSubmissionCoordinator
     version:,
     expected_build:,
     leaderboard_version_ids: [],
-    iap_ids: []
+    iap_version_ids: []
   )
     @client = client
     @app_id = app_id
     @version = version
     @expected_build = expected_build.to_s
     @leaderboard_version_ids = leaderboard_version_ids
-    @iap_ids = iap_ids
+    @iap_version_ids = iap_version_ids
     @selected_version = nil
     @selected_build = nil
   end
@@ -119,11 +119,7 @@ class ReviewSubmissionCoordinator
     submission = reusable || create_submission
     existing = submission.fetch("resources", [])
     (required - existing).each do |type, resource_id|
-      if type == "inAppPurchases"
-        add_iap_submission(resource_id)
-      else
-        add_review_item(submission.fetch("id"), type, resource_id)
-      end
+      add_review_item(submission.fetch("id"), type, resource_id)
     end
     mark_submitted(submission.fetch("id"))
     final = wait_for_submission(
@@ -140,7 +136,7 @@ class ReviewSubmissionCoordinator
       "submission_id" => submission.fetch("id"),
       "submission_state" => final.fetch("state"),
       "leaderboard_version_ids" => @leaderboard_version_ids,
-      "iap_ids" => @iap_ids,
+      "iap_version_ids" => @iap_version_ids,
       "leaderboard_version_states" => game_center_states
     )
   end
@@ -285,10 +281,11 @@ class ReviewSubmissionCoordinator
       next if !include_terminal && TERMINAL_STATES.include?(state)
 
       items = @client.get_all("/v1/reviewSubmissions/#{submission.fetch('id')}/items", {
-        "include" => "appStoreVersion,gameCenterLeaderboardVersion",
-        "fields[reviewSubmissionItems]" => "state,appStoreVersion,gameCenterLeaderboardVersion",
+        "include" => "appStoreVersion,gameCenterLeaderboardVersion,inAppPurchaseVersion",
+        "fields[reviewSubmissionItems]" => "state,appStoreVersion,gameCenterLeaderboardVersion,inAppPurchaseVersion",
         "fields[appStoreVersions]" => "versionString,appStoreState,platform",
         "fields[gameCenterLeaderboardVersions]" => "version,state",
+        "fields[inAppPurchaseVersions]" => "version,state",
         "limit" => "200"
       })
       resources = items.fetch("data").flat_map { |item| item_resources(item) }
@@ -301,7 +298,7 @@ class ReviewSubmissionCoordinator
   end
 
   def item_resources(item)
-    %w[appStoreVersion gameCenterLeaderboardVersion].map do |relationship|
+    %w[appStoreVersion gameCenterLeaderboardVersion inAppPurchaseVersion].map do |relationship|
       resource = item.dig("relationships", relationship, "data")
       resource && [resource.fetch("type"), resource.fetch("id")]
     end.compact
@@ -312,7 +309,7 @@ class ReviewSubmissionCoordinator
     resources.concat(@leaderboard_version_ids.map do |id|
       ["gameCenterLeaderboardVersions", id]
     end)
-    resources.concat(@iap_ids.map { |id| ["inAppPurchases", id] })
+    resources.concat(@iap_version_ids.map { |id| ["inAppPurchaseVersions", id] })
     resources
   end
 
@@ -336,6 +333,7 @@ class ReviewSubmissionCoordinator
     relationship = case type
                    when "appStoreVersions" then :appStoreVersion
                    when "gameCenterLeaderboardVersions" then :gameCenterLeaderboardVersion
+                   when "inAppPurchaseVersions" then :inAppPurchaseVersion
                    else
                      raise ReviewSubmissionError, "unsupported review resource type: #{type}"
                    end
@@ -348,19 +346,6 @@ class ReviewSubmissionCoordinator
           },
           relationship => {
             data: { type: type, id: resource_id }
-          }
-        }
-      }
-    })
-  end
-
-  def add_iap_submission(iap_id)
-    @client.post("/v1/inAppPurchaseSubmissions", {
-      data: {
-        type: "inAppPurchaseSubmissions",
-        relationships: {
-          inAppPurchaseV2: {
-            data: { type: "inAppPurchases", id: iap_id }
           }
         }
       }
@@ -487,7 +472,7 @@ def review_leaderboard_version_ids(client, app_id, expected_vendor_ids)
   versions
 end
 
-def review_iap_ids(client, app_id, expected_products)
+def review_iap_version_ids(client, app_id, expected_products)
   expected_ids = expected_products.map do |product|
     product.is_a?(Hash) ? product["product_id"] : product
   end.compact
@@ -509,7 +494,21 @@ def review_iap_ids(client, app_id, expected_products)
     unless %w[READY_TO_SUBMIT WAITING_FOR_REVIEW IN_REVIEW APPROVED].include?(state)
       raise ReviewSubmissionError, "tip IAP is not ready for review: #{product_id}:#{state}"
     end
-    iap.fetch("id")
+    versions = client.get_all("/v2/inAppPurchases/#{iap.fetch('id')}/versions", {
+      "fields[inAppPurchaseVersions]" => "version,state",
+      "limit" => "200"
+    }).fetch("data")
+    version = versions.max_by do |candidate|
+      candidate.dig("attributes", "version").to_i
+    end
+    raise ReviewSubmissionError, "tip IAP has no reviewable version: #{product_id}" unless version
+
+    version_state = version.dig("attributes", "state")
+    unless %w[PREPARE_FOR_SUBMISSION READY_FOR_REVIEW WAITING_FOR_REVIEW IN_REVIEW ACCEPTED APPROVED].include?(version_state)
+      raise ReviewSubmissionError,
+            "tip IAP version is not ready for review: #{product_id}:#{version_state}"
+    end
+    version.fetch("id")
   end
 end
 
@@ -568,22 +567,22 @@ if __FILE__ == $PROGRAM_NAME
                               else
                                 []
                               end
-    iap_ids = if options[:command] == "submit"
-                review_iap_ids(
-                  client,
-                  app.fetch("id"),
-                  config.fetch("iap", [])
-                )
-              else
-                []
-              end
+    iap_version_ids = if options[:command] == "submit"
+                        review_iap_version_ids(
+                          client,
+                          app.fetch("id"),
+                          config.fetch("iap", [])
+                        )
+                      else
+                        []
+                      end
     coordinator = ReviewSubmissionCoordinator.new(
       client: client,
       app_id: app.fetch("id"),
       version: options[:version],
       expected_build: options[:expected_build],
       leaderboard_version_ids: leaderboard_version_ids,
-      iap_ids: iap_ids
+      iap_version_ids: iap_version_ids
     )
     result = case options[:command]
              when "prepare"

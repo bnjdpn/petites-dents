@@ -66,6 +66,116 @@ class RecordingAscClient
   end
 end
 
+class IapVersionAscClient
+  attr_reader :calls
+
+  def initialize
+    @calls = []
+  end
+
+  def get_all(path, params = {})
+    @calls << [:get_all, path, params]
+    case path
+    when "/v1/apps/app-1/inAppPurchasesV2"
+      {
+        "data" => [{
+          "type" => "inAppPurchases",
+          "id" => "iap-cafe",
+          "attributes" => {
+            "productId" => "tip.cafe",
+            "inAppPurchaseType" => "CONSUMABLE",
+            "state" => "READY_TO_SUBMIT"
+          }
+        }]
+      }
+    when "/v2/inAppPurchases/iap-cafe/versions"
+      {
+        "data" => [{
+          "type" => "inAppPurchaseVersions",
+          "id" => "iap-cafe-v1",
+          "attributes" => { "version" => 1, "state" => "PREPARE_FOR_SUBMISSION" }
+        }]
+      }
+    else
+      raise "Unexpected get_all call: #{path}"
+    end
+  end
+end
+
+class DraftReviewAscClient
+  attr_reader :calls
+
+  def initialize
+    @calls = []
+    @state = "READY_FOR_REVIEW"
+    @items = [
+      review_item("appStoreVersion", "appStoreVersions", "version-1"),
+      review_item("inAppPurchaseVersion", "inAppPurchaseVersions", "iap-cafe-v1")
+    ]
+  end
+
+  def get_all(path, params = {})
+    @calls << [:get_all, path, params]
+    case path
+    when "/v1/apps/app-1/reviewSubmissions"
+      {
+        "data" => [{
+          "type" => "reviewSubmissions",
+          "id" => "review-draft",
+          "attributes" => { "state" => @state }
+        }],
+        "included" => []
+      }
+    when "/v1/reviewSubmissions/review-draft/items"
+      { "data" => @items, "included" => [] }
+    else
+      raise "Unexpected get_all call: #{path}"
+    end
+  end
+
+  def post(path, payload)
+    @calls << [:post, path, payload]
+    raise "Unexpected post call: #{path}" unless path == "/v1/reviewSubmissionItems"
+
+    relationships = payload.fetch(:data).fetch(:relationships)
+    relationship_name = relationships.keys.find { |name| name != :reviewSubmission }
+    relationship = relationships.fetch(relationship_name).fetch(:data)
+    item = review_item(
+      relationship_name.to_s,
+      relationship.fetch(:type),
+      relationship.fetch(:id)
+    )
+    @items << item
+    { "data" => item }
+  end
+
+  def patch(path, payload)
+    @calls << [:patch, path, payload]
+    unless path == "/v1/reviewSubmissions/review-draft" &&
+           payload.dig(:data, :attributes, :submitted) == true
+      raise "Unexpected patch call: #{path}"
+    end
+
+    @state = "WAITING_FOR_REVIEW"
+    { "data" => { "type" => "reviewSubmissions", "id" => "review-draft" } }
+  end
+
+  private
+
+  def review_item(relationship_name, resource_type, resource_id)
+    {
+      "type" => "reviewSubmissionItems",
+      "id" => "item-#{relationship_name}-#{resource_id}",
+      "attributes" => { "state" => @state },
+      "relationships" => {
+        relationship_name => {
+          "data" => { "type" => resource_type, "id" => resource_id }
+        }
+      }
+    }
+  end
+end
+
 class ReleaseHelpersTest
   def test_empty_leaderboard_list_skips_all_game_center_requests
     client = RecordingAscClient.new
@@ -112,6 +222,63 @@ class ReleaseHelpersTest
         path == "/v1/gameCenterAppVersions/game-center-version-1" &&
         payload.dig(:data, :attributes, :enabled) == true
     end)
+  end
+
+  def test_iap_parent_is_resolved_to_its_reviewable_version
+    client = IapVersionAscClient.new
+
+    ids = review_iap_version_ids(client, "app-1", [{ "product_id" => "tip.cafe" }])
+
+    assert_equal ["iap-cafe-v1"], ids
+    versions_call = client.calls.find do |method, path, _params|
+      method == :get_all && path == "/v2/inAppPurchases/iap-cafe/versions"
+    end
+    refute versions_call.nil?
+    assert_equal "version,state", versions_call.fetch(2).fetch("fields[inAppPurchaseVersions]")
+  end
+
+  def test_submit_reuses_partial_draft_and_attaches_only_missing_iap_versions
+    client = DraftReviewAscClient.new
+    coordinator = ReviewSubmissionCoordinator.new(
+      client: client,
+      app_id: "app-1",
+      version: "1.0.6",
+      expected_build: "1",
+      iap_version_ids: %w[iap-cafe-v1 iap-merci-v1 iap-soutien-v1]
+    )
+    coordinator.instance_variable_set(:@selected_version, { "id" => "version-1" })
+    coordinator.instance_variable_set(:@selected_build, { "id" => "build-1" })
+
+    result = coordinator.submit(wait_timeout: 0, poll_interval: 0)
+
+    assert_equal "submitted", result.fetch("status")
+    assert_equal "WAITING_FOR_REVIEW", result.fetch("submission_state")
+    assert_equal %w[iap-cafe-v1 iap-merci-v1 iap-soutien-v1], result.fetch("iap_version_ids")
+
+    item_posts = client.calls.select { |method, path, _payload| method == :post && path == "/v1/reviewSubmissionItems" }
+    assert_equal 2, item_posts.length
+    attached_ids = item_posts.map do |_method, _path, payload|
+      relationship = payload.dig(:data, :relationships, :inAppPurchaseVersion, :data)
+      assert_equal "inAppPurchaseVersions", relationship.fetch(:type)
+      relationship.fetch(:id)
+    end
+    assert_equal %w[iap-merci-v1 iap-soutien-v1], attached_ids
+    refute client.calls.any? { |method, path, _payload| method == :post && path == "/v1/inAppPurchaseSubmissions" }
+
+    item_read = client.calls.find do |method, path, _params|
+      method == :get_all && path == "/v1/reviewSubmissions/review-draft/items"
+    end
+    assert_includes item_read.fetch(2).fetch("include"), "inAppPurchaseVersion"
+    assert_includes item_read.fetch(2).fetch("fields[reviewSubmissionItems]"), "inAppPurchaseVersion"
+
+    submit_patch_index = client.calls.index do |method, path, payload|
+      method == :patch && path == "/v1/reviewSubmissions/review-draft" &&
+        payload.dig(:data, :attributes, :submitted) == true
+    end
+    last_item_post_index = client.calls.rindex do |method, path, _payload|
+      method == :post && path == "/v1/reviewSubmissionItems"
+    end
+    assert(last_item_post_index < submit_patch_index, "Review submission was marked submitted before all IAP items were attached")
   end
 
   def test_strict_status_accepts_an_app_without_game_center
