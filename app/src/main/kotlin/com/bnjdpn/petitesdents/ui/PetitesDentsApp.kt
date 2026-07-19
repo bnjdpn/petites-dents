@@ -42,6 +42,7 @@ fun PetitesDentsRoot() {
     val factory = remember(application) { TeethViewModel.Factory(application.repository) }
     val viewModel: TeethViewModel = viewModel(factory = factory)
     val teeth by viewModel.teeth.collectAsStateWithLifecycle()
+    val birthDateEpochDay by viewModel.birthDateEpochDay.collectAsStateWithLifecycle()
 
     var selectedTab by remember { mutableStateOf(AppTab.TEETH) }
     var selectedToothId by remember { mutableStateOf<String?>(null) }
@@ -70,12 +71,15 @@ fun PetitesDentsRoot() {
 
             AppTab.HISTORY -> HistoryScreen(
                 teeth = teeth,
+                birthDateEpochDay = birthDateEpochDay,
                 onSelect = { selectedToothId = it.definition.id },
                 modifier = Modifier.padding(padding),
             )
 
             AppTab.MORE -> MoreScreen(
                 teeth = teeth,
+                birthDateEpochDay = birthDateEpochDay,
+                onBirthDateChange = viewModel::saveBirthDate,
                 modifier = Modifier.padding(padding),
             )
         }
@@ -84,6 +88,7 @@ fun PetitesDentsRoot() {
     selectedTooth?.let { tooth ->
         ToothEditorSheet(
             snapshot = tooth,
+            birthDateEpochDay = birthDateEpochDay,
             onDismiss = { selectedToothId = null },
             onSaveNote = { note ->
                 viewModel.saveNote(tooth, note)

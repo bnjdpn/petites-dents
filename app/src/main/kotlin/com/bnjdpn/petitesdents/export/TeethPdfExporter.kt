@@ -9,6 +9,7 @@ import com.bnjdpn.petitesdents.R
 import com.bnjdpn.petitesdents.data.ToothArch
 import com.bnjdpn.petitesdents.data.ToothSnapshot
 import com.bnjdpn.petitesdents.data.ToothStatus
+import com.bnjdpn.petitesdents.data.formatCalendarAge
 import com.bnjdpn.petitesdents.ui.formatEpochDay
 import com.bnjdpn.petitesdents.ui.localizedName
 import java.io.File
@@ -22,14 +23,18 @@ object TeethPdfExporter {
     private const val PAGE_HEIGHT = 842
     private const val MARGIN = 42f
 
-    fun create(context: Context, teeth: List<ToothSnapshot>): File {
+    fun create(
+        context: Context,
+        teeth: List<ToothSnapshot>,
+        birthDateEpochDay: Long? = null,
+    ): File {
         require(teeth.size == 20) { "The PDF requires the complete 20-tooth catalog" }
         val document = PdfDocument()
         val outputDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val output = File(outputDirectory, context.getString(R.string.pdf_filename))
 
         try {
-            val writer = PdfWriter(context, document)
+            val writer = PdfWriter(context, document, birthDateEpochDay)
             writer.render(teeth)
             FileOutputStream(output).use(document::writeTo)
         } finally {
@@ -41,6 +46,7 @@ object TeethPdfExporter {
     private class PdfWriter(
         private val context: Context,
         private val document: PdfDocument,
+        private val birthDateEpochDay: Long?,
     ) {
         private val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(52, 44, 42)
@@ -68,6 +74,16 @@ object TeethPdfExporter {
             val generated = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
             page.canvas.drawText(context.getString(R.string.pdf_generated, generated), MARGIN, y, mutedPaint)
             y += 26f
+
+            birthDateEpochDay?.let { epochDay ->
+                page.canvas.drawText(
+                    context.getString(R.string.pdf_birth_date, formatEpochDay(epochDay)),
+                    MARGIN,
+                    y,
+                    mutedPaint,
+                )
+                y += 18f
+            }
 
             val erupted = teeth.count { it.record.status == ToothStatus.ERUPTED }
             val teething = teeth.count { it.record.status == ToothStatus.TEETHING }
@@ -117,7 +133,7 @@ object TeethPdfExporter {
 
         private fun drawTooth(tooth: ToothSnapshot) {
             val noteLines = wrap(tooth.record.note, 82)
-            val requiredHeight = 46f + noteLines.size * 13f
+            val requiredHeight = 60f + noteLines.size * 13f
             ensureSpace(requiredHeight)
 
             page.canvas.drawText(
@@ -132,7 +148,16 @@ object TeethPdfExporter {
             val erupted = tooth.record.eruptedEpochDay?.let(::formatEpochDay)
                 ?: context.getString(R.string.pdf_no_date)
             page.canvas.drawText(context.getString(R.string.pdf_teething, teething), MARGIN + 8f, y, bodyPaint)
-            page.canvas.drawText(context.getString(R.string.pdf_erupted, erupted), 300f, y, bodyPaint)
+            y += 14f
+            val eruptionLine = tooth.record.eruptedEpochDay?.let { epochDay ->
+                val age = birthDateEpochDay?.let { birthEpochDay ->
+                    formatCalendarAge(context, birthEpochDay, epochDay)
+                }
+                age?.let {
+                    context.getString(R.string.erupted_on_with_age, erupted, it)
+                } ?: context.getString(R.string.erupted_on, erupted)
+            } ?: context.getString(R.string.pdf_erupted, erupted)
+            page.canvas.drawText(eruptionLine, MARGIN + 8f, y, bodyPaint)
             y += 14f
             if (noteLines.isNotEmpty()) {
                 noteLines.forEachIndexed { index, line ->

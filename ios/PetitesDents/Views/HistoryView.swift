@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
     let snapshots: [ToothSnapshot]
+    let birthDate: Date?
     let onSelect: (ToothSnapshot) -> Void
 
     private var history: [ToothSnapshot] {
@@ -32,7 +33,7 @@ struct HistoryView: View {
                         Button {
                             onSelect(snapshot)
                         } label: {
-                            HistoryCard(snapshot: snapshot)
+                            HistoryCard(snapshot: snapshot, birthDate: birthDate)
                         }
                         .buttonStyle(.plain)
                     }
@@ -51,6 +52,7 @@ struct HistoryView: View {
 
 private struct HistoryCard: View {
     let snapshot: ToothSnapshot
+    let birthDate: Date?
 
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
@@ -64,14 +66,28 @@ private struct HistoryCard: View {
                     .font(.headline)
                     .foregroundStyle(.primary)
                 if let eruptedDate = snapshot.record?.eruptedDate {
+                    let formattedDate = CivilDate.formatted(eruptedDate, style: .medium)
+                    let age = birthDate.flatMap {
+                        CalendarAgeFormatter.string(birthDate: $0, eventDate: eruptedDate)
+                    }
                     Text(
-                        String(
+                        age.map {
+                            String(
+                                format: NSLocalizedString(
+                                    "history.erupted_on_with_age",
+                                    comment: "Eruption date and baby age"
+                                ),
+                                formattedDate,
+                                $0
+                            )
+                        } ?? String(
                             format: NSLocalizedString("history.erupted_on", comment: "Eruption date"),
-                            eruptedDate.formatted(date: .abbreviated, time: .omitted)
+                            formattedDate
                         )
                     )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("history.age.\(snapshot.definition.fdi)")
                 }
                 if let note = snapshot.record?.note, !note.isEmpty {
                     Text(note)

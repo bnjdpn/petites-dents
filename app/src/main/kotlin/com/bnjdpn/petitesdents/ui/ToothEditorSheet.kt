@@ -47,6 +47,7 @@ import java.time.ZoneOffset
 @Composable
 fun ToothEditorSheet(
     snapshot: ToothSnapshot,
+    birthDateEpochDay: Long?,
     onDismiss: () -> Unit,
     onSaveNote: (String) -> Unit,
     onMarkTeething: (Long, String) -> Unit,
@@ -65,6 +66,7 @@ fun ToothEditorSheet(
     var showDatePicker by remember { mutableStateOf(false) }
     var showResetConfirmation by remember { mutableStateOf(false) }
     var invalidOrder by remember { mutableStateOf(false) }
+    var beforeBirthDate by remember { mutableStateOf(false) }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -135,8 +137,23 @@ fun ToothEditorSheet(
                 )
             }
 
+            if (beforeBirthDate) {
+                Text(
+                    text = stringResource(R.string.invalid_date_before_birth),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+
             Button(
-                onClick = { onMarkTeething(selectedEpochDay, note) },
+                onClick = {
+                    if (birthDateEpochDay != null && selectedEpochDay < birthDateEpochDay) {
+                        beforeBirthDate = true
+                    } else {
+                        onMarkTeething(selectedEpochDay, note)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
@@ -147,7 +164,9 @@ fun ToothEditorSheet(
 
             Button(
                 onClick = {
-                    if (snapshot.record.teethingEpochDay != null &&
+                    if (birthDateEpochDay != null && selectedEpochDay < birthDateEpochDay) {
+                        beforeBirthDate = true
+                    } else if (snapshot.record.teethingEpochDay != null &&
                         selectedEpochDay < snapshot.record.teethingEpochDay
                     ) {
                         invalidOrder = true
@@ -204,7 +223,13 @@ fun ToothEditorSheet(
                     utcTimeMillis <= LocalDate.now()
                         .atStartOfDay(ZoneOffset.UTC)
                         .toInstant()
-                        .toEpochMilli()
+                        .toEpochMilli() &&
+                        (birthDateEpochDay == null || utcTimeMillis >= LocalDate.ofEpochDay(
+                            birthDateEpochDay,
+                        )
+                            .atStartOfDay(ZoneOffset.UTC)
+                            .toInstant()
+                            .toEpochMilli())
             },
         )
         DatePickerDialog(
@@ -217,6 +242,7 @@ fun ToothEditorSheet(
                             .toLocalDate()
                             .toEpochDay()
                         invalidOrder = false
+                        beforeBirthDate = false
                     }
                     showDatePicker = false
                 }) { Text(stringResource(android.R.string.ok)) }

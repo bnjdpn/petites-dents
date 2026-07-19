@@ -44,9 +44,17 @@
 "history.empty_title" = "No erupted teeth yet";
 "history.empty_body" = "Marked teeth will appear here automatically.";
 "history.erupted_on" = "Erupted %@";
+"history.erupted_on_with_age" = "Erupted %1$@ — %2$@";
 
 "more.title" = "Your data";
 "more.subtitle" = "Everything stays on this device. No account, no server and no tracking.";
+"more.birth_date_title" = "Baby’s date of birth";
+"more.birth_date_body" = "Used only on this device to show baby’s exact age for each erupted tooth.";
+"more.birth_date_label" = "Date of birth";
+"more.birth_date_not_set" = "Not provided";
+"more.birth_date_add" = "Add date of birth";
+"more.birth_date_edit" = "Change date";
+"more.birth_date_remove" = "Remove date";
 "more.export_title" = "PDF summary";
 "more.export_body" = "Create a local report to share with a paediatrician or keep with the health record.";
 "more.export_button" = "Export PDF summary";
@@ -66,6 +74,7 @@
 
 "pdf.title" = "Petites Dents — baby teeth summary";
 "pdf.generated" = "Generated %@";
+"pdf.birth_date" = "Baby’s date of birth: %@";
 "pdf.summary" = "%d erupted · %d teething · %d not started";
 "pdf.no_date" = "No date";
 "pdf.teething" = "Teething: %@";
@@ -73,6 +82,14 @@
 "pdf.note" = "Note: %@";
 "pdf.filename" = "petites-dents-summary.pdf";
 "pdf.incomplete" = "The complete 20-tooth catalog is required to export a PDF.";
+
+"age.month.one" = "%d month";
+"age.month.other" = "%d months";
+"age.day.one" = "%d day";
+"age.day.other" = "%d days";
+"age.combined" = "%1$@ and %2$@";
+"birth_date_after_recorded_event" = "The birth date must be before the dates already recorded.";
+"event_before_birth_date" = "The selected date must be on or after the birth date.";
 
 "seed.note.71" = "Red cheeks and a restless night.";
 "seed.note.81" = "The second central incisor appeared this week.";
@@ -83,3 +100,4 @@
 "common.cancel" = "Cancel";
 "common.error" = "Something went wrong";
 "common.ok" = "OK";
+"common.save" = "Save";

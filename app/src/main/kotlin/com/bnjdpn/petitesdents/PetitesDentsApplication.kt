@@ -6,12 +6,20 @@ import com.bnjdpn.petitesdents.data.PetitesDentsDatabase
 import com.bnjdpn.petitesdents.data.TeethRepository
 
 class PetitesDentsApplication : Application() {
-    val repository: TeethRepository by lazy {
-        val database = Room.databaseBuilder(
+    private val database: PetitesDentsDatabase by lazy {
+        Room.databaseBuilder(
             applicationContext,
             PetitesDentsDatabase::class.java,
             "petites-dents.sqlite",
-        ).build()
-        TeethRepository(database.toothRecordDao())
+        )
+            .addMigrations(PetitesDentsDatabase.MIGRATION_1_2)
+            .build()
+    }
+
+    val repository: TeethRepository by lazy {
+        TeethRepository(
+            toothDao = database.toothRecordDao(),
+            profileDao = database.childProfileDao(),
+        )
     }
 }

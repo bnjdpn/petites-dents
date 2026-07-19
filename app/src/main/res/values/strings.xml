@@ -45,6 +45,7 @@
     <string name="confirm_reset_title">Reset this tooth?</string>
     <string name="confirm_reset_body">The dates and note for this tooth will be deleted.</string>
     <string name="invalid_date_order">The eruption date cannot be before the teething date.</string>
+    <string name="invalid_date_before_birth">The selected date must be on or after the birth date.</string>
 
     <string name="history_title">Eruption history</string>
     <string name="history_subtitle">Erupted teeth are sorted by date.</string>
@@ -52,9 +53,16 @@
     <string name="history_empty_body">Marked teeth will appear here automatically.</string>
     <string name="teething_started">Teething began %1$s</string>
     <string name="erupted_on">Erupted %1$s</string>
+    <string name="erupted_on_with_age">Erupted %1$s — %2$s</string>
 
     <string name="more_title">Your data</string>
     <string name="more_subtitle">Everything stays on this device. No account, no server and no tracking.</string>
+    <string name="birth_date_title">Baby’s date of birth</string>
+    <string name="birth_date_detail">Used only on this device to show baby’s exact age for each erupted tooth.</string>
+    <string name="birth_date_not_set">Not provided</string>
+    <string name="birth_date_add">Add date of birth</string>
+    <string name="birth_date_edit">Change date</string>
+    <string name="birth_date_remove">Remove date</string>
     <string name="export_pdf">Export PDF summary</string>
     <string name="export_pdf_detail">Creates a local report you can share with a paediatrician or keep with the health record.</string>
     <string name="share_pdf">Share the Petites Dents summary</string>
@@ -66,10 +74,21 @@
 
     <string name="pdf_title">Petites Dents — baby teeth summary</string>
     <string name="pdf_generated">Generated %1$s</string>
+    <string name="pdf_birth_date">Baby’s date of birth: %1$s</string>
     <string name="pdf_summary">%1$d erupted · %2$d teething · %3$d not started</string>
     <string name="pdf_no_date">No date</string>
     <string name="pdf_teething">Teething: %1$s</string>
     <string name="pdf_erupted">Erupted: %1$s</string>
     <string name="pdf_note">Note: %1$s</string>
     <string name="pdf_filename">petites-dents-summary.pdf</string>
+
+    <string name="age_months_days">%1$s and %2$s</string>
+    <plurals name="age_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="age_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
 </resources>

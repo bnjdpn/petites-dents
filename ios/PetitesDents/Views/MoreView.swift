@@ -3,9 +3,24 @@ import UIKit
 
 struct MoreView: View {
     let snapshots: [ToothSnapshot]
+    let birthDate: Date?
+    let onSaveBirthDate: (Date?) throws -> Void
 
     @State private var shareItem: ShareItem?
     @State private var exportError: String?
+    @State private var showingBirthDateEditor = false
+    @State private var draftBirthDate = Date()
+
+    private var latestAllowedBirthDate: Date {
+        let earliestRecordedDate = snapshots
+            .compactMap { snapshot in
+                [snapshot.record?.teethingDate, snapshot.record?.eruptedDate]
+                    .compactMap { $0 }
+                    .min()
+            }
+            .min()
+        return earliestRecordedDate ?? CivilDate.normalized(Date())
+    }
 
     var body: some View {
         ScrollView {
@@ -16,6 +31,42 @@ struct MoreView: View {
                     .foregroundStyle(.secondary)
 
                 VStack(alignment: .leading, spacing: 12) {
+                    Label("more.birth_date_title", systemImage: "birthday.cake")
+                        .font(.headline)
+                        .foregroundStyle(PetitesDentsStyle.sage)
+                    Text("more.birth_date_body")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(
+                        birthDate.map { CivilDate.formatted($0, style: .long) }
+                            ?? String(localized: "more.birth_date_not_set")
+                    )
+                    .font(.subheadline.weight(.semibold))
+                    Button(
+                        birthDate == nil ? "more.birth_date_add" : "more.birth_date_edit"
+                    ) {
+                        draftBirthDate = birthDate.map { CivilDate.pickerDate(from: $0) } ?? Date()
+                        showingBirthDateEditor = true
+                    }
+                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityIdentifier("more.birth_date_edit")
+
+                    if birthDate != nil {
+                        Button("more.birth_date_remove", role: .destructive) {
+                            do {
+                                try onSaveBirthDate(nil)
+                            } catch {
+                                exportError = error.localizedDescription
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .cardStyle()
+                .accessibilityIdentifier("more.birth_date")
+
+                VStack(alignment: .leading, spacing: 12) {
                     Label("more.export_title", systemImage: "doc.richtext")
                         .font(.headline)
                         .foregroundStyle(PetitesDentsStyle.coral)
@@ -24,7 +75,12 @@ struct MoreView: View {
                         .foregroundStyle(.secondary)
                     Button("more.export_button") {
                         do {
-                            shareItem = ShareItem(url: try TeethPDFExporter.create(snapshots: snapshots))
+                            shareItem = ShareItem(
+                                url: try TeethPDFExporter.create(
+                                    snapshots: snapshots,
+                                    birthDate: birthDate
+                                )
+                            )
                         } catch {
                             exportError = error.localizedDescription
                         }
@@ -71,6 +127,39 @@ struct MoreView: View {
         .accessibilityIdentifier("screen.more")
         .sheet(item: $shareItem) { item in
             ActivityView(items: [item.url])
+        }
+        .sheet(isPresented: $showingBirthDateEditor) {
+            NavigationStack {
+                Form {
+                    DatePicker(
+                        "more.birth_date_label",
+                        selection: $draftBirthDate,
+                        in: ...CivilDate.pickerDate(from: latestAllowedBirthDate),
+                        displayedComponents: .date
+                    )
+                    .accessibilityIdentifier("more.birth_date_picker")
+                }
+                .navigationTitle("more.birth_date_title")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("common.cancel") {
+                            showingBirthDateEditor = false
+                        }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("common.save") {
+                            do {
+                                try onSaveBirthDate(draftBirthDate)
+                                showingBirthDateEditor = false
+                            } catch {
+                                exportError = error.localizedDescription
+                            }
+                        }
+                        .accessibilityIdentifier("more.save_birth_date")
+                    }
+                }
+            }
+            .presentationDetents([.medium])
         }
         .alert(
             "common.error",

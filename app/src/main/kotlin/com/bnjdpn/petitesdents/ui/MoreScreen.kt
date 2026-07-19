@@ -11,16 +11,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Cake
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.SupportAgent
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,12 +48,28 @@ import com.bnjdpn.petitesdents.export.TeethPdfExporter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoreScreen(teeth: List<ToothSnapshot>, modifier: Modifier = Modifier) {
+fun MoreScreen(
+    teeth: List<ToothSnapshot>,
+    birthDateEpochDay: Long?,
+    onBirthDateChange: (Long?) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var exportFailed by remember { mutableStateOf(false) }
+    var showBirthDatePicker by remember { mutableStateOf(false) }
+    val latestAllowedBirthEpochDay = teeth.flatMap { snapshot ->
+        listOfNotNull(
+            snapshot.record.teethingEpochDay,
+            snapshot.record.eruptedEpochDay,
+        )
+    }.minOrNull() ?: LocalDate.now().toEpochDay()
 
     Column(
         modifier = modifier
@@ -65,6 +88,67 @@ fun MoreScreen(teeth: List<ToothSnapshot>, modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 6.dp),
         )
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 18.dp)
+                .testTag("birth-date-card"),
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Rounded.Cake, contentDescription = null, tint = Sage)
+                    Text(
+                        text = stringResource(R.string.birth_date_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(start = 10.dp),
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.birth_date_detail),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                Text(
+                    text = birthDateEpochDay?.let(::formatEpochDay)
+                        ?: stringResource(R.string.birth_date_not_set),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 14.dp),
+                )
+                OutlinedButton(
+                    onClick = { showBirthDatePicker = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                        .testTag("birth-date-edit"),
+                ) {
+                    Text(
+                        stringResource(
+                            if (birthDateEpochDay == null) {
+                                R.string.birth_date_add
+                            } else {
+                                R.string.birth_date_edit
+                            },
+                        ),
+                    )
+                }
+                if (birthDateEpochDay != null) {
+                    TextButton(
+                        onClick = { onBirthDateChange(null) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.birth_date_remove),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
+            }
+        }
 
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -94,7 +178,11 @@ fun MoreScreen(teeth: List<ToothSnapshot>, modifier: Modifier = Modifier) {
                         scope.launch {
                             runCatching {
                                 withContext(Dispatchers.IO) {
-                                    TeethPdfExporter.create(context, teeth)
+                                    TeethPdfExporter.create(
+                                        context = context,
+                                        teeth = teeth,
+                                        birthDateEpochDay = birthDateEpochDay,
+                                    )
                                 }
                             }.onSuccess { file ->
                                 val uri = FileProvider.getUriForFile(
@@ -164,6 +252,50 @@ fun MoreScreen(teeth: List<ToothSnapshot>, modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 24.dp, bottom = 28.dp),
         )
+    }
+
+    if (showBirthDatePicker) {
+        val latestAllowedBirthDate = LocalDate.ofEpochDay(latestAllowedBirthEpochDay)
+        val pickerState = rememberDatePickerState(
+            initialSelectedDateMillis = LocalDate.ofEpochDay(
+                birthDateEpochDay ?: latestAllowedBirthEpochDay,
+            )
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant()
+                .toEpochMilli(),
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean =
+                    utcTimeMillis <= latestAllowedBirthDate
+                        .atStartOfDay(ZoneOffset.UTC)
+                        .toInstant()
+                        .toEpochMilli()
+            },
+        )
+        DatePickerDialog(
+            onDismissRequest = { showBirthDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    pickerState.selectedDateMillis?.let { millis ->
+                        onBirthDateChange(
+                            Instant.ofEpochMilli(millis)
+                                .atZone(ZoneOffset.UTC)
+                                .toLocalDate()
+                                .toEpochDay(),
+                        )
+                    }
+                    showBirthDatePicker = false
+                }) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBirthDatePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        ) {
+            DatePicker(state = pickerState)
+        }
     }
 }
 

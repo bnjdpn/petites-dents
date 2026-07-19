@@ -5,8 +5,10 @@ import SwiftData
 enum ScreenshotDataService {
     static func seed(in context: ModelContext) throws {
         try context.delete(model: ToothRecord.self)
+        try context.delete(model: ChildProfile.self)
         let calendar = Calendar(identifier: .gregorian)
         let base = calendar.date(from: DateComponents(year: 2026, month: 7, day: 18))!
+        let birthDate = calendar.date(from: DateComponents(year: 2025, month: 10, day: 2))!
         let records = [
             ToothRecord(
                 toothID: "tooth-71",
@@ -32,6 +34,7 @@ enum ScreenshotDataService {
             ),
         ]
         records.forEach(context.insert)
+        context.insert(ChildProfile(birthDate: birthDate, calendar: calendar))
         try context.save()
     }
 }

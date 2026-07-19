@@ -6,7 +6,7 @@ enum TeethPDFExporter {
     private static let pageBounds = CGRect(x: 0, y: 0, width: 595, height: 842)
     private static let margin: CGFloat = 42
 
-    static func create(snapshots: [ToothSnapshot]) throws -> URL {
+    static func create(snapshots: [ToothSnapshot], birthDate: Date? = nil) throws -> URL {
         guard snapshots.count == 20 else {
             throw TeethPDFError.incompleteCatalog
         }
@@ -73,6 +73,16 @@ enum TeethPDFExporter {
                 font: .systemFont(ofSize: 10.5),
                 color: .secondaryLabel
             )
+            if let birthDate {
+                drawLine(
+                    String(
+                        format: NSLocalizedString("pdf.birth_date", comment: "Baby birth date"),
+                        CivilDate.formatted(birthDate, style: .long)
+                    ),
+                    font: .systemFont(ofSize: 10.5),
+                    color: .secondaryLabel
+                )
+            }
             y += 12
 
             let erupted = snapshots.filter { $0.status == .erupted }.count
@@ -98,8 +108,37 @@ enum TeethPDFExporter {
                     font: .systemFont(ofSize: 12.5, weight: .semibold)
                 )
                 let noDate = String(localized: "pdf.no_date")
-                let teethingDate = snapshot.record?.teethingDate?.formatted(date: .abbreviated, time: .omitted) ?? noDate
-                let eruptedDate = snapshot.record?.eruptedDate?.formatted(date: .abbreviated, time: .omitted) ?? noDate
+                let teethingDate = snapshot.record?.teethingDate.map {
+                    CivilDate.formatted($0, style: .medium)
+                } ?? noDate
+                let eruptedLine: String
+                if let eruptedDate = snapshot.record?.eruptedDate {
+                    let formattedDate = CivilDate.formatted(eruptedDate, style: .medium)
+                    if let birthDate,
+                       let age = CalendarAgeFormatter.string(
+                           birthDate: birthDate,
+                           eventDate: eruptedDate
+                       ) {
+                        eruptedLine = String(
+                            format: NSLocalizedString(
+                                "history.erupted_on_with_age",
+                                comment: "Eruption date and baby age"
+                            ),
+                            formattedDate,
+                            age
+                        )
+                    } else {
+                        eruptedLine = String(
+                            format: NSLocalizedString("history.erupted_on", comment: "Eruption date"),
+                            formattedDate
+                        )
+                    }
+                } else {
+                    eruptedLine = String(
+                        format: NSLocalizedString("pdf.erupted", comment: "Eruption date"),
+                        noDate
+                    )
+                }
                 drawLine(
                     String(format: NSLocalizedString("pdf.teething", comment: "Teething date"), teethingDate),
                     font: .systemFont(ofSize: 10.5),
@@ -107,7 +146,7 @@ enum TeethPDFExporter {
                     indent: 8
                 )
                 drawLine(
-                    String(format: NSLocalizedString("pdf.erupted", comment: "Eruption date"), eruptedDate),
+                    eruptedLine,
                     font: .systemFont(ofSize: 10.5),
                     color: .secondaryLabel,
                     indent: 8

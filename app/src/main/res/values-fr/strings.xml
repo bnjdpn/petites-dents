@@ -45,6 +45,7 @@
     <string name="confirm_reset_title">Réinitialiser cette dent ?</string>
     <string name="confirm_reset_body">Les dates et la note de cette dent seront supprimées.</string>
     <string name="invalid_date_order">La date de sortie ne peut pas précéder le début de poussée.</string>
+    <string name="invalid_date_before_birth">La date choisie doit être postérieure ou égale à la date de naissance.</string>
 
     <string name="history_title">Historique des sorties</string>
     <string name="history_subtitle">Les dents percées sont classées par date.</string>
@@ -52,9 +53,16 @@
     <string name="history_empty_body">Les dents marquées apparaîtront automatiquement ici.</string>
     <string name="teething_started">Poussée commencée le %1$s</string>
     <string name="erupted_on">Percée le %1$s</string>
+    <string name="erupted_on_with_age">Percée le %1$s — %2$s</string>
 
     <string name="more_title">Vos données</string>
     <string name="more_subtitle">Tout reste sur ce téléphone. Aucun compte, aucun serveur et aucun suivi.</string>
+    <string name="birth_date_title">Date de naissance de bébé</string>
+    <string name="birth_date_detail">Utilisée uniquement sur cet appareil pour afficher l’âge exact de bébé à chaque percée.</string>
+    <string name="birth_date_not_set">Non renseignée</string>
+    <string name="birth_date_add">Ajouter la date de naissance</string>
+    <string name="birth_date_edit">Modifier la date</string>
+    <string name="birth_date_remove">Supprimer la date</string>
     <string name="export_pdf">Exporter le récapitulatif PDF</string>
     <string name="export_pdf_detail">Crée un document local à partager avec le pédiatre ou à joindre au carnet de santé.</string>
     <string name="share_pdf">Partager le récapitulatif Petites Dents</string>
@@ -66,10 +74,21 @@
 
     <string name="pdf_title">Petites Dents — récapitulatif des dents de lait</string>
     <string name="pdf_generated">Généré le %1$s</string>
+    <string name="pdf_birth_date">Date de naissance de bébé : %1$s</string>
     <string name="pdf_summary">%1$d percée(s) · %2$d en poussée · %3$d pas commencée(s)</string>
     <string name="pdf_no_date">Aucune date</string>
     <string name="pdf_teething">Poussée : %1$s</string>
     <string name="pdf_erupted">Percée : %1$s</string>
     <string name="pdf_note">Note : %1$s</string>
     <string name="pdf_filename">recapitulatif-petites-dents.pdf</string>
+
+    <string name="age_months_days">%1$s et %2$s</string>
+    <plurals name="age_months">
+        <item quantity="one">%d mois</item>
+        <item quantity="other">%d mois</item>
+    </plurals>
+    <plurals name="age_days">
+        <item quantity="one">%d jour</item>
+        <item quantity="other">%d jours</item>
+    </plurals>
 </resources>

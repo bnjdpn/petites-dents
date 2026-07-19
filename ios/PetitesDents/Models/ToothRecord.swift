@@ -17,13 +17,14 @@ final class ToothRecord {
         toothID: String,
         teethingDate: Date? = nil,
         eruptedDate: Date? = nil,
-        note: String = ""
+        note: String = "",
+        calendar: Calendar = .autoupdatingCurrent
     ) {
         self.recordKey = "\(childID):\(toothID)"
         self.childID = childID
         self.toothID = toothID
-        self.teethingDate = teethingDate
-        self.eruptedDate = eruptedDate
+        self.teethingDate = teethingDate.map { CivilDate.normalized($0, sourceCalendar: calendar) }
+        self.eruptedDate = eruptedDate.map { CivilDate.normalized($0, sourceCalendar: calendar) }
         self.note = note
     }
 
@@ -33,15 +34,15 @@ final class ToothRecord {
         return .ghost
     }
 
-    func markTeething(on date: Date, note: String, calendar: Calendar = .current) {
-        teethingDate = calendar.startOfDay(for: date)
+    func markTeething(on date: Date, note: String, calendar: Calendar = .autoupdatingCurrent) {
+        teethingDate = CivilDate.normalized(date, sourceCalendar: calendar)
         eruptedDate = nil
         self.note = note.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    func markErupted(on date: Date, note: String, calendar: Calendar = .current) throws {
-        let normalized = calendar.startOfDay(for: date)
-        if let teethingDate, normalized < calendar.startOfDay(for: teethingDate) {
+    func markErupted(on date: Date, note: String, calendar: Calendar = .autoupdatingCurrent) throws {
+        let normalized = CivilDate.normalized(date, sourceCalendar: calendar)
+        if let teethingDate, normalized < teethingDate {
             throw ToothRecordError.eruptionBeforeTeething
         }
         eruptedDate = normalized

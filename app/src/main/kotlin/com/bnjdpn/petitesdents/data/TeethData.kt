@@ -5,8 +5,11 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -105,6 +108,12 @@ data class ToothRecordEntity(
     }
 }
 
+@Entity(tableName = "child_profiles")
+data class ChildProfileEntity(
+    @PrimaryKey val childId: String = ToothRecordEntity.PRIMARY_CHILD_ID,
+    val birthEpochDay: Long? = null,
+)
+
 data class ToothSnapshot(
     val definition: ToothDefinition,
     val record: ToothRecordEntity,
@@ -122,13 +131,46 @@ interface ToothRecordDao {
     suspend fun delete(childId: String, toothId: String)
 }
 
-@Database(entities = [ToothRecordEntity::class], version = 1, exportSchema = false)
-abstract class PetitesDentsDatabase : RoomDatabase() {
-    abstract fun toothRecordDao(): ToothRecordDao
+@Dao
+interface ChildProfileDao {
+    @Query("SELECT * FROM child_profiles WHERE childId = :childId LIMIT 1")
+    fun observe(childId: String = ToothRecordEntity.PRIMARY_CHILD_ID): Flow<ChildProfileEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(profile: ChildProfileEntity)
 }
 
-class TeethRepository(private val dao: ToothRecordDao) {
-    val teeth: Flow<List<ToothSnapshot>> = dao.observe().map { records ->
+@Database(
+    entities = [ToothRecordEntity::class, ChildProfileEntity::class],
+    version = 2,
+    exportSchema = false,
+)
+abstract class PetitesDentsDatabase : RoomDatabase() {
+    abstract fun toothRecordDao(): ToothRecordDao
+    abstract fun childProfileDao(): ChildProfileDao
+
+    companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `child_profiles` (
+                        `childId` TEXT NOT NULL,
+                        `birthEpochDay` INTEGER,
+                        PRIMARY KEY(`childId`)
+                    )
+                    """.trimIndent(),
+                )
+            }
+        }
+    }
+}
+
+class TeethRepository(
+    private val toothDao: ToothRecordDao,
+    private val profileDao: ChildProfileDao,
+) {
+    val teeth: Flow<List<ToothSnapshot>> = toothDao.observe().map { records ->
         val byId = records.associateBy(ToothRecordEntity::toothId)
         ToothCatalog.all.map { definition ->
             ToothSnapshot(
@@ -138,19 +180,25 @@ class TeethRepository(private val dao: ToothRecordDao) {
         }
     }
 
+    val birthDateEpochDay: Flow<Long?> = profileDao.observe().map { it?.birthEpochDay }
+
     suspend fun saveNote(snapshot: ToothSnapshot, note: String) {
-        dao.upsert(snapshot.record.copy(note = note.trim()))
+        toothDao.upsert(snapshot.record.copy(note = note.trim()))
     }
 
     suspend fun markTeething(snapshot: ToothSnapshot, epochDay: Long, note: String) {
-        dao.upsert(snapshot.record.markTeething(epochDay, note))
+        toothDao.upsert(snapshot.record.markTeething(epochDay, note))
     }
 
     suspend fun markErupted(snapshot: ToothSnapshot, epochDay: Long, note: String) {
-        dao.upsert(snapshot.record.markErupted(epochDay, note))
+        toothDao.upsert(snapshot.record.markErupted(epochDay, note))
     }
 
     suspend fun reset(snapshot: ToothSnapshot) {
-        dao.delete(snapshot.record.childId, snapshot.record.toothId)
+        toothDao.delete(snapshot.record.childId, snapshot.record.toothId)
+    }
+
+    suspend fun saveBirthDate(epochDay: Long?) {
+        profileDao.upsert(ChildProfileEntity(birthEpochDay = epochDay))
     }
 }

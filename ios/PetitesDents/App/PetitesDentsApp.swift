@@ -13,12 +13,13 @@ struct PetitesDentsApp: App {
         )
         do {
             container = try ModelContainer(
-                for: ToothRecord.self,
+                for: ToothRecord.self, ChildProfile.self,
                 configurations: configuration
             )
             if arguments.contains("--screenshots") {
                 try ScreenshotDataService.seed(in: container.mainContext)
             }
+            try DateStorageMigration.migrateIfNeeded(in: container.mainContext)
         } catch {
             fatalError("Unable to create the local Petites Dents store: \(error)")
         }

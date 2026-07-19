@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bnjdpn.petitesdents.R
+import com.bnjdpn.petitesdents.data.formatCalendarAge
 import com.bnjdpn.petitesdents.data.ToothSnapshot
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,6 +34,7 @@ import java.time.format.FormatStyle
 @Composable
 fun HistoryScreen(
     teeth: List<ToothSnapshot>,
+    birthDateEpochDay: Long?,
     onSelect: (ToothSnapshot) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -68,7 +70,11 @@ fun HistoryScreen(
             item { EmptyHistory() }
         } else {
             items(history, key = { it.definition.id }) { tooth ->
-                HistoryCard(tooth = tooth, onClick = { onSelect(tooth) })
+                HistoryCard(
+                    tooth = tooth,
+                    birthDateEpochDay = birthDateEpochDay,
+                    onClick = { onSelect(tooth) },
+                )
             }
         }
     }
@@ -109,9 +115,19 @@ private fun EmptyHistory() {
 }
 
 @Composable
-private fun HistoryCard(tooth: ToothSnapshot, onClick: () -> Unit) {
+private fun HistoryCard(
+    tooth: ToothSnapshot,
+    birthDateEpochDay: Long?,
+    onClick: () -> Unit,
+) {
     val context = LocalContext.current
-    val date = tooth.record.eruptedEpochDay?.let(::formatEpochDay).orEmpty()
+    val eruptedEpochDay = tooth.record.eruptedEpochDay
+    val date = eruptedEpochDay?.let(::formatEpochDay).orEmpty()
+    val age = if (birthDateEpochDay != null && eruptedEpochDay != null) {
+        formatCalendarAge(context, birthDateEpochDay, eruptedEpochDay)
+    } else {
+        null
+    }
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
@@ -134,7 +150,9 @@ private fun HistoryCard(tooth: ToothSnapshot, onClick: () -> Unit) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = stringResource(R.string.erupted_on, date),
+                    text = age?.let {
+                        stringResource(R.string.erupted_on_with_age, date, it)
+                    } ?: stringResource(R.string.erupted_on, date),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

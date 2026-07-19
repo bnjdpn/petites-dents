@@ -5,6 +5,7 @@ struct ToothEditorView: View {
 
     let definition: ToothDefinition
     let record: ToothRecord?
+    let birthDate: Date?
     let onSaveNote: (String) throws -> Void
     let onMarkTeething: (Date, String) throws -> Void
     let onMarkErupted: (Date, String) throws -> Void
@@ -18,6 +19,7 @@ struct ToothEditorView: View {
     init(
         definition: ToothDefinition,
         record: ToothRecord?,
+        birthDate: Date?,
         onSaveNote: @escaping (String) throws -> Void,
         onMarkTeething: @escaping (Date, String) throws -> Void,
         onMarkErupted: @escaping (Date, String) throws -> Void,
@@ -25,11 +27,15 @@ struct ToothEditorView: View {
     ) {
         self.definition = definition
         self.record = record
+        self.birthDate = birthDate
         self.onSaveNote = onSaveNote
         self.onMarkTeething = onMarkTeething
         self.onMarkErupted = onMarkErupted
         self.onReset = onReset
-        _selectedDate = State(initialValue: record?.eruptedDate ?? record?.teethingDate ?? Date())
+        _selectedDate = State(
+            initialValue: (record?.eruptedDate ?? record?.teethingDate)
+                .map { CivilDate.pickerDate(from: $0) } ?? Date()
+        )
         _note = State(initialValue: record?.note ?? "")
     }
 
@@ -52,7 +58,7 @@ struct ToothEditorView: View {
                     DatePicker(
                         "editor.choose_date",
                         selection: $selectedDate,
-                        in: ...Date(),
+                        in: (birthDate.map { CivilDate.pickerDate(from: $0) } ?? .distantPast)...Date(),
                         displayedComponents: .date
                     )
                     .datePickerStyle(.compact)

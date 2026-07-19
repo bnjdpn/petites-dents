@@ -44,9 +44,17 @@
 "history.empty_title" = "Aucune dent percée pour le moment";
 "history.empty_body" = "Les dents marquées apparaîtront automatiquement ici.";
 "history.erupted_on" = "Percée le %@";
+"history.erupted_on_with_age" = "Percée le %1$@ — %2$@";
 
 "more.title" = "Vos données";
 "more.subtitle" = "Tout reste sur cet appareil. Aucun compte, aucun serveur et aucun suivi.";
+"more.birth_date_title" = "Date de naissance de bébé";
+"more.birth_date_body" = "Utilisée uniquement sur cet appareil pour afficher l’âge exact de bébé à chaque percée.";
+"more.birth_date_label" = "Date de naissance";
+"more.birth_date_not_set" = "Non renseignée";
+"more.birth_date_add" = "Ajouter la date de naissance";
+"more.birth_date_edit" = "Modifier la date";
+"more.birth_date_remove" = "Supprimer la date";
 "more.export_title" = "Récapitulatif PDF";
 "more.export_body" = "Créez un document local à partager avec le pédiatre ou à joindre au carnet de santé.";
 "more.export_button" = "Exporter le récapitulatif PDF";
@@ -66,6 +74,7 @@
 
 "pdf.title" = "Petites Dents — récapitulatif des dents de lait";
 "pdf.generated" = "Généré le %@";
+"pdf.birth_date" = "Date de naissance de bébé : %@";
 "pdf.summary" = "%d percée(s) · %d en poussée · %d pas commencée(s)";
 "pdf.no_date" = "Aucune date";
 "pdf.teething" = "Poussée : %@";
@@ -73,6 +82,14 @@
 "pdf.note" = "Note : %@";
 "pdf.filename" = "recapitulatif-petites-dents.pdf";
 "pdf.incomplete" = "Le catalogue complet des 20 dents est requis pour exporter un PDF.";
+
+"age.month.one" = "%d mois";
+"age.month.other" = "%d mois";
+"age.day.one" = "%d jour";
+"age.day.other" = "%d jours";
+"age.combined" = "%1$@ et %2$@";
+"birth_date_after_recorded_event" = "La date de naissance doit précéder les dates déjà enregistrées.";
+"event_before_birth_date" = "La date choisie doit être postérieure ou égale à la date de naissance.";
 
 "seed.note.71" = "Joues rouges et nuit agitée.";
 "seed.note.81" = "La deuxième incisive centrale est sortie cette semaine.";
@@ -83,3 +100,4 @@
 "common.cancel" = "Annuler";
 "common.error" = "Une erreur est survenue";
 "common.ok" = "OK";
+"common.save" = "Enregistrer";

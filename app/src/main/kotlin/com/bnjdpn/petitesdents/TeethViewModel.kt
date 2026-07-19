@@ -16,6 +16,12 @@ class TeethViewModel(private val repository: TeethRepository) : ViewModel() {
         initialValue = emptyList(),
     )
 
+    val birthDateEpochDay = repository.birthDateEpochDay.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null,
+    )
+
     fun saveNote(snapshot: ToothSnapshot, note: String) {
         viewModelScope.launch { repository.saveNote(snapshot, note) }
     }
@@ -30,6 +36,10 @@ class TeethViewModel(private val repository: TeethRepository) : ViewModel() {
 
     fun reset(snapshot: ToothSnapshot) {
         viewModelScope.launch { repository.reset(snapshot) }
+    }
+
+    fun saveBirthDate(epochDay: Long?) {
+        viewModelScope.launch { repository.saveBirthDate(epochDay) }
     }
 
     class Factory(private val repository: TeethRepository) : ViewModelProvider.Factory {
