@@ -2,42 +2,12 @@
 
 class AppleReleaseEntrypointTest
   REPO_ROOT = File.expand_path("../..", __dir__)
-  WORKFLOW = File.join(REPO_ROOT, ".github", "workflows", "app-store-cd.yml")
   FASTFILE = File.join(__dir__, "..", "fastlane", "Fastfile")
-  SURFACE = "petites-dents"
-  LANES = %w[release_contract asc_status release_quick submit_review].freeze
 
-  def workflow
-    @workflow ||= File.read(WORKFLOW)
-  end
+  def test_github_actions_workflows_are_absent
+    workflows = Dir.glob(File.join(REPO_ROOT, ".github", "workflows", "*.{yml,yaml}"))
 
-  def workflow_steps
-    workflow.scan(/^      - .*?(?=^      - |\z)/m)
-  end
-
-  def test_live_doctor_fails_closed_before_fastlane
-    step = workflow_steps.find { |candidate| candidate.include?("doctor --live --json") }
-    refute_nil step
-    assert_includes workflow, "APPLE_RELEASE_BIN: /Users/benjamin/Documents/Apps/bin/apple-release"
-    assert_includes step, "set -euo pipefail"
-    assert_includes step, 'test -x "$APPLE_RELEASE_BIN"'
-    assert_includes step, '"$APPLE_RELEASE_BIN" doctor --live --json'
-  end
-
-  def test_every_fastlane_action_uses_the_shared_surface
-    LANES.each do |lane|
-      step = workflow_steps.find { |candidate| candidate.include?("bundle exec fastlane #{lane}") }
-      refute_nil step, "missing workflow step for #{lane}"
-      assert_includes step, '"$APPLE_RELEASE_BIN" run petites-dents -- /bin/zsh -lc'
-      assert_includes step, 'cd "$GITHUB_WORKSPACE/ios"'
-    end
-    assert_equal LANES.sort, workflow.scan(/bundle exec fastlane ([a-z_]+)/).flatten.sort
-  end
-
-  def test_legacy_asc_secret_bridge_is_absent
-    %w[APP_STORE_CONNECT_API_KEY_KEY_ID APP_STORE_CONNECT_API_KEY_ISSUER_ID APP_STORE_CONNECT_API_KEY_KEY ASC_API_KEY_PATH].each do |name|
-      refute_includes workflow, name
-    end
+    assert(workflows.empty?, "GitHub Actions is disabled; found #{workflows.join(', ')}")
   end
 
   def test_signing_consumes_only_wrapper_injected_identity

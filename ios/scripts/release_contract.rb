@@ -260,11 +260,11 @@ module PetitesDentsReleaseContract
     end
 
     def validate_ci
-      %w[
-        .github/workflows/android-ci.yml
-        .github/workflows/android-release-apk.yml
-        .github/workflows/ios-ci.yml
-      ].each { |path| read(path) }
+      workflows = Dir.glob(File.join(@root, ".github", "workflows", "*.{yml,yaml}"))
+      return if workflows.empty?
+
+      relative = workflows.map { |path| Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s }
+      add("GitHub Actions workflows are forbidden; Codex runs CI/CD locally before push: #{relative.join(', ')}")
     end
 
     def validate_credentials
