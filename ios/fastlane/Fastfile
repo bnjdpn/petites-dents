@@ -2,7 +2,6 @@
 
 require "fileutils"
 require "json"
-require "openssl"
 require "pathname"
 require "rbconfig"
 require "shellwords"
@@ -142,31 +141,31 @@ def petites_dents_next_build_number(api_key:)
 end
 
 def petites_dents_setup_signing(api_key)
-  temporary = petites_dents_prepare_release_paths
-  signing_path = File.join(temporary, "signing")
-  FileUtils.mkdir_p(signing_path)
-  get_certificates(
-    api_key: api_key,
-    platform: "ios",
-    team_id: PETITES_DENTS_TEAM_ID,
-    output_path: signing_path
-  )
-  certificate_path = lane_context[SharedValues::CERT_FILE_PATH]
-  certificate_id = lane_context[SharedValues::CERT_CERTIFICATE_ID]
-  UI.user_error!("Apple Distribution certificate was not downloaded") unless File.file?(certificate_path)
-  UI.user_error!("Apple Distribution certificate id is missing") if certificate_id.to_s.empty?
+  unless ENV["APPLE_RELEASE_CERTIFICATE_MUTATIONS"] == "forbidden"
+    UI.user_error!("Signed releases must run through bin/apple-release")
+  end
+  @petites_dents_certificate_sha1 = ENV.fetch("APPLE_RELEASE_IDENTITY_SHA1", "").strip.upcase
+  unless @petites_dents_certificate_sha1.match?(/\A[0-9A-F]{40}\z/)
+    UI.user_error!("Invalid shared Apple Distribution identity")
+  end
+  certificate_id = ENV.fetch("APPLE_RELEASE_CERTIFICATE_ID", "").strip
+  UI.user_error!("Missing shared Apple Distribution certificate id") if certificate_id.empty?
+  keychain_path = ENV.fetch("APPLE_RELEASE_KEYCHAIN_PATH", "").strip
+  UI.user_error!("Missing shared Apple release keychain") unless File.file?(keychain_path)
+  @petites_dents_release_xcconfig = ENV.fetch("APPLE_RELEASE_XCCONFIG_FILE", "").strip
+  UI.user_error!("Missing shared Apple release xcconfig") unless File.file?(@petites_dents_release_xcconfig)
+  profile_output = ENV.fetch("SIGH_OUTPUT_PATH", "").strip
+  UI.user_error!("Missing shared provisioning-profile scratch directory") unless File.directory?(profile_output)
 
-  certificate = OpenSSL::X509::Certificate.new(File.binread(certificate_path))
-  @petites_dents_certificate_sha1 = OpenSSL::Digest::SHA1.hexdigest(certificate.to_der).upcase
   get_provisioning_profile(
     api_key: api_key,
     app_identifier: PETITES_DENTS_BUNDLE_ID,
     platform: "ios",
     team_id: PETITES_DENTS_TEAM_ID,
-    force: true,
+    readonly: true,
     cert_id: certificate_id,
     provisioning_name: "PetitesDents_AppStore",
-    output_path: signing_path
+    output_path: profile_output
   )
   @petites_dents_profile_name = lane_context[SharedValues::SIGH_NAME]
   UI.user_error!("Petites Dents App Store profile is missing") if @petites_dents_profile_name.to_s.empty?
@@ -174,6 +173,7 @@ end
 
 def petites_dents_signing_xcargs(build_number)
   [
+    "-xcconfig #{@petites_dents_release_xcconfig.shellescape}",
     "MARKETING_VERSION=#{PETITES_DENTS_VERSION}",
     "CURRENT_PROJECT_VERSION=#{build_number}",
     "CODE_SIGN_STYLE=Manual",
@@ -267,6 +267,7 @@ platform :ios do
   desc "Validate the complete local release contract without ASC writes"
   lane :release_contract do
     sh(RbConfig.ruby, File.join(PETITES_DENTS_IOS_ROOT, "scripts", "release_contract.rb"), "--check")
+    sh(RbConfig.ruby, File.join(PETITES_DENTS_IOS_ROOT, "scripts", "apple_release_entrypoint_test.rb"))
     sh(
       RbConfig.ruby,
       "-I", File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "test"),
