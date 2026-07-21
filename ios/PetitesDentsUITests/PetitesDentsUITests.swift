@@ -28,14 +28,9 @@ final class PetitesDentsUITests: XCTestCase {
     func testStoreScreenshots() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
-        let locale = Locale.current
-        let language = locale.language.languageCode?.identifier ?? "en"
-        let region = locale.region?.identifier ?? "US"
         app.launchArguments = [
             "--ui-testing",
             "--screenshots",
-            "-AppleLanguages", "(\(language))",
-            "-AppleLocale", "\(language)_\(region)",
         ]
         app.launch()
         dismissAppleIntelligenceBannerIfNeeded()

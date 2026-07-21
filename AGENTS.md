@@ -8,14 +8,19 @@ Run commands through `rtk`; use `rtk proxy` for unfiltered Git, Ruby,
 Fastlane, Xcode, and search output. Android uses JDK 17, Kotlin, Compose, and
 Room. iOS uses SwiftUI, SwiftData, StoreKit 2, XcodeGen, and Fastlane.
 
-Mutable execution state belongs under
-`/private/tmp/apps-factory/PetitesDents/<execution_id>/`. Simulator tests and
-media must target an exact run-owned ephemeral UDID in the default device set.
+Logs, xcresult and scratch belong under
+`/private/tmp/apps-factory/PetitesDents/<execution_id>/`; DerivedData and the
+persistent `GRADLE_USER_HOME` belong under
+`/private/tmp/apps-factory/PetitesDents/cache/`. Simulator tests and media must
+target an exact UDID leased from the fixed pool in the default device set.
 Never target `booted`, a simulator name, or perform global simulator cleanup.
 Complete CoreSimulator daemon isolation requires an ephemeral macOS VM or
 runner; a local UDID lease isolates ownership, not the shared daemon.
 
-Releases come from `main`. App Store mutations use only app-local Fastlane or
+Commit and push never trigger tests. During development, run only the gates
+affected by the change. Before a release, capture and lock the exact candidate
+manifest, validate it once, then reuse that receipt for the post-ASC commit and
+push. Releases come from `main`. App Store mutations use only app-local Fastlane or
 the scripts in `ios/scripts/app_store/`. The app is free; only the optional
 `tip.cafe`, `tip.merci`, and `tip.soutien` consumables are permitted.
 Credentials, signing material, generated archives, APKs, and `Builds/` are

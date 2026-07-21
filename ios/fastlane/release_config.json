@@ -46,8 +46,8 @@
       "screenshot_dimensions": [1320, 2868]
     },
     {
-      "name_suffix": "iPad-Pro-13-M4",
-      "device_type": "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4-8GB",
+      "name_suffix": "iPad-Pro-13-M5",
+      "device_type": "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M5-12GB",
       "screenshot_type": "APP_IPAD_PRO_3GEN_129",
       "screenshot_dimensions": [2064, 2752]
     }

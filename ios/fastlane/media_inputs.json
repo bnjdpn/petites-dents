@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "ui": [
+    "ios/PetitesDents/Views",
+    "ios/PetitesDents/App",
+    "ios/PetitesDents/Theme"
+  ],
+  "assets": [
+    "ios/PetitesDents/Assets.xcassets"
+  ],
+  "fixtures": [
+    "ios/PetitesDents/Services/ScreenshotDataService.swift",
+    "ios/PetitesDentsUITests/PetitesDentsUITests.swift"
+  ],
+  "framing": [
+    "ios/scripts/app_store/generate_screenshots.rb",
+    "ios/fastlane/release_config.json"
+  ],
+  "localizations": {
+    "en-US": [
+      "ios/PetitesDents/Resources/en.lproj"
+    ],
+    "en-GB": [
+      "ios/PetitesDents/Resources/en-GB.lproj"
+    ],
+    "fr-FR": [
+      "ios/PetitesDents/Resources/fr.lproj"
+    ]
+  }
+}

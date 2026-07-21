@@ -296,14 +296,16 @@ platform :ios do
     )
   end
 
-  desc "Capture the complete localized screenshot matrix on run-owned simulators"
+  desc "Capture the complete localized screenshot matrix on leased reusable simulators"
   lane :screenshots do
     petites_dents_prepare_release_paths
     sh(
       RbConfig.ruby,
       File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "generate_screenshots.rb"),
       "--app-root", PETITES_DENTS_REPO_ROOT,
-      "--run-id", petites_dents_run_id
+      "--run-id", petites_dents_run_id,
+      "--candidate-id", ENV.fetch("APPS_FACTORY_CANDIDATE_ID"),
+      "--device-udids-json", ENV.fetch("APPS_FACTORY_DEVICE_UDIDS_JSON")
     )
   end
 
@@ -320,7 +322,8 @@ platform :ios do
     sh(
       RbConfig.ruby,
       File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "media_contract.rb"),
-      "--run-root", petites_dents_run_root
+      "--run-root", petites_dents_run_root,
+      "--candidate-id", ENV.fetch("APPS_FACTORY_CANDIDATE_ID")
     )
   end
 

@@ -11,8 +11,12 @@ module PetitesDentsMediaContract
   class Error < StandardError; end
 
   class Contract
-    def initialize(run_root:)
+    def initialize(run_root:, candidate_id:)
       @run_root = File.realpath(run_root)
+      unless candidate_id.instance_of?(String) && candidate_id.match?(/\A[a-f0-9]{64}\z/)
+        raise Error, "candidate_id must be a lowercase SHA-256"
+      end
+      @candidate_id = candidate_id
       @repo_root = File.realpath(File.join(@run_root, "..", "..", "..", ".."))
       @config = JSON.parse(
         File.read(File.join(@repo_root, "ios", "fastlane", "release_config.json"))
@@ -56,13 +60,11 @@ module PetitesDentsMediaContract
       branch = git("branch", "--show-current").strip
       raise Error, "media source branch must be main" unless branch == "main"
 
-      dirty = git("status", "--porcelain", "--untracked-files=no").strip
-      raise Error, "tracked source changed after media capture\n#{dirty}" unless dirty.empty?
-
       sha = git("rev-parse", "HEAD").strip
       tree = git("rev-parse", "HEAD^{tree}").strip
       raise Error, "media commit does not match current HEAD" unless manifest["source_git_sha"] == sha
       raise Error, "media source tree does not match current tree" unless manifest["source_git_tree_sha"] == tree
+      raise Error, "media candidate does not match release manifest" unless manifest["source_candidate_id"] == @candidate_id
       raise Error, "media version mismatch" unless manifest["version"] == @config.fetch("version")
     end
 
@@ -140,9 +142,11 @@ module PetitesDentsMediaContract
       options = {}
       OptionParser.new do |flags|
         flags.on("--run-root PATH") { |value| options[:run_root] = value }
+        flags.on("--candidate-id SHA256") { |value| options[:candidate_id] = value }
       end.parse!(argv)
       raise Error, "unknown arguments: #{argv.join(' ')}" unless argv.empty?
       raise Error, "--run-root is required" if options[:run_root].to_s.empty?
+      raise Error, "--candidate-id is required" if options[:candidate_id].to_s.empty?
 
       Contract.new(**options).validate!
       0
