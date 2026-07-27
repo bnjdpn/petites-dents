@@ -413,28 +413,9 @@ platform :ios do
 
   desc "Execute ASO, media, free pricing, tips, build, upload, submission, and readback"
   lane :release_quick do
-    UI.message("Using release run #{petites_dents_run_id}")
-    release_contract
-    screenshots
-    media_contract
-    setup_asc
-    ENV["PETITES_DENTS_APPLY_ASC"] = "1"
-    ENV["IAP_REVIEW_SCREENSHOT"] = petites_dents_iap_review_screenshot
-    pricing
-    iap_sync
-    metadata
-    upload_screenshots
-    upload_previews
-    build_release
-    upload_release
-    asc_status
-    submit_review
-    manifest = petites_dents_release_manifest
-    petites_dents_strict_status(
-      expected_build: manifest.fetch("build"),
-      require_submission: true
-    )
+    UI.user_error!("release_quick is disabled; use bin/apple-release release petites-dents")
   end
+
 
   desc "Read free pricing, or apply it with PETITES_DENTS_APPLY_ASC=1"
   lane :pricing do

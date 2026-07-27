@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "devices": [
+    {
+      "id": "iPhone-17-Pro-Max",
+      "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max",
+      "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-2"
+    },
+    {
+      "id": "iPad-Pro-13-M5",
+      "device_type": "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M5-12GB",
+      "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-2"
+    }
+  ]
+}

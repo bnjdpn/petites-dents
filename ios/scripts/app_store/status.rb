@@ -273,7 +273,13 @@ def media_set_status(client, path, fields:, state_key:, type_key:, type_value:)
 end
 
 def asset_count(client, path, fields)
-  client.get_all(path, fields.merge("limit" => "200")).fetch("data").length
+  assets = client.get_all(path, fields.merge("limit" => "200")).fetch("data")
+  assets.count do |asset|
+    delivery = asset.dig("attributes", "assetDeliveryState") ||
+      asset.dig("attributes", "videoDeliveryState")
+    state = delivery.instance_of?(Hash) ? delivery["state"] : delivery
+    state == "COMPLETE"
+  end
 end
 
 def app_store_assets(client, version)
