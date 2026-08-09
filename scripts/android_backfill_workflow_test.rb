@@ -6,7 +6,9 @@ class AndroidBackfillWorkflowTest < Minitest::Test
   ROOT = File.expand_path("..", __dir__)
   WORKFLOW_PATH = File.join(ROOT, ".github", "workflows", "android-v1.0.7-signed-backfill.yml")
   WORKFLOW = File.read(WORKFLOW_PATH)
-  SOURCE_COMMIT = "c4df7b3fa37adfd9f6de2e7420069c0fed6b7107"
+  BASE_COMMIT = "c4df7b3fa37adfd9f6de2e7420069c0fed6b7107"
+  SOURCE_COMMIT = "3f869bb87754d9a8e5ca8497dc69fa12e84a6901"
+  SOURCE_TREE = "4930fb59293ab131e52815bbfe19c082a412ca18"
   SIGNER = "f126e90193736e65f8145d6cb6562487bce86cd609cc4a125ab754aaf7a6128f"
   SECRETS = %w[
     ANDROID_RELEASE_KEYSTORE_BASE64
@@ -24,6 +26,8 @@ class AndroidBackfillWorkflowTest < Minitest::Test
 
   def test_candidate_and_signer_are_locked
     assert_operator WORKFLOW.scan(SOURCE_COMMIT).length, :>=, 3
+    assert_operator WORKFLOW.scan(BASE_COMMIT).length, :>=, 1
+    assert_operator WORKFLOW.scan(SOURCE_TREE).length, :>=, 2
     assert_operator WORKFLOW.scan(SIGNER).length, :>=, 2
     assert_match(/EXPECTED_VERSION_NAME: "1\.0\.7"/, WORKFLOW)
     assert_match(/EXPECTED_VERSION_CODE: "8"/, WORKFLOW)
@@ -39,14 +43,16 @@ class AndroidBackfillWorkflowTest < Minitest::Test
     assert_match(/trap cleanup_keystore EXIT/, WORKFLOW)
   end
 
-  def test_exact_source_rewrites_and_public_signing_contract_are_scoped
-    assert_match(/Expected exactly one/, WORKFLOW)
-    assert_match(/versionCode = 7/, WORKFLOW)
-    assert_match(/versionCode = 8/, WORKFLOW)
-    assert_match(/versionName = \\"1\.0\.6\\"/, WORKFLOW)
-    assert_match(/versionName = \\"1\.0\.7\\"/, WORKFLOW)
-    assert_match(%r{install -m 0644 release/android_release\.json}, WORKFLOW)
-    assert_match(/git -C "\$worktree" add -N release\/android_release\.json/, WORKFLOW)
+  def test_reconstructed_source_is_built_without_runtime_patch
+    assert_match(/EXPECTED_SOURCE_REF: release\/reconstruct-petites-dents-1\.0\.7-android-source/, WORKFLOW)
+    assert_match(/Reconstructed source worktree is not clean/, WORKFLOW)
+    assert_match(/Reconstructed source worktree changed during the build/, WORKFLOW)
+    assert_match(/"source_diff_sha256" => "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"/, WORKFLOW)
+    assert_match(/"source_diff_files" => \[\]/, WORKFLOW)
+    refute_match(/replacements =/, WORKFLOW)
+    refute_match(/File\.binwrite/, WORKFLOW)
+    refute_match(/install -m 0644 release\/android_release\.json/, WORKFLOW)
+    refute_match(/git -C "\$worktree" add -N/, WORKFLOW)
   end
 
   def test_build_executes_tests_and_release_assembly_before_validation

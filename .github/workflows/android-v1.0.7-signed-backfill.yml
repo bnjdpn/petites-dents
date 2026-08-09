@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       source_commit:
-        description: Historical source commit (must match the locked candidate)
+        description: Reconstructed source commit (must match the locked candidate)
         required: true
-        default: c4df7b3fa37adfd9f6de2e7420069c0fed6b7107
+        default: 3f869bb87754d9a8e5ca8497dc69fa12e84a6901
         type: string
 
 permissions:
@@ -22,7 +22,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
-      EXPECTED_SOURCE_COMMIT: c4df7b3fa37adfd9f6de2e7420069c0fed6b7107
+      EXPECTED_BASE_COMMIT: c4df7b3fa37adfd9f6de2e7420069c0fed6b7107
+      EXPECTED_SOURCE_COMMIT: 3f869bb87754d9a8e5ca8497dc69fa12e84a6901
+      EXPECTED_SOURCE_TREE: 4930fb59293ab131e52815bbfe19c082a412ca18
+      EXPECTED_SOURCE_REF: release/reconstruct-petites-dents-1.0.7-android-source
       EXPECTED_VERSION_NAME: "1.0.7"
       EXPECTED_VERSION_CODE: "8"
       EXPECTED_SIGNER_SHA256: f126e90193736e65f8145d6cb6562487bce86cd609cc4a125ab754aaf7a6128f
@@ -45,7 +48,18 @@ jobs:
           test "$REQUESTED_SOURCE_COMMIT" = "$EXPECTED_SOURCE_COMMIT"
           test "$(git rev-parse --is-shallow-repository)" = "false"
           test "$(git rev-parse "$EXPECTED_SOURCE_COMMIT^{commit}")" = "$EXPECTED_SOURCE_COMMIT"
-          git merge-base --is-ancestor "$EXPECTED_SOURCE_COMMIT" HEAD
+          test "$(git rev-parse "refs/remotes/origin/$EXPECTED_SOURCE_REF^{commit}")" = "$EXPECTED_SOURCE_COMMIT"
+          test "$(git rev-parse "$EXPECTED_SOURCE_COMMIT^{tree}")" = "$EXPECTED_SOURCE_TREE"
+          test "$(git rev-parse "$EXPECTED_SOURCE_COMMIT^")" = "$EXPECTED_BASE_COMMIT"
+          test "$(git rev-list --count "$EXPECTED_BASE_COMMIT..$EXPECTED_SOURCE_COMMIT")" = "1"
+          mapfile -t source_files < <(git diff --name-only "$EXPECTED_BASE_COMMIT..$EXPECTED_SOURCE_COMMIT" | sort)
+          expected_source_files=(
+            app/build.gradle.kts
+            ios/fastlane/release_config.json
+            ios/project.yml
+            release/android_release.json
+          )
+          test "${source_files[*]}" = "${expected_source_files[*]}"
           test "$EXPECTED_VERSION_NAME" = "1.0.7"
           test "$EXPECTED_VERSION_CODE" = "8"
           test "$EXPECTED_SIGNER_SHA256" = "f126e90193736e65f8145d6cb6562487bce86cd609cc4a125ab754aaf7a6128f"
@@ -67,7 +81,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
 
-      - name: Prepare detached historical source
+      - name: Prepare detached reconstructed source
         shell: bash
         run: |
           set -euo pipefail
@@ -76,53 +90,18 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           git worktree add --detach "$worktree" "$EXPECTED_SOURCE_COMMIT"
           printf 'WORKTREE_PATH=%s\n' "$worktree" >> "$GITHUB_ENV"
-
-          ruby - "$worktree" <<'RUBY'
-          root = File.expand_path(ARGV.fetch(0))
-          replacements = {
-            "app/build.gradle.kts" => [
-              ["        versionCode = 7", "        versionCode = 8"],
-              ["        versionName = \"1.0.6\"", "        versionName = \"1.0.7\""]
-            ],
-            "ios/project.yml" => [
-              ["        MARKETING_VERSION: 1.0.6", "        MARKETING_VERSION: 1.0.7"]
-            ],
-            "ios/fastlane/release_config.json" => [
-              ["  \"version\": \"1.0.6\",", "  \"version\": \"1.0.7\","]
-            ]
-          }
-
-          replacements.each do |relative_path, pairs|
-            path = File.join(root, relative_path)
-            content = File.binread(path)
-            pairs.each do |old_value, new_value|
-              count = content.scan(old_value).length
-              abort "Expected exactly one #{old_value.inspect} in #{relative_path}, found #{count}" unless count == 1
-              abort "Replacement already present in #{relative_path}" if content.include?(new_value)
-              content = content.sub(old_value, new_value)
-            end
-            File.binwrite(path, content)
-          end
-          RUBY
-
-          mkdir -p "$worktree/release"
-          install -m 0644 release/android_release.json "$worktree/release/android_release.json"
-          git -C "$worktree" add -N release/android_release.json
-
-          mapfile -t changed_files < <(git -C "$worktree" diff --name-only | sort)
-          expected_files=(
-            app/build.gradle.kts
-            ios/fastlane/release_config.json
-            ios/project.yml
-            release/android_release.json
-          )
-          test "${changed_files[*]}" = "${expected_files[*]}"
+          source_status="$(git -C "$worktree" status --porcelain=v1 --untracked-files=all)"
+          if [ -n "$source_status" ]; then
+            echo "::error::Reconstructed source worktree is not clean"
+            printf '%s\n' "$source_status" >&2
+            exit 1
+          fi
 
           ruby scripts/release_alignment_guard.rb \
             --root "$worktree" \
             --expected-tag "v$EXPECTED_VERSION_NAME"
 
-      - name: Build and test signed historical APK
+      - name: Build and test signed reconstructed APK
         env:
           ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
           ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
@@ -174,6 +153,13 @@ jobs:
           provenance="$apk.provenance.json"
           mkdir -p "$assets_dir"
 
+          source_status="$(git -C "$WORKTREE_PATH" status --porcelain=v1 --untracked-files=all)"
+          if [ -n "$source_status" ]; then
+            echo "::error::Reconstructed source worktree changed during the build"
+            printf '%s\n' "$source_status" >&2
+            exit 1
+          fi
+
           build_tools_root="${ANDROID_HOME:?ANDROID_HOME is required}/build-tools"
           if [ ! -d "$build_tools_root" ]; then
             echo "::error::Android build-tools directory is missing: $build_tools_root"
@@ -218,14 +204,11 @@ jobs:
             "tag" => "v1.0.7",
             "version_name" => "1.0.7",
             "version_code" => 8,
-            "source_commit" => "c4df7b3fa37adfd9f6de2e7420069c0fed6b7107",
+            "source_commit" => "3f869bb87754d9a8e5ca8497dc69fa12e84a6901",
+            "source_tree" => "4930fb59293ab131e52815bbfe19c082a412ca18",
+            "source_diff_sha256" => "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "certificate_sha256" => "f126e90193736e65f8145d6cb6562487bce86cd609cc4a125ab754aaf7a6128f",
-            "source_diff_files" => [
-              "app/build.gradle.kts",
-              "ios/fastlane/release_config.json",
-              "ios/project.yml",
-              "release/android_release.json"
-            ]
+            "source_diff_files" => []
           }
           expected.each do |key, value|
             abort "Provenance #{key}=#{payload[key].inspect}, expected #{value.inspect}" unless payload[key] == value
