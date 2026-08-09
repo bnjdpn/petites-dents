@@ -14,5 +14,14 @@ toute mutation du worktree partagé.
 - Vérifier avant push public qu'aucun secret, profil, keystore, credential,
   log privé ou donnée utilisateur n'est ajouté. Pas de paywall, tracking,
   backend, compte ou IAP non-tip sans plan explicite.
-- Aligner chaque release ASC avec une GitHub Release `v<version ASC>` non draft,
-  non-prerelease et contenant un APK; stopper et signaler toute divergence.
+- Android `versionName`, iOS `MARKETING_VERSION` et
+  `ios/fastlane/release_config.json.version` sont une seule version marketing;
+  exécuter le garde parent avant tout build de release.
+- Aligner chaque release ASC avec une GitHub Release publique `v<version ASC>`,
+  non draft/non prerelease, contenant l'APK signé par le certificat historique,
+  son checksum SHA-256 et sa provenance. Le gate final exige les JSON ASC et
+  GitHub ainsi que les trois artefacts; toute absence ou divergence bloque la
+  release. Ne jamais remplacer silencieusement la clé Android.
+- Avant tout tag ou POST GitHub, `gh api user --jq .login` doit réussir en GET;
+  cibler le `source_commit` de la provenance et refuser tout retry ambigu ou
+  écrasement d'une release existante.

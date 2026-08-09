@@ -12,7 +12,7 @@ module PetitesDentsReleaseContract
   APP_NAME = "Petites Dents"
   BUNDLE_ID = "com.bnjdpn.petitesdents"
   TEAM_ID = "767SX34A7Z"
-  VERSION = "1.0.6"
+  VERSION = "1.0.8"
   SUPPORT_URL = "https://bnjdpn.github.io/petites-dents/#contact"
   PRIVACY_URL = "https://bnjdpn.github.io/petites-dents/privacy.html"
   FORMSPREE_ENDPOINT = "https://formspree.io/f/mykqbyyw"
@@ -91,8 +91,8 @@ module PetitesDentsReleaseContract
       android = read("app/build.gradle.kts")
       if android
         add("Android application id mismatch") unless android.include?('applicationId = "com.bnjdpn.petitesdents"')
-        add("Android version mismatch") unless android.include?('versionName = "1.0.6"')
-        add("Android version code mismatch") unless android.include?("versionCode = 7")
+        add("Android version mismatch") unless android.include?('versionName = "1.0.8"')
+        add("Android version code mismatch") unless android.include?("versionCode = 9")
         add("Android target SDK must be 36") unless android.include?("targetSdk = 36")
       end
 
@@ -145,6 +145,7 @@ module PetitesDentsReleaseContract
       REQUIRED_LANES.each do |lane|
         add("missing Fastlane lane: #{lane}") unless fastfile.match?(/\blane\s+:#{Regexp.escape(lane)}\b/)
       end
+      add("Fastlane release version mismatch") unless fastfile.include?("PETITES_DENTS_VERSION = \"#{VERSION}\"")
       {
         "upload_to_testflight" => /upload_to_testflight/i,
         "pilot" => /\bpilot\s*\(?/i,

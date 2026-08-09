@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "artifact_slug": "petites-dents",
+  "application_id": "com.bnjdpn.petitesdents",
+  "signer_sha256": "f126e90193736e65f8145d6cb6562487bce86cd609cc4a125ab754aaf7a6128f",
+  "required_asset_suffixes": [
+    ".apk",
+    ".apk.sha256",
+    ".apk.provenance.json"
+  ],
+  "asc_release_history": [
+    {
+      "version": "1.0.7",
+      "build": "1",
+      "source_commit": "c4df7b3fa37adfd9f6de2e7420069c0fed6b7107",
+      "android_version_code": 8,
+      "github_tag": "v1.0.7",
+      "status": "backfill_required"
+    }
+  ]
+}

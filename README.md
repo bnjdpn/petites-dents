@@ -42,3 +42,24 @@ xcodebuild -scheme PetitesDents -destination 'generic/platform=iOS Simulator' CO
 
 The signed Android APK is published with each
 [GitHub release](https://github.com/bnjdpn/petites-dents/releases).
+
+## Release alignment
+
+Android `versionName`, iOS `MARKETING_VERSION` and
+`ios/fastlane/release_config.json.version` must be identical. Validate the
+candidate before building it:
+
+```sh
+rtk proxy /opt/homebrew/opt/ruby/bin/ruby scripts/release_alignment_guard.rb --expected-tag vX.Y.Z
+```
+
+Prepare the signed APK, checksum and provenance under the isolated run scratch
+with `scripts/prepare_android_release.rb`. The final
+`release_alignment_guard.rb --final` gate requires ASC and GitHub readback JSON
+plus all three assets, and rejects a missing side, wrong tag or APK manifest,
+changed signer certificate, or checksum/provenance mismatch.
+
+Before any tag or GitHub mutation, a read-only authenticated GET
+(`gh api user --jq .login`) must succeed. Create the tag/release at the exact
+`source_commit` recorded in provenance; never overwrite or automatically retry
+an existing or ambiguous release.
