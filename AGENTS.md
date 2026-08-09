@@ -1,32 +1,18 @@
 # Petites Dents
 
-This repository owns the Android app at the root and the independent iOS
-surface under `ios/`. Keep all product code, release automation, metadata,
-media, support pages, and ASC helpers app-local.
+> Isolation : `/private/tmp/apps-factory/PetitesDents/<execution_id>/`. Une
+> isolation complète du daemon CoreSimulator requiert une VM macOS éphémère ou un runner macOS éphémère.
 
-Run commands through `rtk`; use `rtk proxy` for unfiltered Git, Ruby,
-Fastlane, Xcode, and search output. Android uses JDK 17, Kotlin, Compose, and
-Room. iOS uses SwiftUI, SwiftData, StoreKit 2, XcodeGen, and Fastlane.
+Repo public dual : Android (Kotlin/Compose/Room, JDK 17) au root et iOS
+(SwiftUI/SwiftData/StoreKit 2) dans `ios/`. Utiliser `rtk proxy` et sérialiser
+toute mutation du worktree partagé.
 
-Logs, xcresult and scratch belong under
-`/private/tmp/apps-factory/PetitesDents/<execution_id>/`; DerivedData and the
-persistent `GRADLE_USER_HOME` belong under
-`/private/tmp/apps-factory/PetitesDents/cache/`. Simulator tests and media must
-target an exact UDID leased from the fixed pool in the default device set.
-Never target `booted`, a simulator name, or perform global simulator cleanup.
-Complete CoreSimulator daemon isolation requires an ephemeral macOS VM or
-runner; a local UDID lease isolates ownership, not the shared daemon.
-
-Commit and push never trigger tests. During development, run only the gates
-affected by the change. Before a release, capture and lock the exact candidate
-manifest, validate it once, then reuse that receipt for the post-ASC commit and
-push. Releases come from `main`. App Store mutations use only app-local Fastlane or
-the scripts in `ios/scripts/app_store/`. The app is free; only the optional
-`tip.cafe`, `tip.merci`, and `tip.soutien` consumables are permitted.
-Credentials, signing material, generated archives, APKs, and `Builds/` are
-never committed.
-
-Before every iOS submission, reread
-`ios/fastlane/release_config.json.app_preview_policy`. Its
-`review_each_release` decision and app-specific reason are part of the release
-contract.
+- Android : `GRADLE_USER_HOME` isolé, `./gradlew test`, `./gradlew assembleDebug`
+  et vérification d'un rapport JUnit non vide.
+- iOS : suivre `ios/AGENTS.md`, garder Xcode/Fastlane/ASC dans `ios/` et les
+  artefacts sous `ios/Builds/AppStore/PetitesDents/<run_id>/`.
+- Vérifier avant push public qu'aucun secret, profil, keystore, credential,
+  log privé ou donnée utilisateur n'est ajouté. Pas de paywall, tracking,
+  backend, compte ou IAP non-tip sans plan explicite.
+- Aligner chaque release ASC avec une GitHub Release `v<version ASC>` non draft,
+  non-prerelease et contenant un APK; stopper et signaler toute divergence.
