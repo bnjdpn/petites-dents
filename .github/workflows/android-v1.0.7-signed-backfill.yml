@@ -174,6 +174,31 @@ jobs:
           provenance="$apk.provenance.json"
           mkdir -p "$assets_dir"
 
+          build_tools_root="${ANDROID_HOME:?ANDROID_HOME is required}/build-tools"
+          if [ ! -d "$build_tools_root" ]; then
+            echo "::error::Android build-tools directory is missing: $build_tools_root"
+            exit 1
+          fi
+          mapfile -t build_tools_candidates < <(
+            find "$build_tools_root" -mindepth 1 -maxdepth 1 -type d -print | LC_ALL=C sort -V
+          )
+          if (( ${#build_tools_candidates[@]} == 0 )); then
+            echo "::error::No Android build-tools version found under $build_tools_root"
+            exit 1
+          fi
+          build_tools="${build_tools_candidates[$((${#build_tools_candidates[@]} - 1))]}"
+          ANDROID_AAPT="$build_tools/aapt"
+          ANDROID_APKSIGNER="$build_tools/apksigner"
+          if [ ! -x "$ANDROID_AAPT" ]; then
+            echo "::error::aapt is missing or not executable: $ANDROID_AAPT"
+            exit 1
+          fi
+          if [ ! -x "$ANDROID_APKSIGNER" ]; then
+            echo "::error::apksigner is missing or not executable: $ANDROID_APKSIGNER"
+            exit 1
+          fi
+          export ANDROID_AAPT ANDROID_APKSIGNER
+
           ruby scripts/prepare_android_release.rb \
             --root "$WORKTREE_PATH" \
             --apk "$WORKTREE_PATH/app/build/outputs/apk/release/app-release.apk" \

@@ -56,6 +56,16 @@ class AndroidBackfillWorkflowTest < Minitest::Test
     assert_match(/release_alignment_guard\.rb/, WORKFLOW)
   end
 
+  def test_android_build_tools_are_resolved_from_runner_and_fail_closed
+    assert_match(/build_tools_root="\$\{ANDROID_HOME:\?ANDROID_HOME is required\}\/build-tools"/, WORKFLOW)
+    assert_match(/find "\$build_tools_root" .* LC_ALL=C sort -V/, WORKFLOW)
+    assert_match(/No Android build-tools version found/, WORKFLOW)
+    assert_match(/aapt is missing or not executable/, WORKFLOW)
+    assert_match(/apksigner is missing or not executable/, WORKFLOW)
+    assert_match(/export ANDROID_AAPT ANDROID_APKSIGNER/, WORKFLOW)
+    refute_match(%r{Library/Android/sdk}, WORKFLOW)
+  end
+
   def test_only_short_lived_actions_artifact_is_uploaded
     assert_match(%r{actions/upload-artifact@[0-9a-f]{40}}, WORKFLOW)
     assert_match(/retention-days: 1/, WORKFLOW)
