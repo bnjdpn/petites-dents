@@ -3,6 +3,7 @@ import UIKit
 
 struct MoreView: View {
     let snapshots: [ToothSnapshot]
+    let profileName: String
     let birthDate: Date?
     let onSaveBirthDate: (Date?) throws -> Void
 
@@ -78,7 +79,8 @@ struct MoreView: View {
                             shareItem = ShareItem(
                                 url: try TeethPDFExporter.create(
                                     snapshots: snapshots,
-                                    birthDate: birthDate
+                                    birthDate: birthDate,
+                                    profileName: profileName
                                 )
                             )
                         } catch {

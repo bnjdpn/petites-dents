@@ -6,13 +6,31 @@ struct ContentView: View {
     @Query private var storedRecords: [ToothRecord]
     @Query private var storedProfiles: [ChildProfile]
 
+    @AppStorage("selectedChildID") private var selectedChildID = ChildProfile.primaryChildID
     @State private var selectedTab: AppTab = .teeth
     @State private var selectedTooth: ToothDefinition?
+
+    private var sortedProfiles: [ChildProfile] {
+        storedProfiles.sorted {
+            if $0.childID == ChildProfile.primaryChildID { return true }
+            if $1.childID == ChildProfile.primaryChildID { return false }
+            let comparison = $0.name.localizedStandardCompare($1.name)
+            return comparison == .orderedSame
+                ? $0.childID < $1.childID
+                : comparison == .orderedAscending
+        }
+    }
+
+    private var selectedProfile: ChildProfile? {
+        storedProfiles.first { $0.childID == selectedChildID }
+            ?? storedProfiles.first { $0.childID == ChildProfile.primaryChildID }
+            ?? sortedProfiles.first
+    }
 
     private var recordByToothID: [String: ToothRecord] {
         Dictionary(
             uniqueKeysWithValues: storedRecords
-                .filter { $0.childID == ToothRecord.primaryChildID }
+                .filter { $0.childID == selectedProfile?.childID }
                 .map { ($0.toothID, $0) }
         )
     }
@@ -23,58 +41,70 @@ struct ContentView: View {
         }
     }
 
-    private var primaryProfile: ChildProfile? {
-        storedProfiles.first { $0.childID == ChildProfile.primaryChildID }
-    }
-
     private var birthDate: Date? {
-        primaryProfile?.birthDate
-    }
-
-    private var earliestRecordedDate: Date? {
-        storedRecords
-            .flatMap { [$0.teethingDate, $0.eruptedDate].compactMap { $0 } }
-            .min()
+        selectedProfile?.birthDate
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
-                MouthView(snapshots: snapshots, onSelect: select)
-            }
-            .tabItem {
-                Label("tab.teeth", systemImage: "face.smiling")
-                    .accessibilityIdentifier("tab.teeth")
-            }
-            .tag(AppTab.teeth)
-
-            NavigationStack {
-                HistoryView(
-                    snapshots: snapshots,
-                    birthDate: birthDate,
-                    onSelect: select
+        VStack(spacing: 0) {
+            if let selectedProfile {
+                ProfileSwitcherView(
+                    profiles: sortedProfiles,
+                    selectedProfile: selectedProfile,
+                    onSelect: selectProfile,
+                    onCreate: createProfile,
+                    onRename: renameProfile,
+                    onDelete: deleteProfile
                 )
+                Divider()
             }
-            .tabItem {
-                Label("tab.history", systemImage: "clock.arrow.circlepath")
-                    .accessibilityIdentifier("tab.history")
-            }
-            .tag(AppTab.history)
 
-            NavigationStack {
-                MoreView(
-                    snapshots: snapshots,
-                    birthDate: birthDate,
-                    onSaveBirthDate: saveBirthDate
-                )
+            TabView(selection: $selectedTab) {
+                NavigationStack {
+                    MouthView(snapshots: snapshots, onSelect: select)
+                }
+                .tabItem {
+                    Label("tab.teeth", systemImage: "face.smiling")
+                        .accessibilityIdentifier("tab.teeth")
+                }
+                .tag(AppTab.teeth)
+
+                NavigationStack {
+                    HistoryView(
+                        snapshots: snapshots,
+                        birthDate: birthDate,
+                        onSelect: select
+                    )
+                }
+                .tabItem {
+                    Label("tab.history", systemImage: "clock.arrow.circlepath")
+                        .accessibilityIdentifier("tab.history")
+                }
+                .tag(AppTab.history)
+
+                NavigationStack {
+                    MoreView(
+                        snapshots: snapshots,
+                        profileName: selectedProfile?.name ?? "",
+                        birthDate: birthDate,
+                        onSaveBirthDate: saveBirthDate
+                    )
+                }
+                .tabItem {
+                    Label("tab.more", systemImage: "ellipsis.circle")
+                        .accessibilityIdentifier("tab.more")
+                }
+                .tag(AppTab.more)
             }
-            .tabItem {
-                Label("tab.more", systemImage: "ellipsis.circle")
-                    .accessibilityIdentifier("tab.more")
-            }
-            .tag(AppTab.more)
         }
         .tint(PetitesDentsStyle.coral)
+        .task { repairSelectionIfNeeded() }
+        .onChange(of: storedProfiles.map(\.childID).sorted()) {
+            repairSelectionIfNeeded()
+        }
+        .onChange(of: selectedChildID) {
+            selectedTooth = nil
+        }
         .sheet(item: $selectedTooth) { definition in
             ToothEditorView(
                 definition: definition,
@@ -113,30 +143,48 @@ struct ContentView: View {
         if let existing = recordByToothID[definition.id] {
             return existing
         }
-        let record = ToothRecord(toothID: definition.id)
+        let record = ToothRecord(
+            childID: selectedProfile?.childID ?? ChildProfile.primaryChildID,
+            toothID: definition.id
+        )
         modelContext.insert(record)
         return record
     }
 
     private func saveBirthDate(_ date: Date?) throws {
-        if let date,
-           let earliestRecordedDate,
-           CivilDate.normalized(date) > earliestRecordedDate {
-            throw ChildProfileError.birthDateAfterRecordedEvent
-        }
-        if let primaryProfile {
-            primaryProfile.setBirthDate(date)
-        } else if date != nil {
-            let profile = ChildProfile(birthDate: date)
-            modelContext.insert(profile)
-        }
-        try modelContext.save()
+        guard let selectedProfile else { throw ChildProfileError.profileNotFound }
+        try ChildProfileStore.setBirthDate(
+            date,
+            for: selectedProfile,
+            records: storedRecords,
+            in: modelContext
+        )
     }
 
     private func validateEventDate(_ date: Date) throws {
-        if let birthDate,
-           CivilDate.normalized(date) < birthDate {
-            throw ChildProfileError.eventBeforeBirthDate
+        try ChildProfileStore.validateEventDate(date, for: selectedProfile)
+    }
+
+    private func selectProfile(_ childID: String) {
+        selectedChildID = childID
+    }
+
+    private func createProfile(_ name: String) throws -> String {
+        try ChildProfileStore.create(name: name, in: modelContext).childID
+    }
+
+    private func renameProfile(_ childID: String, _ name: String) throws {
+        try ChildProfileStore.rename(childID: childID, name: name, in: modelContext)
+    }
+
+    private func deleteProfile(_ childID: String) throws -> String {
+        try ChildProfileStore.delete(childID: childID, in: modelContext)
+    }
+
+    private func repairSelectionIfNeeded() {
+        guard let selectedProfile else { return }
+        if selectedChildID != selectedProfile.childID {
+            selectedChildID = selectedProfile.childID
         }
     }
 }

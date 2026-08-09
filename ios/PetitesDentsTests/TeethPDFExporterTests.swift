@@ -51,4 +51,36 @@ final class TeethPDFExporterTests: XCTestCase {
             text
         )
     }
+
+    func testExportIdentifiesOnlyTheSelectedProfileAndUsesDistinctFilename() throws {
+        let selectedRecord = ToothRecord(
+            childID: "lina",
+            toothID: "tooth-71",
+            teethingDate: Date(),
+            note: "Lina private note"
+        )
+        let otherRecord = ToothRecord(
+            childID: "alice",
+            toothID: "tooth-81",
+            teethingDate: Date(),
+            note: "Alice private note"
+        )
+        let selectedSnapshots = ToothCatalog.all.map {
+            ToothSnapshot(
+                definition: $0,
+                record: $0.id == selectedRecord.toothID ? selectedRecord : nil
+            )
+        }
+
+        let url = try TeethPDFExporter.create(
+            snapshots: selectedSnapshots,
+            profileName: "Lïna Rose"
+        )
+        let text = try XCTUnwrap(PDFDocument(url: url)?.string)
+
+        XCTAssertTrue(text.contains("Lïna Rose"), text)
+        XCTAssertTrue(text.contains("Lina private note"), text)
+        XCTAssertFalse(text.contains(otherRecord.note), text)
+        XCTAssertTrue(url.lastPathComponent.contains("lina-rose"), url.lastPathComponent)
+    }
 }

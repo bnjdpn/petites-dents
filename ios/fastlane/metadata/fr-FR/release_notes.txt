@@ -1,4 +1,4 @@
-• Ajoutez la date de naissance de votre bébé pour personnaliser sa chronologie.
-• L'historique affiche désormais son âge exact lors de la percée de chaque dent.
-• Le PDF inclut la date de naissance et l'âge exact de chaque dent percée.
-• Des contours plus doux et des états plus lisibles harmonisent les deux arcades dentaires.
+• Créez un profil séparé pour chaque enfant, y compris des jumeaux, et changez-en d’un geste.
+• Progression, notes, historique et date de naissance restent isolés par enfant.
+• Renommez ou supprimez un profil sans modifier la chronologie des autres enfants.
+• Les PDF identifient désormais l’enfant sélectionné et utilisent un nom de fichier distinct.

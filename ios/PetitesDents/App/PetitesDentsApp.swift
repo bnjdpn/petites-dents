@@ -17,8 +17,13 @@ struct PetitesDentsApp: App {
                 configurations: configuration
             )
             if arguments.contains("--screenshots") {
+                UserDefaults.standard.set(
+                    ChildProfile.primaryChildID,
+                    forKey: "selectedChildID"
+                )
                 try ScreenshotDataService.seed(in: container.mainContext)
             }
+            try ChildProfileMigration.migrateIfNeeded(in: container.mainContext)
             try DateStorageMigration.migrateIfNeeded(in: container.mainContext)
         } catch {
             fatalError("Unable to create the local Petites Dents store: \(error)")

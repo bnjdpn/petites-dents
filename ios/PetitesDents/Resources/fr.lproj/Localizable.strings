@@ -2,6 +2,26 @@
 "tab.history" = "Historique";
 "tab.more" = "Plus";
 
+"profile.default_name" = "Bébé";
+"profile.switch_hint" = "Changer de profil enfant";
+"profile.selector_accessibility" = "Sélection : %1$@. %2$d profils enfant.";
+"profile.title" = "Enfants";
+"profile.children" = "Profils enfant";
+"profile.manage" = "Gérer les profils";
+"profile.selected" = "Sélectionné";
+"profile.add" = "Ajouter un enfant";
+"profile.rename" = "Renommer l’enfant sélectionné";
+"profile.delete" = "Supprimer l’enfant sélectionné";
+"profile.done" = "Terminé";
+"profile.name" = "Prénom ou surnom de l’enfant";
+"profile.add_title" = "Nouvel enfant";
+"profile.rename_title" = "Renommer l’enfant";
+"profile.delete_title" = "Supprimer ce profil enfant ?";
+"profile.delete_body" = "Seuls la date de naissance, les dates des dents et les notes de %@ seront supprimées. Les autres profils restent inchangés.";
+"profile.name_required" = "Saisissez un prénom ou un surnom.";
+"profile.not_found" = "Ce profil enfant n’est plus disponible.";
+"profile.cannot_delete_last" = "Au moins un profil enfant doit être conservé.";
+
 "mouth.title" = "Les dents de bébé";
 "mouth.subtitle" = "Touchez une dent pour noter la poussée, la sortie et vos observations.";
 "mouth.progress" = "%d dent(s) sortie(s) sur 20";
@@ -75,6 +95,7 @@
 "pdf.title" = "Petites Dents — récapitulatif des dents de lait";
 "pdf.generated" = "Généré le %@";
 "pdf.birth_date" = "Date de naissance de bébé : %@";
+"pdf.profile_name" = "Enfant : %@";
 "pdf.summary" = "%d percée(s) · %d en poussée · %d pas commencée(s)";
 "pdf.no_date" = "Aucune date";
 "pdf.teething" = "Poussée : %@";
@@ -95,6 +116,9 @@
 "seed.note.81" = "La deuxième incisive centrale est sortie cette semaine.";
 "seed.note.61" = "L’anneau de dentition froid a aidé.";
 "seed.note.51" = "La gencive semble un peu gonflée.";
+"seed.note.secondary" = "Un premier signe, conservé séparément dans la chronologie de cet enfant.";
+"seed.profile.primary" = "Emma";
+"seed.profile.secondary" = "Noah";
 
 "common.close" = "Fermer";
 "common.cancel" = "Annuler";

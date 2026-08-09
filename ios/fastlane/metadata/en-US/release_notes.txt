@@ -1,4 +1,4 @@
-• Add your baby's date of birth to personalize the timeline.
-• History now shows the baby's exact age when each tooth erupted.
-• PDF export includes the birth date and exact eruption age for every erupted tooth.
-• Softer tooth-family outlines and clearer eruption states keep both dental arches calm and readable.
+• Create a separate profile for each child, including twins, and switch in one tap.
+• Tooth progress, notes, history, and birth dates remain isolated per child.
+• Rename or safely delete a profile without changing another child’s timeline.
+• PDF reports now identify the selected child and use a distinct file name.

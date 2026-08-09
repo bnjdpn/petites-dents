@@ -6,7 +6,11 @@ enum TeethPDFExporter {
     private static let pageBounds = CGRect(x: 0, y: 0, width: 595, height: 842)
     private static let margin: CGFloat = 42
 
-    static func create(snapshots: [ToothSnapshot], birthDate: Date? = nil) throws -> URL {
+    static func create(
+        snapshots: [ToothSnapshot],
+        birthDate: Date? = nil,
+        profileName: String? = nil
+    ) throws -> URL {
         guard snapshots.count == 20 else {
             throw TeethPDFError.incompleteCatalog
         }
@@ -73,6 +77,17 @@ enum TeethPDFExporter {
                 font: .systemFont(ofSize: 10.5),
                 color: .secondaryLabel
             )
+            if let profileName,
+               !profileName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                drawLine(
+                    String(
+                        format: NSLocalizedString("pdf.profile_name", comment: "Child profile name"),
+                        profileName
+                    ),
+                    font: .systemFont(ofSize: 10.5),
+                    color: .secondaryLabel
+                )
+            }
             if let birthDate {
                 drawLine(
                     String(
@@ -165,9 +180,32 @@ enum TeethPDFExporter {
         }
 
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent(String(localized: "pdf.filename"))
+            .appendingPathComponent(filename(for: profileName))
         try data.write(to: url, options: .atomic)
         return url
+    }
+
+    private static func filename(for profileName: String?) -> String {
+        let localizedFilename = String(localized: "pdf.filename")
+        guard let profileName else { return localizedFilename }
+        let slug = profileName
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .lowercased()
+            .map { character in
+                character.isLetter || character.isNumber ? String(character) : "-"
+            }
+            .joined()
+            .split(separator: "-")
+            .filter { !$0.isEmpty }
+            .joined(separator: "-")
+        guard !slug.isEmpty else { return localizedFilename }
+
+        let extensionSeparator = localizedFilename.lastIndex(of: ".")
+        let stem = extensionSeparator.map { String(localizedFilename[..<$0]) }
+            ?? localizedFilename
+        let pathExtension = extensionSeparator.map { String(localizedFilename[$0...]) }
+            ?? ".pdf"
+        return "\(stem)-\(slug)\(pathExtension)"
     }
 
     private static func drawMouth(

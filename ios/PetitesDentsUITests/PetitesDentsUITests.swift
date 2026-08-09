@@ -54,6 +54,106 @@ final class PetitesDentsUITests: XCTestCase {
         capture("04_ExportAndSupport")
     }
 
+    func testProfilesKeepTwinToothProgressIsolatedInEnglish() throws {
+        try verifyProfileIsolation(
+            language: "en",
+            locale: "en_US",
+            defaultName: "Baby",
+            emptyStatus: "Not started",
+            teethingStatus: "Teething"
+        )
+    }
+
+    func testProfilesKeepTwinToothProgressIsolatedInFrench() throws {
+        try verifyProfileIsolation(
+            language: "fr",
+            locale: "fr_FR",
+            defaultName: "Bébé",
+            emptyStatus: "Pas commencée",
+            teethingStatus: "En poussée"
+        )
+    }
+
+    private func verifyProfileIsolation(
+        language: String,
+        locale: String,
+        defaultName: String,
+        emptyStatus: String,
+        teethingStatus: String
+    ) throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--ui-testing",
+            "-AppleLanguages", "(\(language))",
+            "-AppleLocale", locale,
+        ]
+        app.launch()
+        dismissAppleIntelligenceBannerIfNeeded()
+
+        let selector = app.buttons["profile.selector"]
+        XCTAssertTrue(selector.waitForExistence(timeout: 10))
+        XCTAssertTrue(selector.label.contains(defaultName), selector.label)
+        XCTAssertTrue(selector.isHittable)
+        selector.tap()
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["profile.sheet"].waitForExistence(timeout: 5)
+        )
+        let addButton = app.buttons["profile.add"]
+        XCTAssertTrue(addButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["profile.rename"].exists)
+        XCTAssertTrue(app.buttons["profile.delete"].exists)
+        addButton.tap()
+
+        let nameField = app.textFields["profile.name"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5))
+        nameField.tap()
+        nameField.typeText("Lina")
+        app.buttons["profile.save"].tap()
+
+        XCTAssertTrue(app.buttons["profile.done"].waitForExistence(timeout: 5))
+        app.buttons["profile.done"].tap()
+        XCTAssertTrue(selector.waitForExistence(timeout: 5))
+        XCTAssertTrue(selector.label.contains("Lina"), selector.label)
+        XCTAssertTrue(selector.label.contains("2"), selector.label)
+
+        let tooth = app.buttons["tooth-71"]
+        XCTAssertTrue(tooth.waitForExistence(timeout: 5))
+        XCTAssertEqual(tooth.value as? String, emptyStatus)
+        tooth.tap()
+        XCTAssertTrue(app.datePickers["editor.date"].waitForExistence(timeout: 5))
+        let markTeething = app.buttons["editor.mark_teething"]
+        if !markTeething.waitForExistence(timeout: 2) {
+            let editorForm = app.collectionViews.firstMatch
+            XCTAssertTrue(editorForm.exists)
+            editorForm.swipeUp()
+            editorForm.swipeUp()
+        }
+        XCTAssertTrue(markTeething.waitForExistence(timeout: 5))
+        XCTAssertTrue(markTeething.isHittable)
+        markTeething.tap()
+        XCTAssertTrue(tooth.waitForExistence(timeout: 5))
+        XCTAssertEqual(tooth.value as? String, teethingStatus)
+
+        selector.tap()
+        let primaryRow = app.buttons["profile.row.primary"]
+        XCTAssertTrue(primaryRow.waitForExistence(timeout: 5))
+        primaryRow.tap()
+        XCTAssertTrue(tooth.waitForExistence(timeout: 5))
+        XCTAssertEqual(tooth.value as? String, emptyStatus)
+
+        selector.tap()
+        let linaRow = app.buttons.matching(
+            NSPredicate(format: "label == %@", "Lina")
+        ).firstMatch
+        XCTAssertTrue(linaRow.waitForExistence(timeout: 5))
+        linaRow.tap()
+        XCTAssertTrue(tooth.waitForExistence(timeout: 5))
+        XCTAssertEqual(tooth.value as? String, teethingStatus)
+        capture("Profiles-\(language.uppercased())")
+    }
+
     private func tapTab(in app: XCUIApplication, identifier: String, labels: [String]) {
         for elementType in [XCUIElement.ElementType.button, .cell, .other] {
             let identified = app.descendants(matching: elementType).matching(identifier: identifier).firstMatch

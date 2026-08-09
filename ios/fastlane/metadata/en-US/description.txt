@@ -1,5 +1,8 @@
 Petites Dents turns the 20 primary teeth into a simple, reassuring timeline for your family.
 
+ONE TIMELINE PER CHILD
+Create a profile for each child — including twins — then switch in one tap. Birth dates, tooth progress, notes, history, deletion, and PDF exports stay strictly separate for every profile.
+
 INTERACTIVE MOUTH
 See upper and lower arches in anatomical order. Every tooth has one clear state: not started, teething, or erupted.
 
@@ -10,7 +13,7 @@ CHRONOLOGICAL HISTORY
 Review erupted teeth in date order, with the baby's exact age, and keep important milestones easy to find.
 
 LOCAL PDF SUMMARY
-Create a readable PDF with the full diagram, birth date, eruption ages, dates, and notes. Share it through the system sheet with a pediatrician or keep it with the child's health record.
+Create a readable PDF named for the selected child, with the full diagram, birth date, eruption ages, dates, and notes. Share it through the system sheet with a pediatrician or keep it with the child's health record.
 
 PRIVATE BY DESIGN
 No account, application server, advertising, analytics, or tracking. Dental records remain on your device.

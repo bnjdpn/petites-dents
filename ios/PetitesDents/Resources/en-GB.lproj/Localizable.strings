@@ -2,6 +2,26 @@
 "tab.history" = "History";
 "tab.more" = "More";
 
+"profile.default_name" = "Baby";
+"profile.switch_hint" = "Switch child profile";
+"profile.selector_accessibility" = "Selected: %1$@. %2$d child profiles.";
+"profile.title" = "Children";
+"profile.children" = "Child profiles";
+"profile.manage" = "Manage profiles";
+"profile.selected" = "Selected";
+"profile.add" = "Add a child";
+"profile.rename" = "Rename selected child";
+"profile.delete" = "Delete selected child";
+"profile.done" = "Done";
+"profile.name" = "Child’s first name or nickname";
+"profile.add_title" = "New child";
+"profile.rename_title" = "Rename child";
+"profile.delete_title" = "Delete this child profile?";
+"profile.delete_body" = "Only %@’s birth date, tooth dates and notes will be deleted. Other child profiles stay unchanged.";
+"profile.name_required" = "Enter a first name or nickname.";
+"profile.not_found" = "This child profile is no longer available.";
+"profile.cannot_delete_last" = "At least one child profile must remain.";
+
 "mouth.title" = "Baby teeth";
 "mouth.subtitle" = "Tap a tooth to record teething, eruption and notes.";
 "mouth.progress" = "%d of 20 erupted";
@@ -75,6 +95,7 @@
 "pdf.title" = "Petites Dents — baby teeth summary";
 "pdf.generated" = "Generated %@";
 "pdf.birth_date" = "Baby’s date of birth: %@";
+"pdf.profile_name" = "Child: %@";
 "pdf.summary" = "%d erupted · %d teething · %d not started";
 "pdf.no_date" = "No date";
 "pdf.teething" = "Teething: %@";
@@ -95,6 +116,9 @@
 "seed.note.81" = "The second central incisor appeared this week.";
 "seed.note.61" = "Cold teething ring helped.";
 "seed.note.51" = "Gums look slightly swollen.";
+"seed.note.secondary" = "A first sign, kept separate in this child’s timeline.";
+"seed.profile.primary" = "Emma";
+"seed.profile.secondary" = "Noah";
 
 "common.close" = "Close";
 "common.cancel" = "Cancel";
