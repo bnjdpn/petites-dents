@@ -266,6 +266,7 @@ platform :ios do
 
   desc "Validate the complete local release contract without ASC writes"
   lane :release_contract do
+    sh(RbConfig.ruby, File.expand_path("../../scripts/marketing_site.rb", __dir__), "--check")
     sh(RbConfig.ruby, File.join(PETITES_DENTS_IOS_ROOT, "scripts", "release_contract.rb"), "--check")
     sh(RbConfig.ruby, File.join(PETITES_DENTS_IOS_ROOT, "scripts", "apple_release_entrypoint_test.rb"))
     sh(RbConfig.ruby, File.join(PETITES_DENTS_REPO_ROOT, "scripts", "release_alignment_guard.rb"))
@@ -397,7 +398,7 @@ platform :ios do
     petites_dents_strict_status(expected_build: manifest.fetch("build"))
   end
 
-  desc "Submit the exact selected build and three optional tips for App Review"
+  desc "Submit the exact selected build and configured IAP versions for App Review"
   lane :submit_review do
     manifest = petites_dents_release_manifest
     petites_dents_review_information
@@ -412,16 +413,22 @@ platform :ios do
     )
   end
 
-  desc "Execute ASO, media, free pricing, tips, build, upload, submission, and readback"
+  desc "Execute ASO, media, configured monetization, build, upload, submission, and readback"
   lane :release_quick do
     UI.user_error!("release_quick is disabled; use bin/apple-release release petites-dents")
   end
 
 
-  desc "Read free pricing, or apply it with PETITES_DENTS_APPLY_ASC=1"
+  desc "Read configured pricing, or apply it with PETITES_DENTS_APPLY_ASC=1"
   lane :pricing do
     apply = ENV["PETITES_DENTS_APPLY_ASC"] == "1"
-    arguments = [apply ? "set" : "check", "--target-price", "0.00", "--territory", "FRA"]
+    pricing = petites_dents_config.fetch("pricing")
+    target_price = pricing["target_price"] || pricing.fetch("price")
+    arguments = [
+      apply ? "set" : "check",
+      "--target-price", target_price,
+      "--territory", pricing.fetch("territory")
+    ]
     arguments << "--apply" if apply
     petites_dents_run_asc_tool("pricing", *arguments)
   end
@@ -431,7 +438,7 @@ platform :ios do
     petites_dents_run_asc_tool("iap_status")
   end
 
-  desc "Verify the three tips; mutation requires PETITES_DENTS_APPLY_ASC=1"
+  desc "Verify configured IAPs; mutation requires PETITES_DENTS_APPLY_ASC=1"
   lane :iap_sync do
     arguments = []
     arguments << "--apply" if ENV["PETITES_DENTS_APPLY_ASC"] == "1"

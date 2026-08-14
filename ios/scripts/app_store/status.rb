@@ -529,7 +529,7 @@ def strict_errors(payload, options)
   end
 
   pricing = payload.fetch("pricing")
-  errors << "price does not match free target #{pricing["expected_price"]}" unless pricing["matches_expected"]
+  errors << "price does not match configured target #{pricing["expected_price"]}" unless pricing["matches_expected"]
 
   iap = payload.fetch("iap")
   unless iap["missing_product_ids"].empty? && iap["unexpected_product_ids"].empty?

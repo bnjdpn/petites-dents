@@ -2,11 +2,13 @@
 # frozen_string_literal: true
 
 require "json"
+require "bigdecimal"
 require "open3"
 require "optparse"
 require "pathname"
 require "rexml/document"
 require "rexml/xpath"
+require_relative "../../scripts/pages_workflow_contract"
 
 module PetitesDentsReleaseContract
   APP_NAME = "Petites Dents"
@@ -19,11 +21,6 @@ module PetitesDentsReleaseContract
   LOCALES = %w[en-US en-GB fr-FR].freeze
   SCENES = %w[01_Mouth 02_ToothDetail 03_History 04_ExportAndSupport].freeze
   DISPLAY_TYPES = %w[APP_IPHONE_67 APP_IPAD_PRO_3GEN_129].freeze
-  TIPS = %w[
-    com.bnjdpn.petitesdents.tip.cafe
-    com.bnjdpn.petitesdents.tip.merci
-    com.bnjdpn.petitesdents.tip.soutien
-  ].freeze
   REQUIRED_LANES = %w[
     setup_asc release_contract asc_status metadata screenshots
     upload_screenshots upload_previews build_release upload_release
@@ -37,6 +34,44 @@ module PetitesDentsReleaseContract
     "description.txt" => 4_000,
     "release_notes.txt" => 4_000
   }.freeze
+
+  module_function
+
+  def monetization_errors(config)
+    errors = []
+    pricing = config["pricing"]
+    unless pricing.is_a?(Hash)
+      return ["pricing must be an object"]
+    end
+    errors << "pricing territory is required" if pricing["territory"].to_s.strip.empty?
+    target = pricing["target_price"] || pricing["price"]
+    begin
+      target_value = BigDecimal(target.to_s)
+      errors << "configured app price must not be negative" if target_value.negative?
+      if config["price"].nil? || BigDecimal(config["price"].to_s) != target_value
+        errors << "top-level price must match configured target price"
+      end
+    rescue ArgumentError
+      errors << "configured app price must be a decimal string"
+    end
+
+    definitions = config["iap"]
+    products = config["iap_products"]
+    unless definitions.is_a?(Array) && products.is_a?(Array)
+      errors << "iap and iap_products must be arrays"
+      return errors
+    end
+    ids = definitions.each_with_object([]) do |item, configured_ids|
+      unless item.is_a?(Hash) && !item["product_id"].to_s.strip.empty? && !item["type"].to_s.strip.empty?
+        errors << "each IAP must configure product_id and type"
+        next
+      end
+      configured_ids << item["product_id"]
+    end
+    errors << "IAP product IDs must be unique" unless ids.uniq.length == ids.length
+    errors << "iap_products must match the configured IAP order" unless products == ids
+    errors
+  end
 
   class Verifier
     attr_reader :errors
@@ -114,8 +149,7 @@ module PetitesDentsReleaseContract
         "team_id" => TEAM_ID,
         "project" => "ios/PetitesDents.xcodeproj",
         "scheme" => "PetitesDents",
-        "artifact_root" => "Builds/AppStore/PetitesDents",
-        "price" => "0.00"
+        "artifact_root" => "Builds/AppStore/PetitesDents"
       }.each do |key, expected|
         add("release config mismatch: #{key}") unless config[key] == expected
       end
@@ -261,11 +295,9 @@ module PetitesDentsReleaseContract
     end
 
     def validate_ci
-      workflows = Dir.glob(File.join(@root, ".github", "workflows", "*.{yml,yaml}"))
-      return if workflows.empty?
-
-      relative = workflows.map { |path| Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s }
-      add("GitHub Actions workflows are forbidden; Codex runs CI/CD locally before push: #{relative.join(', ')}")
+      PagesWorkflowContract.errors(@root, source_dir: "docs").each do |message|
+        add("Pages workflow contract: #{message}")
+      end
     end
 
     def validate_credentials
@@ -288,12 +320,8 @@ module PetitesDentsReleaseContract
     end
 
     def validate_config_products(config)
-      products = config["iap_products"]
-      definitions = config["iap"]
-      ids = definitions.is_a?(Array) ? definitions.map { |item| item["product_id"] } : []
-      add("IAP products must be exactly the three optional tips") unless products == TIPS && ids == TIPS
+      PetitesDentsReleaseContract.monetization_errors(config).each { |error| add(error) }
       add("Game Center must not be configured") unless config["leaderboard_ids"] == [] && config["leaderboards"] == []
-      add("free pricing territory mismatch") unless config.dig("pricing", "target_price") == "0.00"
     end
 
     def read(relative)

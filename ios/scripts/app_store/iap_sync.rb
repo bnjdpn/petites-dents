@@ -9,7 +9,11 @@ require_relative "client"
 
 APP_ROOT = File.expand_path("../..", __dir__)
 REPO_ROOT = File.expand_path("..", APP_ROOT)
-REVIEW_NOTE = "Optional consumable tip visible in the Petites Dents More tab. It unlocks no content, feature, account, service, or entitlement. The complete app remains free.".freeze
+
+def review_note(product)
+  product["review_note"] ||
+    "Configured #{product.fetch('type')} product for the current Petites Dents release. See the submitted metadata and review screenshot for its behavior."
+end
 
 def load_config(path)
   JSON.parse(File.read(path))
@@ -38,7 +42,7 @@ def parse_options(argv)
   options[:review_screenshot] = screenshot
 
   abort "--bundle-id is required" if options[:bundle_id].to_s.empty?
-  abort "Exactly three optional tip products are required" unless options[:products].length == 3
+  abort "iap must be an array" unless options[:products].is_a?(Array)
   unless AutonomousAscCredentials.available?(key_path: options[:key_path])
     abort "Provide ASC_API_KEY_PATH or APP_STORE_CONNECT_API_KEY_* environment credentials"
   end
@@ -69,7 +73,7 @@ def create_iap(client, app_id, product)
         name: product.fetch("reference_name"),
         productId: product.fetch("product_id"),
         inAppPurchaseType: product.fetch("type"),
-        reviewNote: REVIEW_NOTE
+        reviewNote: review_note(product)
       },
       relationships: {
         app: { data: { type: "apps", id: app_id } }
@@ -81,7 +85,7 @@ end
 def update_iap_metadata(client, iap, product)
   attributes = iap.fetch("attributes")
   return iap if attributes["name"] == product.fetch("reference_name") &&
-                attributes["reviewNote"] == REVIEW_NOTE
+                attributes["reviewNote"] == review_note(product)
 
   client.patch("/v2/inAppPurchases/#{iap.fetch('id')}", {
     data: {
@@ -89,7 +93,7 @@ def update_iap_metadata(client, iap, product)
       id: iap.fetch("id"),
       attributes: {
         name: product.fetch("reference_name"),
-        reviewNote: REVIEW_NOTE
+        reviewNote: review_note(product)
       }
     }
   }).fetch("data")
@@ -357,7 +361,7 @@ def blockers_for(products, statuses, unexpected_ids)
     status = statuses.find { |item| item["product_id"] == product.fetch("product_id") }
     blockers << "missing_iap:#{product.fetch('product_id')}" if status["status"] == "missing"
     next if status["status"] == "missing"
-    blockers << "wrong_type:#{product.fetch('product_id')}" unless status["type"] == "CONSUMABLE"
+    blockers << "wrong_type:#{product.fetch('product_id')}" unless status["type"] == product.fetch("type")
     blockers << "missing_availability:#{product.fetch('product_id')}" unless status["available_for_sale"]
     expected_locales = product.fetch("localizations").keys.sort
     blockers << "missing_localizations:#{product.fetch('product_id')}" unless status["locales"] == expected_locales
@@ -410,7 +414,7 @@ def run(options)
   end
   blockers = blockers_for(products, statuses, unexpected_ids)
   {
-    "status" => blockers.empty? ? "tip_jar_ready" : "tip_jar_blocked",
+    "status" => blockers.empty? ? "configured_iap_ready" : "configured_iap_blocked",
     "apply" => options[:apply],
     "app" => {
       "id" => app.fetch("id"),

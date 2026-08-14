@@ -18,6 +18,6 @@ Créez un PDF au nom de l’enfant sélectionné, avec le schéma complet, la da
 PRIVÉE PAR CONCEPTION
 Aucun compte, serveur applicatif, publicité, outil d'analyse ou suivi. Le carnet dentaire reste sur votre appareil.
 
-L'app complète est gratuite. Trois dons facultatifs sont proposés à celles et ceux qui souhaitent soutenir son développement ; ils ne débloquent rien.
+Dans cette version, trois dons consommables facultatifs permettent de soutenir le développement ; leur achat ne change pas l’accès aux fonctionnalités de cette version.
 
 Petites Dents est un carnet personnel, pas un dispositif médical ni un outil de diagnostic. En cas d'inquiétude concernant la santé d'un enfant, contactez un professionnel de santé qualifié.

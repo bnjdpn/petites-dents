@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="<%= h(html_lang) %>" dir="<%= h(text_direction) %>" data-template-id="<%= h(config.fetch("design_contract").fetch("template_id")) %>">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title><%= h(page_title) %></title>
+  <meta name="description" content="<%= h(meta_description) %>"><meta name="theme-color" content="<%= h(config.fetch("theme_color")) %>"><meta name="robots" content="index,follow,max-image-preview:large"><meta name="site-source-digest" content="<%= h(source_digest) %>">
+  <link rel="canonical" href="<%= h(canonical_url) %>"><% hreflang_links.each do |entry| %><link rel="alternate" hreflang="<%= h(entry.fetch(:locale)) %>" href="<%= h(entry.fetch(:url)) %>"><% end %><link rel="alternate" hreflang="x-default" href="<%= h(base_url) %>">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="<%= h(app_name) %>"><meta property="og:title" content="<%= h(page_title) %>"><meta property="og:description" content="<%= h(meta_description) %>"><meta property="og:url" content="<%= h(canonical_url) %>"><meta property="og:image" content="<%= h(hero_raster_url) %>"><meta property="og:image:alt" content="<%= h(hero_alt) %>">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="<%= h(page_title) %>"><meta name="twitter:description" content="<%= h(meta_description) %>"><meta name="twitter:image" content="<%= h(hero_raster_url) %>">
+  <% if app_store_id %><meta name="apple-itunes-app" content="app-id=<%= h(app_store_id) %>"><% end %><link rel="icon" href="<%= h(asset_prefix) %>assets/app-icon.png"><link rel="manifest" href="<%= h(asset_prefix) %>site.webmanifest"><link rel="preload" as="image" href="<%= h(hero_raster) %>">
+  <link rel="stylesheet" href="<%= h(asset_prefix) %>assets/base.css"><link rel="stylesheet" href="<%= h(asset_prefix) %>assets/theme.css"><script type="application/ld+json"><%= json_ld %></script>
+</head>
+<body>
+  <a class="skip-link" href="#main"><%= h(ui.fetch("skip")) %></a>
+  <header class="archive-head">
+    <a class="brand" href="<%= h(base_url) %>"><img src="<%= h(asset_prefix) %>assets/app-icon.png" width="42" height="42" alt=""><span><%= h(app_name) %></span></a>
+    <p><%= h(localized_value({"en" => "A private family archive", "fr" => "Une archive familiale privée"})) %></p>
+    <label class="language-picker"><span><%= h(ui.fetch("language")) %></span><select data-language-picker><% language_options.each do |option| %><option value="<%= h(option.fetch(:url)) %>"<%= " selected" if option.fetch(:selected) %>><%= h(option.fetch(:label)) %></option><% end %></select></label>
+  </header>
+
+  <main id="main" class="keepsake-file">
+    <header class="file-title">
+      <p class="accession"><%= h(config.fetch("public_version")) %> / 20</p>
+      <p class="eyebrow"><%= h(eyebrow) %></p>
+      <h1><%= h(marketing_name) %></h1>
+      <% unless subtitle.empty? %><p class="subtitle"><%= h(subtitle) %></p><% end %>
+    </header>
+
+    <figure class="keepsake-still"><img src="<%= h(hero_raster) %>" width="1536" height="1024" alt="<%= h(hero_alt) %>" fetchpriority="high"><figcaption><%= h(localized_value({"en" => "Keep the date, not a diagnosis.", "fr" => "Garder la date, pas établir un diagnostic."})) %></figcaption></figure>
+
+    <section class="record-summary" aria-labelledby="record-title">
+      <div><h2 id="record-title"><%= h(hero_pitch) %></h2><% if app_store_url && app_store_badge_src %><a class="app-store-action" href="<%= h(app_store_url) %>" rel="external"><img src="<%= h(app_store_badge_src) %>" alt="<%= h(app_store_download_label) %>" width="120" height="40"></a><% end %></div>
+      <dl><% truth_points.each_with_index do |point, index| %><div><dt><%= format("%02d", index + 1) %></dt><dd><%= h(point) %></dd></div><% end %></dl>
+      <% if screenshots.any? %><figure class="record-proof"><img src="<%= h(screenshot_src(screenshots.first)) %>" alt="<%= h(ui.fetch("preview")) %>" loading="lazy" decoding="async"><figcaption><%= h(localized_value(config.fetch("editorial").fetch("proof_caption"))) %></figcaption></figure><% end %>
+    </section>
+
+    <section id="annotations" class="annotations" aria-labelledby="annotations-title">
+      <header><p><%= h(localized_value(config.fetch("editorial").fetch("section_kicker"))) %></p><h2 id="annotations-title"><%= h(localized_value(config.fetch("editorial").fetch("section_heading"))) %></h2></header>
+      <% features.first(3).each_with_index do |feature, index| %><article><p><%= format("%02d", index + 1) %></p><div><% unless feature.fetch(:title).empty? %><h3><%= h(feature.fetch(:title)) %></h3><% end %><p><%= h(feature.fetch(:body)) %></p></div></article><% end %>
+      <details><summary><%= h(localized_value(config.fetch("editorial").fetch("details_label"))) %></summary><% web_description_paragraphs.each do |paragraph| %><p><%= h(paragraph) %></p><% end %></details>
+    </section>
+
+    <aside id="family" class="collection-register" aria-labelledby="register-title">
+      <p><%= h(ui.fetch("independent_studio")) %></p><h2 id="register-title"><%= h(related_heading) %></h2>
+      <ol><% related_apps.each do |related| %><li><a href="<%= h(related.fetch("site_url")) %>"><span><%= h(related.fetch("name")) %></span><small><%= h(localized_value(related.fetch("tagline", {}), fallback: ui.fetch("discover"))) %></small><img src="<%= h(asset_prefix + related.fetch("icon_path")) %>" width="52" height="52" alt=""></a></li><% end %></ol>
+      <small><%= h(ui.fetch("separate_apps")) %></small>
+    </aside>
+
+    <section id="contact" class="archive-contact" aria-labelledby="contact-title">
+      <header><p><%= h(ui.fetch("human_support")) %></p><h2 id="contact-title"><%= h(ui.fetch("contact_heading")) %></h2><p><%= h(ui.fetch("contact_intro")) %></p></header>
+      <form class="support-form" action="https://formspree.io/f/mykqbyyw" method="POST" data-sending="<%= h(ui.fetch("sending")) %>" data-success="<%= h(ui.fetch("success")) %>" data-error="<%= h(ui.fetch("error")) %>">
+        <input type="hidden" name="app" value="<%= h(app_name) %>"><input type="hidden" name="_subject" value="<%= h(app_name) %> support request"><label class="honeypot" aria-hidden="true">Leave empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label>
+        <label><span><%= h(support_field_text.fetch("category")) %></span><select name="category" required><option value="" selected disabled>—</option><% support_field_text.fetch("categories").each do |category| %><option value="<%= h(category) %>"><%= h(category) %></option><% end %></select></label><label><span><%= h(ui.fetch("email")) %></span><input type="email" name="email" autocomplete="email" required></label>
+        <label><span><%= h(ui.fetch("app_version")) %></span><input type="text" name="app_version"></label><label><span><%= h(support_field_text.fetch("os_version")) %></span><input type="text" name="os_version"></label><label class="message-field"><span><%= h(ui.fetch("message")) %></span><textarea name="message" required></textarea></label><button type="submit"><%= h(ui.fetch("send")) %></button><p class="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="archive-footer"><p><strong><%= h(app_name) %></strong> · <%= h(ui.fetch("independent_footer")) %></p><nav aria-label="<%= h(ui.fetch("legal")) %>"><a href="<%= h(privacy_url) %>"><%= h(ui.fetch("privacy")) %></a><a href="#contact"><%= h(ui.fetch("support")) %></a></nav><small class="trademark-notice">Apple and the Apple logo are trademarks of Apple Inc., registered in the U.S. and other countries and regions. App Store is a service mark of Apple Inc.</small></footer>
+  <script src="<%= h(asset_prefix) %>assets/site.js" defer></script>
+</body>
+</html>

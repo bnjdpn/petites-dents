@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
+require_relative "../../scripts/pages_workflow_contract"
+
 class AppleReleaseEntrypointTest
   REPO_ROOT = File.expand_path("../..", __dir__)
   FASTFILE = File.join(__dir__, "..", "fastlane", "Fastfile")
 
-  def test_github_actions_workflows_are_absent
-    workflows = Dir.glob(File.join(REPO_ROOT, ".github", "workflows", "*.{yml,yaml}"))
-
-    assert(workflows.empty?, "GitHub Actions is disabled; found #{workflows.join(', ')}")
+  def test_github_actions_is_limited_to_the_isolated_pages_workflow
+    errors = PagesWorkflowContract.errors(REPO_ROOT, source_dir: "docs", required: true)
+    assert(errors.empty?, errors.join("\n"))
   end
 
   def test_signing_consumes_only_wrapper_injected_identity

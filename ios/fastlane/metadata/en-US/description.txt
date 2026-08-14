@@ -18,6 +18,6 @@ Create a readable PDF named for the selected child, with the full diagram, birth
 PRIVATE BY DESIGN
 No account, application server, advertising, analytics, or tracking. Dental records remain on your device.
 
-The complete app is free. Three optional tips are available for people who want to support its development; they unlock nothing.
+In this version, three optional consumable tips are available for people who want to support development; buying one does not change feature access in this version.
 
 Petites Dents is a personal log, not a medical device or diagnostic tool. Contact a qualified healthcare professional if you have concerns about a child's health.

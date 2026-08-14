@@ -8,11 +8,15 @@ advertising, analytics, or a remote server.
 
 - Anatomically ordered upper and lower arches for all 20 primary teeth.
 - Three clear states: not started, teething, and erupted.
-- Start and eruption dates, free notes, reset, and chronological history.
+- Start and eruption dates, free-form notes, reset, and chronological history.
 - A local PDF summary that can be shared with a paediatrician or kept with the
   child's health record.
 - French, US English, and British English on iOS; French and English on Android.
-- Optional iOS tips that unlock nothing. Every feature remains free.
+- The optional iOS tips configured for the current release do not change feature access.
+
+Release pricing and purchases are governed by the app-specific commercial plan
+and `ios/fastlane/release_config.json`, with future commercial changes requiring
+an app-specific approved plan.
 
 Petites Dents is a personal log, not a medical device or a diagnostic tool.
 

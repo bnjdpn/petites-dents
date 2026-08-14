@@ -84,7 +84,7 @@
 "more.medical_disclaimer" = "Petites Dents est un carnet personnel, pas un dispositif médical. En cas d’inquiétude, contactez un professionnel de santé.";
 
 "tips.title" = "Soutenir Petites Dents";
-"tips.body" = "Les dons sont facultatifs et ne débloquent rien. L’app complète reste toujours gratuite.";
+"tips.body" = "Dans cette version, les dons facultatifs ne changent pas l’accès aux fonctionnalités.";
 "tips.loading" = "Chargement des dons facultatifs…";
 "tips.unavailable" = "Les dons sont temporairement indisponibles.";
 "tips.thanks" = "Merci pour votre soutien !";

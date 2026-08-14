@@ -1,0 +1,15 @@
+{
+  "name": "Petites Dents",
+  "short_name": "Petites Dents",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FFFAF2",
+  "theme_color": "#FF7366",
+  "icons": [
+    {
+      "src": "assets/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}

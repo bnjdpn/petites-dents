@@ -84,7 +84,7 @@
 "more.medical_disclaimer" = "Petites Dents is a personal log, not a medical device. Contact a healthcare professional if you are concerned.";
 
 "tips.title" = "Support Petites Dents";
-"tips.body" = "Optional tips unlock nothing. The complete app always remains free.";
+"tips.body" = "In this version, optional tips do not change feature access.";
 "tips.loading" = "Loading optional tips…";
 "tips.unavailable" = "Tips are temporarily unavailable.";
 "tips.thanks" = "Thank you for your support!";
