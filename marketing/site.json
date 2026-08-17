@@ -7,14 +7,15 @@
   "docs_dir": "docs",
   "design_contract": {
     "template_id": "dents-keepsake-archive-v1",
-    "hero_raster": "assets/hero-editorial.jpg",
-    "hero_alt": {
-      "en": "A handmade tooth keepsake, coral ribbon and blank envelope on an old dresser.",
-      "fr": "Un souvenir en forme de dent, un ruban corail et une enveloppe vierge sur une commode."
-    },
+    "hero_raster": "assets/shots/en-US/01-880.webp",
     "forbid_css_illustration": true,
-    "hero_width": 1536,
-    "hero_height": 1024
+    "hero_width": 880,
+    "hero_height": 1912,
+    "hero_source": "app-store-screenshot",
+    "hero_alt": {
+      "en": "Petites Dents running on iPhone, App Store screenshot.",
+      "fr": "Petites Dents sur iPhone, capture App Store."
+    }
   },
   "editorial": {
     "nav_label": {
@@ -150,60 +151,303 @@
   "screenshots": {
     "en-GB": [
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/47/e0/40/47e04017-7424-9761-8927-e9a8ee98c6f3/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/en-GB/01",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/en-GB/01-880.webp",
+        "width": 880,
+        "height": 1912
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/8d/58/58/8d585835-de8e-ed49-f086-60e1c8d76ca5/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/en-GB/02",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/en-GB/02-880.webp",
+        "width": 880,
+        "height": 1912
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/ec/c0/d7/ecc0d709-9ccb-bbb1-76de-05547b1f18bb/PetitesDents_APP_IPHONE_67_03_History.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/en-GB/03",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/en-GB/03-880.webp",
+        "width": 880,
+        "height": 1912
       }
     ],
     "en-US": [
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/88/8f/1b/888f1b85-9b6d-e4d2-a93b-f2abae50008e/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/en-US/01",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/en-US/01-880.webp",
+        "width": 880,
+        "height": 1912
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/9a/11/d2/9a11d26c-4684-8ace-1123-8c10912e86bf/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/en-US/02",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/en-US/02-880.webp",
+        "width": 880,
+        "height": 1912
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/fe/99/e4/fe99e4c3-3d4f-be2e-7710-63d3058834cc/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/en-US/03",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/en-US/03-880.webp",
+        "width": 880,
+        "height": 1912
       }
     ],
     "fr-FR": [
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/66/27/61/662761ee-6733-9a02-7bc2-0794a66b34d2/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/fr-FR/01",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/fr-FR/01-880.webp",
+        "width": 880,
+        "height": 1912
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/74/a7/42/74a7425e-1a9b-4ad4-ebf9-5ab3878f0dee/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/fr-FR/02",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/fr-FR/02-880.webp",
+        "width": 880,
+        "height": 1912
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/ec/0f/2c/ec0f2ce3-3cc9-efcd-da73-160c98d9c338/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg",
-        "width": 640,
-        "height": 960
+        "base": "assets/shots/fr-FR/03",
+        "variants": [
+          {
+            "w": 440,
+            "h": 956
+          },
+          {
+            "w": 880,
+            "h": 1912
+          }
+        ],
+        "url": "https://bnjdpn.github.io/petites-dents/assets/shots/fr-FR/03-880.webp",
+        "width": 880,
+        "height": 1912
       }
     ]
   },
   "local_assets": [
     {
-      "source": "marketing/art/hero-editorial.jpg",
-      "path": "assets/hero-editorial.jpg"
+      "source": "marketing/shots/en-GB/01-440.avif",
+      "path": "assets/shots/en-GB/01-440.avif"
+    },
+    {
+      "source": "marketing/shots/en-GB/01-440.webp",
+      "path": "assets/shots/en-GB/01-440.webp"
+    },
+    {
+      "source": "marketing/shots/en-GB/01-880.avif",
+      "path": "assets/shots/en-GB/01-880.avif"
+    },
+    {
+      "source": "marketing/shots/en-GB/01-880.webp",
+      "path": "assets/shots/en-GB/01-880.webp"
+    },
+    {
+      "source": "marketing/shots/en-GB/02-440.avif",
+      "path": "assets/shots/en-GB/02-440.avif"
+    },
+    {
+      "source": "marketing/shots/en-GB/02-440.webp",
+      "path": "assets/shots/en-GB/02-440.webp"
+    },
+    {
+      "source": "marketing/shots/en-GB/02-880.avif",
+      "path": "assets/shots/en-GB/02-880.avif"
+    },
+    {
+      "source": "marketing/shots/en-GB/02-880.webp",
+      "path": "assets/shots/en-GB/02-880.webp"
+    },
+    {
+      "source": "marketing/shots/en-GB/03-440.avif",
+      "path": "assets/shots/en-GB/03-440.avif"
+    },
+    {
+      "source": "marketing/shots/en-GB/03-440.webp",
+      "path": "assets/shots/en-GB/03-440.webp"
+    },
+    {
+      "source": "marketing/shots/en-GB/03-880.avif",
+      "path": "assets/shots/en-GB/03-880.avif"
+    },
+    {
+      "source": "marketing/shots/en-GB/03-880.webp",
+      "path": "assets/shots/en-GB/03-880.webp"
+    },
+    {
+      "source": "marketing/shots/en-US/01-440.avif",
+      "path": "assets/shots/en-US/01-440.avif"
+    },
+    {
+      "source": "marketing/shots/en-US/01-440.webp",
+      "path": "assets/shots/en-US/01-440.webp"
+    },
+    {
+      "source": "marketing/shots/en-US/01-880.avif",
+      "path": "assets/shots/en-US/01-880.avif"
+    },
+    {
+      "source": "marketing/shots/en-US/01-880.webp",
+      "path": "assets/shots/en-US/01-880.webp"
+    },
+    {
+      "source": "marketing/shots/en-US/02-440.avif",
+      "path": "assets/shots/en-US/02-440.avif"
+    },
+    {
+      "source": "marketing/shots/en-US/02-440.webp",
+      "path": "assets/shots/en-US/02-440.webp"
+    },
+    {
+      "source": "marketing/shots/en-US/02-880.avif",
+      "path": "assets/shots/en-US/02-880.avif"
+    },
+    {
+      "source": "marketing/shots/en-US/02-880.webp",
+      "path": "assets/shots/en-US/02-880.webp"
+    },
+    {
+      "source": "marketing/shots/en-US/03-440.avif",
+      "path": "assets/shots/en-US/03-440.avif"
+    },
+    {
+      "source": "marketing/shots/en-US/03-440.webp",
+      "path": "assets/shots/en-US/03-440.webp"
+    },
+    {
+      "source": "marketing/shots/en-US/03-880.avif",
+      "path": "assets/shots/en-US/03-880.avif"
+    },
+    {
+      "source": "marketing/shots/en-US/03-880.webp",
+      "path": "assets/shots/en-US/03-880.webp"
+    },
+    {
+      "source": "marketing/shots/fr-FR/01-440.avif",
+      "path": "assets/shots/fr-FR/01-440.avif"
+    },
+    {
+      "source": "marketing/shots/fr-FR/01-440.webp",
+      "path": "assets/shots/fr-FR/01-440.webp"
+    },
+    {
+      "source": "marketing/shots/fr-FR/01-880.avif",
+      "path": "assets/shots/fr-FR/01-880.avif"
+    },
+    {
+      "source": "marketing/shots/fr-FR/01-880.webp",
+      "path": "assets/shots/fr-FR/01-880.webp"
+    },
+    {
+      "source": "marketing/shots/fr-FR/02-440.avif",
+      "path": "assets/shots/fr-FR/02-440.avif"
+    },
+    {
+      "source": "marketing/shots/fr-FR/02-440.webp",
+      "path": "assets/shots/fr-FR/02-440.webp"
+    },
+    {
+      "source": "marketing/shots/fr-FR/02-880.avif",
+      "path": "assets/shots/fr-FR/02-880.avif"
+    },
+    {
+      "source": "marketing/shots/fr-FR/02-880.webp",
+      "path": "assets/shots/fr-FR/02-880.webp"
+    },
+    {
+      "source": "marketing/shots/fr-FR/03-440.avif",
+      "path": "assets/shots/fr-FR/03-440.avif"
+    },
+    {
+      "source": "marketing/shots/fr-FR/03-440.webp",
+      "path": "assets/shots/fr-FR/03-440.webp"
+    },
+    {
+      "source": "marketing/shots/fr-FR/03-880.avif",
+      "path": "assets/shots/fr-FR/03-880.avif"
+    },
+    {
+      "source": "marketing/shots/fr-FR/03-880.webp",
+      "path": "assets/shots/fr-FR/03-880.webp"
+    },
+    {
+      "source": "marketing/web/social-card.jpg",
+      "path": "assets/social-card.jpg"
     },
     {
       "source": "marketing/404.html",
@@ -232,10 +476,6 @@
     {
       "source": "marketing/web/related/gouttes.png",
       "path": "assets/apps/gouttes.png"
-    },
-    {
-      "source": "marketing/web/social-card.jpg",
-      "path": "assets/social-card.jpg"
     }
   ],
   "content_overrides": {

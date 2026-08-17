@@ -16,16 +16,18 @@ Papier crème, bois patiné, ruban corail et typographie de registre. Aucun pers
 
 Le titre ressemble à une cote d’archive. Le hero est un objet-souvenir photographié ; les fonctions sont des annotations numérotées, puis un registre linéaire vers les autres apps Petites.
 
-## Assets publiés
+## Assets et provenance
 
-- Hero final ImageGen : `marketing/art/hero-editorial.jpg` vers `docs/assets/hero-editorial.jpg`.
-- Référence réelle : `ios/PetitesDents/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`.
-- Preuve UI réelle : premier screenshot de `marketing/site.json > screenshots.<locale>[0]`, média App Store localisé.
-- Favicon, cross-promo et badge : assets réels, badge SVG Apple officiel.
+- Source unique des visuels produit : les captures App Store réelles et localisées de la version publiée, récupérées à leur résolution native et suivies dans `marketing/shots/<locale>/`.
+- Aucune illustration générée n'est publiée. Le dossier `marketing/art/` a été supprimé avec le raster éditorial qui s'y trouvait ; il ne représentait pas l'app.
+- Dérivées servies : 440 et 880 px de large, en AVIF puis WebP, via `<picture>` + `srcset`/`sizes`. Les attributs `width`/`height` portent les dimensions réelles de la plus grande variante, donc aucun étirement ni réservation d'espace erronée.
+- Couverture : 3 locale(s) × 3 capture(s), chacune mappée explicitement dans `marketing/site.json > local_assets`.
+- Contrat de design : `hero_raster` = `assets/shots/en-US/01-880.webp` (880 × 1912), `hero_source` = `app-store-screenshot`. La page 404 et les métadonnées Open Graph pointent la même capture réelle.
+- Carte sociale `marketing/web/social-card.jpg` : composition locale à partir de la vraie icône App Store, de la première capture et des couleurs déclarées par le thème. Aucun texte inventé.
+- Icônes : `marketing/web/app-icon-*.png` et `marketing/web/related/*.png` sont dérivées des icônes App Store publiées, en 256 px minimum pour rester nettes en 2× et 3×.
+- Aucun lien vers un CDN Apple : tout est auto-hébergé, donc rien ne casse quand une fiche App Store change.
 
-## ImageGen
-
-Mode : built-in ImageGen. Prompt final, résumé fidèle : nature morte 3:2 sur une vieille commode, petit souvenir en céramique non émaillée en forme de dent, ruban de coton corail et enveloppe d’archive entièrement vierge, lumière de fin d’après-midi et grain moyen format ; aucune bouche, aucun bébé, aucune imagerie médicale, aucun texte, aucune mascotte, aucun rendu pastel 3D.
+Aucune fausse interface n'est publiée : la seule interface visible est une capture réelle de l'app.
 
 ## Différence et clichés évités
 

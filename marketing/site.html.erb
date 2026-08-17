@@ -4,9 +4,9 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title><%= h(page_title) %></title>
   <meta name="description" content="<%= h(meta_description) %>"><meta name="theme-color" content="<%= h(config.fetch("theme_color")) %>"><meta name="robots" content="index,follow,max-image-preview:large"><meta name="site-source-digest" content="<%= h(source_digest) %>">
   <link rel="canonical" href="<%= h(canonical_url) %>"><% hreflang_links.each do |entry| %><link rel="alternate" hreflang="<%= h(entry.fetch(:locale)) %>" href="<%= h(entry.fetch(:url)) %>"><% end %><link rel="alternate" hreflang="x-default" href="<%= h(base_url) %>">
-  <meta property="og:type" content="website"><meta property="og:site_name" content="<%= h(app_name) %>"><meta property="og:title" content="<%= h(page_title) %>"><meta property="og:description" content="<%= h(meta_description) %>"><meta property="og:url" content="<%= h(canonical_url) %>"><meta property="og:image" content="<%= h(hero_raster_url) %>"><meta property="og:image:alt" content="<%= h(hero_alt) %>">
-  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="<%= h(page_title) %>"><meta name="twitter:description" content="<%= h(meta_description) %>"><meta name="twitter:image" content="<%= h(hero_raster_url) %>">
-  <% if app_store_id %><meta name="apple-itunes-app" content="app-id=<%= h(app_store_id) %>"><% end %><link rel="icon" href="<%= h(asset_prefix) %>assets/app-icon.png"><link rel="manifest" href="<%= h(asset_prefix) %>site.webmanifest"><link rel="preload" as="image" href="<%= h(hero_raster) %>">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="<%= h(app_name) %>"><meta property="og:title" content="<%= h(page_title) %>"><meta property="og:description" content="<%= h(meta_description) %>"><meta property="og:url" content="<%= h(canonical_url) %>"><meta property="og:image" content="<%= h(base_url + config.fetch("design_contract").fetch("hero_raster")) %>"><meta property="og:image:alt" content="<%= h(hero_alt) %>">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="<%= h(page_title) %>"><meta name="twitter:description" content="<%= h(meta_description) %>"><meta name="twitter:image" content="<%= h(base_url + config.fetch("design_contract").fetch("hero_raster")) %>">
+  <% if app_store_id %><meta name="apple-itunes-app" content="app-id=<%= h(app_store_id) %>"><% end %><link rel="icon" href="<%= h(asset_prefix) %>assets/app-icon.png"><link rel="manifest" href="<%= h(asset_prefix) %>site.webmanifest">
   <link rel="stylesheet" href="<%= h(asset_prefix) %>assets/base.css"><link rel="stylesheet" href="<%= h(asset_prefix) %>assets/theme.css"><script type="application/ld+json"><%= json_ld %></script>
 </head>
 <body>
@@ -25,12 +25,11 @@
       <% unless subtitle.empty? %><p class="subtitle"><%= h(subtitle) %></p><% end %>
     </header>
 
-    <figure class="keepsake-still"><img src="<%= h(hero_raster) %>" width="1536" height="1024" alt="<%= h(hero_alt) %>" fetchpriority="high"><figcaption><%= h(localized_value({"en" => "Keep the date, not a diagnosis.", "fr" => "Garder la date, pas établir un diagnostic."})) %></figcaption></figure>
+    <div class="keepsake-still"><% screenshots.each_with_index do |screenshot, index| %><figure class="keepsake-shot<%= " keepsake-shot--lead" if index.zero? %>"><%= shot_picture(screenshot, index: index, sizes: index.zero? ? "(max-width: 760px) 62vw, (max-width: 1150px) 36vw, (max-width: 1280px) 30vw, 27vw" : "(max-width: 760px) 62vw, 329px", lead: index.zero?) %></figure><% end %><p class="keepsake-still-note"><%= h(localized_value({"en" => "Keep the date, not a diagnosis.", "fr" => "Garder la date, pas établir un diagnostic."})) %></p></div>
 
     <section class="record-summary" aria-labelledby="record-title">
       <div><h2 id="record-title"><%= h(hero_pitch) %></h2><% if app_store_url && app_store_badge_src %><a class="app-store-action" href="<%= h(app_store_url) %>" rel="external"><img src="<%= h(app_store_badge_src) %>" alt="<%= h(app_store_download_label) %>" width="120" height="40"></a><% end %></div>
       <dl><% truth_points.each_with_index do |point, index| %><div><dt><%= format("%02d", index + 1) %></dt><dd><%= h(point) %></dd></div><% end %></dl>
-      <% if screenshots.any? %><figure class="record-proof"><img src="<%= h(screenshot_src(screenshots.first)) %>" alt="<%= h(ui.fetch("preview")) %>" loading="lazy" decoding="async"><figcaption><%= h(localized_value(config.fetch("editorial").fetch("proof_caption"))) %></figcaption></figure><% end %>
     </section>
 
     <section id="annotations" class="annotations" aria-labelledby="annotations-title">
