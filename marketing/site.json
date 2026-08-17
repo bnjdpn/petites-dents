@@ -12,30 +12,59 @@
       "en": "A handmade tooth keepsake, coral ribbon and blank envelope on an old dresser.",
       "fr": "Un souvenir en forme de dent, un ruban corail et une enveloppe vierge sur une commode."
     },
-    "forbid_css_illustration": true
+    "forbid_css_illustration": true,
+    "hero_width": 1536,
+    "hero_height": 1024
   },
   "editorial": {
-    "nav_label": { "en": "Timeline notes", "fr": "Notes de chronologie" },
-    "section_kicker": { "en": "Annotations from the family archive", "fr": "Annotations des archives familiales" },
+    "nav_label": {
+      "en": "Timeline notes",
+      "fr": "Notes de chronologie"
+    },
+    "section_kicker": {
+      "en": "Annotations from the family archive",
+      "fr": "Annotations des archives familiales"
+    },
     "section_heading": {
       "en": "Twenty places, one family chronology.",
       "fr": "Vingt emplacements, une chronologie familiale."
     },
-    "details_label": { "en": "Consult the complete record", "fr": "Consulter le dossier complet" },
+    "details_label": {
+      "en": "Consult the complete record",
+      "fr": "Consulter le dossier complet"
+    },
     "proof_caption": {
       "en": "A real product screen from the current release.",
       "fr": "Un écran réel de la version actuelle."
     },
     "features": {
       "en": [
-        { "title": "One timeline per child", "body": "Profiles, birth dates, tooth progress, notes, history and exports remain separate for each child." },
-        { "title": "Dates, ages and observations", "body": "Record when teething began, when a tooth erupted and the detail you want to remember." },
-        { "title": "A local PDF keepsake", "body": "Create a readable summary on the device, then keep it or share it through the system sheet." }
+        {
+          "title": "One timeline per child",
+          "body": "Profiles, birth dates, tooth progress, notes, history and exports remain separate for each child."
+        },
+        {
+          "title": "Dates, ages and observations",
+          "body": "Record when teething began, when a tooth erupted and the detail you want to remember."
+        },
+        {
+          "title": "A local PDF keepsake",
+          "body": "Create a readable summary on the device, then keep it or share it through the system sheet."
+        }
       ],
       "fr": [
-        { "title": "Une chronologie par enfant", "body": "Profils, dates de naissance, suivi, notes, historique et exports restent séparés pour chaque enfant." },
-        { "title": "Dates, âges et observations", "body": "Notez le début de la poussée, la date de percée et le détail que vous souhaitez garder." },
-        { "title": "Un souvenir PDF local", "body": "Créez un récapitulatif lisible sur l’appareil, puis conservez-le ou partagez-le via la feuille système." }
+        {
+          "title": "Une chronologie par enfant",
+          "body": "Profils, dates de naissance, suivi, notes, historique et exports restent séparés pour chaque enfant."
+        },
+        {
+          "title": "Dates, âges et observations",
+          "body": "Notez le début de la poussée, la date de percée et le détail que vous souhaitez garder."
+        },
+        {
+          "title": "Un souvenir PDF local",
+          "body": "Créez un récapitulatif lisible sur l’appareil, puis conservez-le ou partagez-le via la feuille système."
+        }
       ]
     }
   },
@@ -121,35 +150,53 @@
   "screenshots": {
     "en-GB": [
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/47/e0/40/47e04017-7424-9761-8927-e9a8ee98c6f3/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/47/e0/40/47e04017-7424-9761-8927-e9a8ee98c6f3/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/8d/58/58/8d585835-de8e-ed49-f086-60e1c8d76ca5/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/8d/58/58/8d585835-de8e-ed49-f086-60e1c8d76ca5/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/ec/c0/d7/ecc0d709-9ccb-bbb1-76de-05547b1f18bb/PetitesDents_APP_IPHONE_67_03_History.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/ec/c0/d7/ecc0d709-9ccb-bbb1-76de-05547b1f18bb/PetitesDents_APP_IPHONE_67_03_History.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       }
     ],
     "en-US": [
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/88/8f/1b/888f1b85-9b6d-e4d2-a93b-f2abae50008e/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/88/8f/1b/888f1b85-9b6d-e4d2-a93b-f2abae50008e/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/9a/11/d2/9a11d26c-4684-8ace-1123-8c10912e86bf/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/9a/11/d2/9a11d26c-4684-8ace-1123-8c10912e86bf/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/fe/99/e4/fe99e4c3-3d4f-be2e-7710-63d3058834cc/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/fe/99/e4/fe99e4c3-3d4f-be2e-7710-63d3058834cc/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       }
     ],
     "fr-FR": [
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/66/27/61/662761ee-6733-9a02-7bc2-0794a66b34d2/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/66/27/61/662761ee-6733-9a02-7bc2-0794a66b34d2/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/74/a7/42/74a7425e-1a9b-4ad4-ebf9-5ab3878f0dee/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/74/a7/42/74a7425e-1a9b-4ad4-ebf9-5ab3878f0dee/PetitesDents_APP_IPHONE_67_01_Mouth.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       },
       {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/ec/0f/2c/ec0f2ce3-3cc9-efcd-da73-160c98d9c338/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/ec/0f/2c/ec0f2ce3-3cc9-efcd-da73-160c98d9c338/PetitesDents_APP_IPHONE_67_02_ToothDetail.png/640x960bb.jpg",
+        "width": 640,
+        "height": 960
       }
     ]
   },
@@ -175,16 +222,20 @@
       "path": "assets/app-store-badges/fr-FR.svg"
     },
     {
-      "source": "marketing/related/bouchees.png",
+      "source": "marketing/web/related/bouchees.png",
       "path": "assets/apps/bouchees.png"
     },
     {
-      "source": "marketing/related/nuits.png",
+      "source": "marketing/web/related/nuits.png",
       "path": "assets/apps/nuits.png"
     },
     {
-      "source": "marketing/related/gouttes.png",
+      "source": "marketing/web/related/gouttes.png",
       "path": "assets/apps/gouttes.png"
+    },
+    {
+      "source": "marketing/web/social-card.jpg",
+      "path": "assets/social-card.jpg"
     }
   ],
   "content_overrides": {
@@ -206,5 +257,26 @@
       "promotional_text": "Conservez une chronologie calme et privée des 20 dents de lait de votre bébé.",
       "description": "Un souvenir privé des premières dents de votre bébé.\n\nBOUCHE INTERACTIVE\nSuivez les 20 dents de lait dans l’ordre anatomique : non commencée, en poussée ou percée.\n\nDATES ET OBSERVATIONS\nConsignez les dates, l’âge exact à la percée, des notes et un historique chronologique.\n\nSOUVENIR PDF LOCAL\nCréez sur l’appareil un PDF lisible à conserver ou partager via la feuille système. C’est un carnet personnel, pas un conseil ni un diagnostic dentaire."
     }
+  },
+  "developer_name": "Benjamin Dupin",
+  "developer_profile_url": "https://apps.apple.com/fr/developer/benjamin-dupin/id1871474236",
+  "portfolio_url": "https://bnjdpn.github.io/",
+  "seo_last_modified": "2026-08-17",
+  "hreflang_defaults": {
+    "en": "en-US",
+    "fr": "fr-FR"
+  },
+  "web_icon_path": "marketing/web/app-icon-192.png",
+  "web_icon_size": 192,
+  "web_icon_large_path": "marketing/web/app-icon-512.png",
+  "web_icon_large_size": 512,
+  "social_image_path": "assets/social-card.jpg",
+  "social_image_source": "marketing/web/social-card.jpg",
+  "social_image_type": "image/jpeg",
+  "social_image_width": 1200,
+  "social_image_height": 630,
+  "seo_description_overrides": {
+    "en-GB": "Track your baby’s 20 primary teeth, eruption dates, exact ages and notes privately, then create a local PDF keepsake.",
+    "en-US": "Track your baby’s 20 primary teeth, eruption dates, exact ages and notes privately, then create a local PDF keepsake."
   }
 }
