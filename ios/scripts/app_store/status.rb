@@ -730,7 +730,6 @@ end
 
 if __FILE__ == $PROGRAM_NAME
   require_relative "client"
-require_relative "status_assets"
 
 begin
   options = parse_options(ARGV)
