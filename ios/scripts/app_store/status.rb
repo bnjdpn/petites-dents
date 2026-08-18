@@ -283,7 +283,15 @@ def asset_count(client, path, fields)
 end
 
 def app_store_assets(client, version)
-  return { "locales" => [], "screenshot_count" => 0, "preview_count" => 0 } unless version
+  unless version
+    return {
+      "locales" => [],
+      "screenshot_count" => 0,
+      "preview_count" => 0,
+      "screenshots_complete" => false,
+      "previews_complete" => true
+    }
+  end
 
   localizations = client.get_all("/v1/appStoreVersions/#{version.fetch("id")}/appStoreVersionLocalizations", {
     "fields[appStoreVersionLocalizations]" => "locale",
@@ -330,10 +338,14 @@ def app_store_assets(client, version)
     }
   end
 
+  screenshot_sets = locales.flat_map { |item| item.fetch("screenshots") }
   {
     "locales" => locales,
     "screenshot_count" => locales.sum { |item| item.fetch("screenshot_count") },
-    "preview_count" => locales.sum { |item| item.fetch("preview_count") }
+    "preview_count" => locales.sum { |item| item.fetch("preview_count") },
+    "screenshots_complete" => !screenshot_sets.empty? &&
+      screenshot_sets.all? { |set| set.fetch("count").positive? && set.fetch("count") == set.fetch("complete_count") },
+    "previews_complete" => true
   }
 end
 
@@ -718,6 +730,7 @@ end
 
 if __FILE__ == $PROGRAM_NAME
   require_relative "client"
+require_relative "status_assets"
 
 begin
   options = parse_options(ARGV)
