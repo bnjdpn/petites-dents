@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A1F0698F8831C606C0C421C /* ReviewPromptSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255EFBD88BD359E722510343 /* ReviewPromptSupport.swift */; };
 		1ABB4ED609B54949238AF08E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C455106D1EA77DDB6F85966 /* Assets.xcassets */; };
 		1F70C9DAD4FC9BEBB02ECBF6 /* DentalArchGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F64B6A88E25B869DC4AEF4 /* DentalArchGeometryTests.swift */; };
 		24F4089AFA65053AEA8F9459 /* ToothCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E30DBF52BC4E95F07E2EC1F /* ToothCatalog.swift */; };
@@ -34,6 +35,7 @@
 		C299F681B9BAE91FDDC3F83B /* ToothRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCD2F3373541262A7BEEF5F /* ToothRecord.swift */; };
 		C3AA6E9AC834FB79C8E3D2E1 /* LocalizationParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16510C3B81F12C83587FDF1B /* LocalizationParityTests.swift */; };
 		CB41B1BD5DF8E276540934DB /* MouthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D351CD04BCD3F9E510FEAE7 /* MouthView.swift */; };
+		D57769E30676D07E333ED62E /* ReviewPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9109B9B8F8612FDF208FD7 /* ReviewPromptTests.swift */; };
 		DEDEAE19D949CF60444325B2 /* DentalArchGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015327E2C4E099A214093231 /* DentalArchGeometry.swift */; };
 		E63AF12D3117CAF21EE69EAE /* TeethPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A5553F89A2FCAD2B4C4332 /* TeethPDFExporter.swift */; };
 		F4B1B5A65D31260C9923B480 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3961E4976EA406815B8E2932 /* ContentView.swift */; };
@@ -64,6 +66,7 @@
 		14F64B6A88E25B869DC4AEF4 /* DentalArchGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DentalArchGeometryTests.swift; sourceTree = "<group>"; };
 		16510C3B81F12C83587FDF1B /* LocalizationParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationParityTests.swift; sourceTree = "<group>"; };
 		177D8FFBC0195B26F77649DD /* DateStorageMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateStorageMigration.swift; sourceTree = "<group>"; };
+		255EFBD88BD359E722510343 /* ReviewPromptSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptSupport.swift; sourceTree = "<group>"; };
 		2D351CD04BCD3F9E510FEAE7 /* MouthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouthView.swift; sourceTree = "<group>"; };
 		359FF02DBB15CE9326743D5E /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
 		36C4EFEAE57A3DE9662B49CB /* PetitesDents.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PetitesDents.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +91,7 @@
 		9F30FE2B17C511AF1ABDE3F0 /* ChildProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfileTests.swift; sourceTree = "<group>"; };
 		ADCD2F3373541262A7BEEF5F /* ToothRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothRecord.swift; sourceTree = "<group>"; };
 		B58C05C5D53C29EF700CB223 /* ToothEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothEditorView.swift; sourceTree = "<group>"; };
+		BD9109B9B8F8612FDF208FD7 /* ReviewPromptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptTests.swift; sourceTree = "<group>"; };
 		C13BC13AF8E8E99D847CBF2B /* ScreenshotDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDataService.swift; sourceTree = "<group>"; };
 		C49E1A9A0F3D11819866CE6F /* TipJarSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarSection.swift; sourceTree = "<group>"; };
 		CBFB82227ABA286149317558 /* ToothRecordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothRecordTests.swift; sourceTree = "<group>"; };
@@ -149,6 +153,7 @@
 				9F30FE2B17C511AF1ABDE3F0 /* ChildProfileTests.swift */,
 				14F64B6A88E25B869DC4AEF4 /* DentalArchGeometryTests.swift */,
 				16510C3B81F12C83587FDF1B /* LocalizationParityTests.swift */,
+				BD9109B9B8F8612FDF208FD7 /* ReviewPromptTests.swift */,
 				E5CA318CEB3E724F1F370B97 /* TeethPDFExporterTests.swift */,
 				3E73483FC6A698476DD0C6E5 /* ToothCatalogTests.swift */,
 				CBFB82227ABA286149317558 /* ToothRecordTests.swift */,
@@ -184,6 +189,7 @@
 		8435DCACD740F69365B07C3A /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				255EFBD88BD359E722510343 /* ReviewPromptSupport.swift */,
 				C49E1A9A0F3D11819866CE6F /* TipJarSection.swift */,
 			);
 			path = Support;
@@ -366,6 +372,7 @@
 				6495F0023FD024F05B0FCF62 /* PetitesDentsApp.swift in Sources */,
 				7E367DC47ADC2D93635D1483 /* PetitesDentsStyle.swift in Sources */,
 				762B7DF7569384F81385C865 /* ProfileSwitcherView.swift in Sources */,
+				1A1F0698F8831C606C0C421C /* ReviewPromptSupport.swift in Sources */,
 				4481ADB8E1D36EF132734A95 /* ScreenshotDataService.swift in Sources */,
 				E63AF12D3117CAF21EE69EAE /* TeethPDFExporter.swift in Sources */,
 				46F9B37088DF3786FD60E1BD /* TipJarSection.swift in Sources */,
@@ -383,6 +390,7 @@
 				4733C26D6EE65325E776E4D4 /* ChildProfileTests.swift in Sources */,
 				1F70C9DAD4FC9BEBB02ECBF6 /* DentalArchGeometryTests.swift in Sources */,
 				C3AA6E9AC834FB79C8E3D2E1 /* LocalizationParityTests.swift in Sources */,
+				D57769E30676D07E333ED62E /* ReviewPromptTests.swift in Sources */,
 				9F8D23983C8B1602A979A708 /* TeethPDFExporterTests.swift in Sources */,
 				7C2A8D86AFEB46E9D87D461C /* ToothCatalogTests.swift in Sources */,
 				4B64BDC59449D66E9E7FE1C3 /* ToothRecordTests.swift in Sources */,

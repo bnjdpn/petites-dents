@@ -1,8 +1,10 @@
+import StoreKit
 import SwiftData
 import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.requestReview) private var requestReview
     @Query private var storedRecords: [ToothRecord]
     @Query private var storedProfiles: [ChildProfile]
 
@@ -119,11 +121,13 @@ struct ContentView: View {
                     try validateEventDate(date)
                     record(for: definition).markTeething(on: date, note: note)
                     try modelContext.save()
+                    registerToothValueEvent()
                 },
                 onMarkErupted: { date, note in
                     try validateEventDate(date)
                     try record(for: definition).markErupted(on: date, note: note)
                     try modelContext.save()
+                    registerToothValueEvent()
                 },
                 onReset: {
                     if let record = recordByToothID[definition.id] {
@@ -137,6 +141,18 @@ struct ContentView: View {
 
     private func select(_ snapshot: ToothSnapshot) {
         selectedTooth = snapshot.definition
+    }
+
+    private func registerToothValueEvent() {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard !arguments.contains("--ui-testing"), !arguments.contains("--screenshots") else {
+            return
+        }
+        guard ReviewPromptTracker.registerValueEvent() else { return }
+        Task {
+            try? await Task.sleep(for: .milliseconds(600))
+            requestReview()
+        }
     }
 
     private func record(for definition: ToothDefinition) -> ToothRecord {

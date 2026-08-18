@@ -1,4 +1,2 @@
-• Créez un profil séparé pour chaque enfant, y compris des jumeaux, et changez-en d’un geste.
-• Progression, notes, historique et date de naissance restent isolés par enfant.
-• Renommez ou supprimez un profil sans modifier la chronologie des autres enfants.
-• Les PDF identifient désormais l’enfant sélectionné et utilisent un nom de fichier distinct.
+• Après l’enregistrement de quelques étapes dentaires, l’app peut vous proposer de la noter via l’invite système standard.
+• L’invitation apparaît au plus une fois par version, et le carnet dentaire reste entièrement privé sur votre appareil.

@@ -1,4 +1,2 @@
-• Create a separate profile for each child, including twins, and switch in one tap.
-• Tooth progress, notes, history, and birth dates remain isolated per child.
-• Rename or safely delete a profile without changing another child’s timeline.
-• PDF reports now identify the selected child and use a distinct file name.
+• After you record a couple of tooth milestones, the app may invite you to rate it through the standard system prompt.
+• The invitation appears at most once per version, and your dental log stays fully private on your device.

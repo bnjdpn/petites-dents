@@ -376,7 +376,7 @@ platform :ios do
     petites_dents_write_release_manifest(build_number: build_number, ipa: ipa)
   end
 
-  desc "Upload the exact run IPA and attach its processed build to version 1.0.6"
+  desc "Upload the exact run IPA and attach its processed build to the configured version"
   lane :upload_release do
     manifest = petites_dents_release_manifest
     ipa = manifest.fetch("ipa")
