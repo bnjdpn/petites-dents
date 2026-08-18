@@ -1,5 +1,16 @@
 {
   "schema_version": 1,
+  "locales": [
+    "en-GB",
+    "en-US",
+    "fr-FR"
+  ],
+  "capture_keys": [
+    "01_Mouth",
+    "02_ToothDetail",
+    "03_History",
+    "04_ExportAndSupport"
+  ],
   "devices": [
     {
       "id": "iPhone-17-Pro-Max",
