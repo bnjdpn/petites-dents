@@ -1,4 +1,4 @@
-Petites Dents turns the 20 primary teeth into a simple, reassuring timeline for your family.
+Remember exactly when each baby tooth came in, and how old your child was that day. Baby Teeth turns the 20 primary teeth into a calm, private timeline — one profile per child, one tap per tooth.
 
 ONE TIMELINE PER CHILD
 Create a profile for each child — including twins — then switch in one tap. Birth dates, tooth progress, notes, history, deletion, and PDF exports stay strictly separate for every profile.
@@ -20,4 +20,4 @@ No account, application server, advertising, analytics, or tracking. Dental reco
 
 In this version, three optional consumable tips are available for people who want to support development; buying one does not change feature access in this version.
 
-Petites Dents is a personal log, not a medical device or diagnostic tool. Contact a qualified healthcare professional if you have concerns about a child's health.
+Baby Teeth is a personal log, not a medical device or diagnostic tool. Contact a qualified healthcare professional if you have concerns about a child's health.
