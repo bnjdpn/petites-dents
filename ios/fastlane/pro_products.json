@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "app": "Petites Dents",
+  "bundle_id": "com.bnjdpn.petitesdents",
+  "base_territory": "FRA",
+  "base_currency": "EUR",
+  "notes": "Source de vérité des produits payants de Petites Dents dans App Store Connect. Un seul produit : un non-consommable à 5,99 €, Partage familial actif, aucun abonnement. Le pot à pourboires est retiré du binaire en 2.0.0 : les trois consommables tip.* doivent passer en DEVELOPER_REMOVED_FROM_SALE (jamais supprimés — les transactions passées restent honorées). Limites ASC respectées : display name <= 30 caractères, description <= 45 caractères, une localisation par locale de la fiche (en-GB, en-US, fr-FR). La capture de review est produite par la lane iap_review_screenshot (scripts/app_store/iap_review_screenshot.rb) avant toute écriture ASC : sans elle le produit reste en MISSING_METADATA. Elle vit dans ios/review_assets/, un dossier versionné, avec un sidecar JSON qui porte le prix réellement rendu et le SHA-256 du PNG ; scripts/release_contract.rb refuse une capture dont le prix diverge de ce fichier.",
+  "subscription_group": null,
+  "products": [
+    {
+      "product_id": "com.bnjdpn.petitesdents.souvenirs",
+      "reference_name": "Petites Dents Souvenirs",
+      "type": "NON_CONSUMABLE",
+      "base_price": "5.99",
+      "family_sharable": true,
+      "introductory_offer": null,
+      "review_screenshot": "../review_assets/souvenirs-paywall.png",
+      "localizations": {
+        "en-US": { "name": "Keepsake Page & Photos", "description": "Second teeth, every photo, printable page." },
+        "en-GB": { "name": "Keepsake Page & Photos", "description": "Second teeth, every photo, printable page." },
+        "fr-FR": { "name": "Carnet Souvenirs", "description": "Dents définitives, photos, page à imprimer." }
+      },
+      "review_notes": "One-time purchase, Family Sharing enabled. Unlocks three things and nothing else: (1) the second dentition — the shedding date of each of the 20 baby teeth, the eruption of its replacement, and the four six-year molars (16/26/36/46) on a second 12-slot arch; (2) unlimited tooth photos — the first photo of each child is free for ever and is never removed; (3) the printable A4 keepsake page, the only document of the app that contains photos. Reachable from the Teeth tab > Permanent teeth, from More > Printable keepsake, and from the photo section of any tooth once the free first photo is used. Everything that shipped in 1.0.8 stays free, including the dental record PDF for healthcare professionals, which never contains a photo. No subscription, no advertising, no account, no server."
+    }
+  ],
+  "retired_products": [
+    {
+      "product_id": "com.bnjdpn.petitesdents.tip.cafe",
+      "type": "CONSUMABLE",
+      "action": "DEVELOPER_REMOVED_FROM_SALE",
+      "reason": "Portfolio rule 2026-08-19: an app that sells a product no longer offers tips. Removed from the 2.0.0 binary."
+    },
+    {
+      "product_id": "com.bnjdpn.petitesdents.tip.merci",
+      "type": "CONSUMABLE",
+      "action": "DEVELOPER_REMOVED_FROM_SALE",
+      "reason": "Portfolio rule 2026-08-19: an app that sells a product no longer offers tips. Removed from the 2.0.0 binary."
+    },
+    {
+      "product_id": "com.bnjdpn.petitesdents.tip.soutien",
+      "type": "CONSUMABLE",
+      "action": "DEVELOPER_REMOVED_FROM_SALE",
+      "reason": "Portfolio rule 2026-08-19: an app that sells a product no longer offers tips. Its 5,99 € price also collided with the Souvenirs price."
+    }
+  ]
+}

@@ -2,10 +2,22 @@ import SwiftUI
 
 struct MouthView: View {
     let snapshots: [ToothSnapshot]
+    let permanentSnapshots: [ToothSnapshot]
+    let canTrackPermanentTeeth: Bool
+    @Binding var phase: ToothPhase
     let onSelect: (ToothSnapshot) -> Void
+    let onRequestUnlock: () -> Void
 
     private var eruptedCount: Int {
-        snapshots.filter { $0.status == .erupted }.count
+        snapshots.filter(\.hasErupted).count
+    }
+
+    private var shedCount: Int {
+        snapshots.filter { $0.status == .shed }.count
+    }
+
+    private var permanentCount: Int {
+        permanentSnapshots.filter { $0.status == .erupted }.count
     }
 
     var body: some View {
@@ -18,22 +30,37 @@ struct MouthView: View {
                     .foregroundStyle(.secondary)
                     .padding(.top, 5)
 
-                Text(
-                    String(
-                        format: NSLocalizedString("mouth.progress", comment: "Erupted tooth count"),
-                        eruptedCount
-                    )
-                )
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(PetitesDentsStyle.coralSoft, in: Capsule())
+                Picker("mouth.phase_picker", selection: $phase) {
+                    Text("phase.primary").tag(ToothPhase.primary)
+                    Text("phase.permanent").tag(ToothPhase.permanent)
+                }
+                .pickerStyle(.segmented)
                 .padding(.top, 16)
+                .accessibilityIdentifier("mouth.phase")
 
-                MouthCard(snapshots: snapshots, onSelect: onSelect)
-                    .padding(.top, 18)
+                Text(progressText)
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(PetitesDentsStyle.coralSoft, in: Capsule())
+                    .padding(.top, 16)
+                    .accessibilityIdentifier("mouth.progress")
 
-                StatusLegend()
+                if phase == .permanent && !canTrackPermanentTeeth {
+                    LockedPhaseBanner(onRequestUnlock: onRequestUnlock)
+                        .padding(.top, 16)
+                }
+
+                MouthCard(
+                    snapshots: phase == .primary ? snapshots : permanentSnapshots,
+                    phase: phase,
+                    isLocked: phase == .permanent && !canTrackPermanentTeeth,
+                    onSelect: onSelect,
+                    onRequestUnlock: onRequestUnlock
+                )
+                .padding(.top, 18)
+
+                StatusLegend(phase: phase)
                     .padding(.top, 20)
                     .padding(.bottom, 28)
             }
@@ -45,11 +72,66 @@ struct MouthView: View {
         .background(PetitesDentsStyle.cream.ignoresSafeArea())
         .accessibilityIdentifier("screen.mouth")
     }
+
+    private var progressText: String {
+        switch phase {
+        case .primary:
+            String(
+                format: NSLocalizedString("mouth.progress", comment: "Erupted tooth count"),
+                eruptedCount,
+                shedCount
+            )
+        case .permanent:
+            String(
+                format: NSLocalizedString(
+                    "mouth.progress_permanent",
+                    comment: "Permanent tooth count"
+                ),
+                permanentCount
+            )
+        }
+    }
+}
+
+private struct LockedPhaseBanner: View {
+    let onRequestUnlock: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("mouth.locked_title", systemImage: "lock")
+                .font(.headline)
+                .foregroundStyle(PetitesDentsStyle.coral)
+            Text("mouth.locked_body")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Button("mouth.locked_button", action: onRequestUnlock)
+                .buttonStyle(.borderedProminent)
+                .tint(PetitesDentsStyle.coral)
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("mouth.unlock")
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
 }
 
 private struct MouthCard: View {
     let snapshots: [ToothSnapshot]
+    let phase: ToothPhase
+    let isLocked: Bool
     let onSelect: (ToothSnapshot) -> Void
+    let onRequestUnlock: () -> Void
+
+    private var slots: Int {
+        phase == .primary ? DentalArchGeometry.primarySlots : DentalArchGeometry.permanentSlots
+    }
+
+    private func orderedFDIs(for arch: ToothArch) -> [Int] {
+        phase == .primary
+            ? DentalArchGeometry.expectedFDIs(for: arch)
+            : PermanentToothCatalog.expectedFDIs(for: arch)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -57,14 +139,22 @@ private struct MouthCard: View {
                 title: String(localized: "mouth.upper_arch"),
                 snapshots: snapshots.filter { $0.definition.arch == .upper },
                 arch: .upper,
-                onSelect: onSelect
+                slots: slots,
+                orderedFDIs: orderedFDIs(for: .upper),
+                isLocked: isLocked,
+                onSelect: onSelect,
+                onRequestUnlock: onRequestUnlock
             )
 
             ToothArchDiagram(
                 title: String(localized: "mouth.lower_arch"),
                 snapshots: snapshots.filter { $0.definition.arch == .lower },
                 arch: .lower,
-                onSelect: onSelect
+                slots: slots,
+                orderedFDIs: orderedFDIs(for: .lower),
+                isLocked: isLocked,
+                onSelect: onSelect,
+                onRequestUnlock: onRequestUnlock
             )
         }
         .padding(.vertical, 16)
@@ -77,7 +167,11 @@ private struct ToothArchDiagram: View {
     let title: String
     let snapshots: [ToothSnapshot]
     let arch: ToothArch
+    let slots: Int
+    let orderedFDIs: [Int]
+    let isLocked: Bool
     let onSelect: (ToothSnapshot) -> Void
+    let onRequestUnlock: () -> Void
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -85,11 +179,20 @@ private struct ToothArchDiagram: View {
         horizontalSizeClass == .regular ? 2 : 1
     }
 
+    /// Longer arches keep the same box; only the drawn tooth shrinks with the
+    /// slot pitch, so the touch frames stay exactly the size the shipped baby
+    /// arch already uses.
+    private var archScale: CGFloat {
+        DentalArchGeometry.slotPitch(slots: slots)
+            / DentalArchGeometry.slotPitch(slots: DentalArchGeometry.primarySlots)
+    }
+
     var body: some View {
-        let placements = DentalArchGeometry.placements(for: arch)
-        let snapshotsByFDI = Dictionary(uniqueKeysWithValues: snapshots.map { ($0.definition.fdi, $0) })
-        let positionedSnapshots = DentalArchGeometry.expectedFDIs(for: arch).enumerated().compactMap {
-            index, fdi in
+        let placements = DentalArchGeometry.placements(for: arch, slots: slots)
+        let snapshotsByFDI = Dictionary(
+            uniqueKeysWithValues: snapshots.map { ($0.definition.fdi, $0) }
+        )
+        let positionedSnapshots = orderedFDIs.enumerated().compactMap { index, fdi in
             snapshotsByFDI[fdi].map { PositionedToothSnapshot(slot: index, snapshot: $0) }
         }
 
@@ -111,14 +214,20 @@ private struct ToothArchDiagram: View {
                     )
                     .allowsHitTesting(false)
 
-                DentalArchLayout(arch: arch) {
+                DentalArchLayout(arch: arch, slots: slots) {
                     ForEach(positionedSnapshots) { positioned in
                         ToothButton(
                             snapshot: positioned.snapshot,
                             toothRotation: placements[positioned.slot].rotationDegrees,
-                            visualScale: visualScale
+                            visualScale: visualScale,
+                            archScale: archScale,
+                            isLocked: isLocked
                         ) {
-                            onSelect(positioned.snapshot)
+                            if isLocked {
+                                onRequestUnlock()
+                            } else {
+                                onSelect(positioned.snapshot)
+                            }
                         }
                         .layoutValue(key: DentalArchSlotKey.self, value: positioned.slot)
                     }
@@ -142,6 +251,7 @@ private struct DentalArchSlotKey: LayoutValueKey {
 
 private struct DentalArchLayout: Layout {
     let arch: ToothArch
+    let slots: Int
 
     func sizeThatFits(
         proposal: ProposedViewSize,
@@ -159,7 +269,7 @@ private struct DentalArchLayout: Layout {
         subviews: Subviews,
         cache: inout ()
     ) {
-        let placements = DentalArchGeometry.placements(for: arch)
+        let placements = DentalArchGeometry.placements(for: arch, slots: slots)
         for subview in subviews {
             let index = subview[DentalArchSlotKey.self]
             guard placements.indices.contains(index) else { continue }
@@ -180,37 +290,7 @@ private struct ArchGumShape: Shape {
     let arch: ToothArch
 
     func path(in rect: CGRect) -> Path {
-        let outerYFraction = arch == .upper
-            ? DentalArchGeometry.gumOuterY
-            : 1 - DentalArchGeometry.gumOuterY
-        let shoulderYFraction = arch == .upper
-            ? DentalArchGeometry.gumShoulderY
-            : 1 - DentalArchGeometry.gumShoulderY
-        let centerYFraction = arch == .upper
-            ? DentalArchGeometry.gumCenterY
-            : 1 - DentalArchGeometry.gumCenterY
-        let outerY = rect.height * outerYFraction
-        let shoulderY = rect.height * shoulderYFraction
-        let centerY = rect.height * centerYFraction
-        var path = Path()
-        path.move(to: CGPoint(x: rect.width * DentalArchGeometry.gumOuterX, y: outerY))
-        path.addCurve(
-            to: CGPoint(x: rect.width * DentalArchGeometry.gumCenterX, y: centerY),
-            control1: CGPoint(x: rect.width * DentalArchGeometry.gumControl1X, y: shoulderY),
-            control2: CGPoint(x: rect.width * DentalArchGeometry.gumControl2X, y: centerY)
-        )
-        path.addCurve(
-            to: CGPoint(x: rect.width * (1 - DentalArchGeometry.gumOuterX), y: outerY),
-            control1: CGPoint(
-                x: rect.width * (1 - DentalArchGeometry.gumControl2X),
-                y: centerY
-            ),
-            control2: CGPoint(
-                x: rect.width * (1 - DentalArchGeometry.gumControl1X),
-                y: shoulderY
-            )
-        )
-        return path
+        GumOutline.path(in: rect, arch: arch)
     }
 }
 
@@ -218,37 +298,30 @@ private struct ToothButton: View {
     let snapshot: ToothSnapshot
     let toothRotation: CGFloat
     let visualScale: CGFloat
+    let archScale: CGFloat
+    let isLocked: Bool
     let action: () -> Void
 
     private var visualSize: CGSize {
-        let baseSize: CGSize
-        switch snapshot.definition.kind {
-        case .centralIncisor:
-            baseSize = CGSize(width: 32, height: 44)
-        case .lateralIncisor:
-            baseSize = CGSize(width: 30, height: 43)
-        case .canine:
-            baseSize = CGSize(width: 31, height: 45)
-        case .firstMolar:
-            baseSize = CGSize(width: 34, height: 46)
-        case .secondMolar:
-            baseSize = CGSize(width: 36, height: 48)
-        }
-        return CGSize(width: baseSize.width * visualScale, height: baseSize.height * visualScale)
+        let baseSize = snapshot.definition.kind.glyphSize
+        return CGSize(
+            width: baseSize.width * visualScale * archScale,
+            height: baseSize.height * visualScale * archScale
+        )
     }
 
     var body: some View {
         Button(action: action) {
             Group {
-                if snapshot.status == .erupted {
+                if snapshot.status == .erupted && snapshot.definition.phase == .primary {
                     Image(
                         snapshot.definition.arch == .upper
                             ? "EruptedToothCharacterUpper"
                             : "EruptedToothCharacter"
                     )
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 34 * visualScale, height: 40 * visualScale)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 34 * visualScale * archScale, height: 40 * visualScale * archScale)
                 } else {
                     schematicTooth
                 }
@@ -258,6 +331,7 @@ private struct ToothButton: View {
                 height: 52 * visualScale
             )
             .contentShape(Rectangle())
+            .opacity(isLocked ? 0.5 : 1)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("tooth-\(snapshot.definition.fdi)")
@@ -275,76 +349,74 @@ private struct ToothButton: View {
     private var schematicTooth: some View {
         ZStack {
             if snapshot.status == .teething {
-                DetailedToothShape()
+                ToothOutlineShape()
                     .fill(PetitesDentsStyle.apricot)
             }
-            DetailedToothShape()
+            if snapshot.status == .erupted {
+                ToothOutlineShape()
+                    .fill(Color.white)
+            }
+            ToothOutlineShape()
                 .stroke(
-                    snapshot.definition.kind.familyOutline.color.opacity(
-                        snapshot.status == .ghost ? 0.55 : 1
-                    ),
+                    strokeColor,
                     style: StrokeStyle(
                         lineWidth: 2.5,
                         lineCap: .round,
                         lineJoin: .round,
-                        dash: snapshot.status == .ghost ? [2.5, 2] : []
+                        dash: dashPattern
                     )
                 )
         }
         .frame(width: visualSize.width, height: visualSize.height)
         .rotationEffect(.degrees(toothRotation))
     }
+
+    private var strokeColor: Color {
+        switch snapshot.status {
+        case .ghost:
+            snapshot.definition.kind.familyOutline.color.opacity(0.55)
+        case .shed:
+            PetitesDentsStyle.coral
+        case .teething, .erupted:
+            snapshot.definition.kind.familyOutline.color
+        }
+    }
+
+    private var dashPattern: [CGFloat] {
+        switch snapshot.status {
+        case .ghost: [2.5, 2]
+        case .shed: [4, 3]
+        case .teething, .erupted: []
+        }
+    }
 }
 
-private struct DetailedToothShape: Shape {
+private struct ToothOutlineShape: Shape {
     func path(in rect: CGRect) -> Path {
-        let w = rect.width
-        let h = rect.height
-        var path = Path()
-        path.move(to: CGPoint(x: w * 0.50, y: h * 0.06))
-        path.addCurve(
-            to: CGPoint(x: w * 0.13, y: h * 0.36),
-            control1: CGPoint(x: w * 0.25, y: -h * 0.03),
-            control2: CGPoint(x: w * 0.08, y: h * 0.12)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.32, y: h * 0.96),
-            control1: CGPoint(x: w * 0.18, y: h * 0.62),
-            control2: CGPoint(x: w * 0.22, y: h * 0.90)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.50, y: h * 0.60),
-            control1: CGPoint(x: w * 0.40, y: h),
-            control2: CGPoint(x: w * 0.41, y: h * 0.64)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.68, y: h * 0.96),
-            control1: CGPoint(x: w * 0.59, y: h * 0.64),
-            control2: CGPoint(x: w * 0.60, y: h)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.87, y: h * 0.36),
-            control1: CGPoint(x: w * 0.78, y: h * 0.90),
-            control2: CGPoint(x: w * 0.82, y: h * 0.62)
-        )
-        path.addCurve(
-            to: CGPoint(x: w * 0.50, y: h * 0.06),
-            control1: CGPoint(x: w * 0.92, y: h * 0.12),
-            control2: CGPoint(x: w * 0.75, y: -h * 0.03)
-        )
-        path.closeSubpath()
-        return path
+        ToothOutline.path(in: rect)
     }
 }
 
 private struct StatusLegend: View {
+    let phase: ToothPhase
+
+    private var statuses: [ToothStatus] {
+        phase == .primary
+            ? [.ghost, .teething, .erupted, .shed]
+            : [.ghost, .teething, .erupted]
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("legend.title")
                 .font(.headline)
-            HStack(spacing: 16) {
-                ForEach(ToothStatus.allCases, id: \.self) { status in
-                    HStack(spacing: 5) {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 110), alignment: .leading)],
+                alignment: .leading,
+                spacing: 8
+            ) {
+                ForEach(statuses, id: \.self) { status in
+                    HStack(spacing: 6) {
                         marker(for: status)
                         Text(status.localizedName)
                             .font(.caption)
@@ -373,6 +445,10 @@ private struct StatusLegend: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 18, height: 18)
+        case .shed:
+            Circle()
+                .stroke(PetitesDentsStyle.coral, style: StrokeStyle(lineWidth: 1.5, dash: [3, 2]))
+                .frame(width: 12, height: 12)
         }
     }
 }

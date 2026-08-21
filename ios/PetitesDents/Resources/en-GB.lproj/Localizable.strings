@@ -23,12 +23,20 @@
 "profile.cannot_delete_last" = "At least one child profile must remain.";
 
 "mouth.title" = "Baby teeth";
-"mouth.subtitle" = "Tap a tooth to record teething, eruption and notes.";
-"mouth.progress" = "%d of 20 erupted";
+"mouth.subtitle" = "Tap a tooth to record teething, eruption, photos and notes.";
+"mouth.progress" = "%1$d of 20 erupted · %2$d fallen out";
+"mouth.progress_permanent" = "%d of 24 permanent teeth";
+"mouth.phase_picker" = "Dentition";
 "mouth.upper_arch" = "Upper teeth";
 "mouth.lower_arch" = "Lower teeth";
 "mouth.scroll_hint" = "Swipe each arch to see every tooth.";
+"mouth.locked_title" = "Second dentition";
+"mouth.locked_body" = "Record when each baby tooth falls out, when its replacement arrives, and the four six-year molars. Part of the Souvenirs keepsake, a single purchase.";
+"mouth.locked_button" = "See the keepsake";
 "legend.title" = "Status";
+
+"phase.primary" = "Baby teeth";
+"phase.permanent" = "Permanent teeth";
 
 "arch.upper" = "upper";
 "arch.lower" = "lower";
@@ -37,13 +45,17 @@
 "kind.central_incisor" = "central incisor";
 "kind.lateral_incisor" = "lateral incisor";
 "kind.canine" = "canine";
+"kind.first_premolar" = "first premolar";
+"kind.second_premolar" = "second premolar";
 "kind.first_molar" = "first molar";
 "kind.second_molar" = "second molar";
 "state.ghost" = "Not started";
 "state.teething" = "Teething";
 "state.erupted" = "Erupted";
+"state.shed" = "Fallen out";
 "tooth.full_name" = "%1$@ %2$@ %3$@";
 "tooth.typical_age" = "Usually appears around %d–%d months";
+"tooth.typical_age_years" = "Usually appears around age %d–%d";
 "tooth.accessibility" = "%1$@, tooth %2$d, %3$@";
 
 "editor.current_status" = "Current status";
@@ -53,18 +65,37 @@
 "editor.note_placeholder" = "Symptoms, sleep, treatment, dosage…";
 "editor.mark_teething" = "Mark teething";
 "editor.mark_erupted" = "Mark erupted";
+"editor.mark_shed" = "Mark as fallen out";
+"editor.shed_locked" = "Fallen-out dates are part of the Souvenirs keepsake.";
 "editor.save_note" = "Save note";
 "editor.reset" = "Reset tooth";
 "editor.reset_title" = "Reset this tooth?";
-"editor.reset_body" = "The dates and note for this tooth will be deleted.";
+"editor.reset_body" = "The dates, photos and note for this tooth will be deleted.";
 "editor.invalid_date_order" = "The eruption date cannot be before the teething date.";
+"editor.invalid_shedding_order" = "A tooth cannot fall out before it has erupted.";
 
-"history.title" = "Eruption history";
-"history.subtitle" = "Erupted teeth are sorted by date.";
-"history.empty_title" = "No erupted teeth yet";
+"photos.title" = "Photos";
+"photos.empty" = "No photo for this tooth yet.";
+"photos.add" = "Add a photo";
+"photos.unlock" = "Unlock the full album";
+"photos.importing" = "Saving the photo…";
+"photos.delete" = "Delete this photo";
+"photos.accessibility" = "Tooth photo";
+"photos.privacy" = "Your photos stay on your device and exist nowhere else than in your own encrypted Apple backup.";
+"photos.error_unreadable" = "This image could not be read.";
+"photos.error_write" = "The photo could not be saved on this device.";
+
+"history.title" = "Tooth history";
+"history.subtitle" = "Every recorded event, most recent first.";
+"history.empty_title" = "Nothing recorded yet";
 "history.empty_body" = "Marked teeth will appear here automatically.";
 "history.erupted_on" = "Erupted %@";
 "history.erupted_on_with_age" = "Erupted %1$@ — %2$@";
+"history.event_on" = "%1$@ · %2$@";
+"history.event_on_with_age" = "%1$@ · %2$@ — %3$@";
+"history.kind.erupted" = "Erupted";
+"history.kind.shed" = "Fell out";
+"history.kind.permanent" = "Permanent tooth";
 
 "more.title" = "Your data";
 "more.subtitle" = "Everything stays on this device. No account, no server and no tracking.";
@@ -75,22 +106,66 @@
 "more.birth_date_add" = "Add date of birth";
 "more.birth_date_edit" = "Change date";
 "more.birth_date_remove" = "Remove date";
-"more.export_title" = "PDF summary";
-"more.export_body" = "Create a local report to share with a paediatrician or keep with the health record.";
-"more.export_button" = "Export PDF summary";
+"more.export_title" = "Dental record for your healthcare professional";
+"more.export_body" = "A plain local document with the chart, every date, the exact age and your notes — to show or send to the paediatrician or dentist.";
+"more.export_free" = "Always free, and always without photos.";
+"more.export_button" = "Export the dental record";
+"more.keepsake_title" = "Printable keepsake";
+"more.keepsake_body" = "One illustrated A4 page per child: the real arches, the photos, the first name, the date of birth and every date with the exact age in months and days.";
+"more.keepsake_button" = "Create the keepsake";
+"more.keepsake_locked" = "Included in Souvenirs — a single purchase, Family Sharing on.";
+"more.restore" = "Restore purchase";
 "more.help_title" = "Help & Privacy";
 "more.support" = "Contact support";
 "more.privacy" = "Privacy policy";
 "more.medical_disclaimer" = "Petites Dents is a personal log, not a medical device. Contact a healthcare professional if you are concerned.";
 
-"tips.title" = "Support Petites Dents";
-"tips.body" = "In this version, optional tips do not change feature access.";
-"tips.loading" = "Loading optional tips…";
-"tips.unavailable" = "Tips are temporarily unavailable.";
-"tips.thanks" = "Thank you for your support!";
-"tips.cafe" = "Coffee";
-"tips.merci" = "Big thanks";
-"tips.soutien" = "Strong support";
+"paywall.nav_title" = "Souvenirs";
+"paywall.eyebrow" = "PETITES DENTS SOUVENIRS";
+"paywall.title" = "The keepsake, and the second dentition";
+"paywall.promise" = "One payment for the whole story: the printable page of your child’s smile, the full photo album, and every baby tooth that falls out with the tooth that replaces it.";
+"paywall.preview_caption" = "This is your own page, drawn live from your child’s teeth, dates and photos. Only exporting and printing are locked.";
+"paywall.preview_accessibility" = "Live preview of your child’s keepsake page";
+"paywall.preview_loading" = "Drawing your page…";
+"paywall.feature.second_dentition_title" = "The second dentition";
+"paywall.feature.second_dentition_body" = "The day each of the 20 baby teeth falls out, the arrival of its replacement, and the four six-year molars — on a second 12-slot arch, with the exact age at every event.";
+"paywall.feature.keepsake_title" = "The printable keepsake";
+"paywall.feature.keepsake_body" = "One A4 page per child, twins included, with the real anatomical arches, the photos and every date followed by the age in months and days.";
+"paywall.feature.photos_title" = "The whole photo album";
+"paywall.feature.photos_body" = "Unlimited photos on every tooth. The first photo of each child stays free for ever, and no photo is ever removed.";
+"paywall.scope" = "Scope, stated plainly: second permanent molars (17/27/37/47) and wisdom teeth are not tracked — they arrive after age twelve. The free dental record for your healthcare professional stays free and unchanged.";
+"paywall.buy" = "Unlock Souvenirs";
+"paywall.terms_summary" = "One-time purchase, no subscription, no renewal, no advertising, no account. Family Sharing is on, so one purchase covers both parents.";
+"paywall.loading" = "Loading the offer…";
+"paywall.unavailable" = "Offer unavailable";
+"paywall.unavailable_body" = "The App Store did not answer. Check your connection and try again — nothing has been charged.";
+"paywall.retry" = "Try again";
+"paywall.restore" = "Restore purchase";
+"paywall.restored" = "Purchase restored. Souvenirs is unlocked.";
+"paywall.nothing_to_restore" = "No previous purchase was found on this Apple Account.";
+"paywall.pending" = "Purchase pending approval.";
+"paywall.failed" = "The purchase could not be completed.";
+"paywall.already_owned" = "Souvenirs is unlocked";
+"paywall.already_owned_body" = "Thank you. Everything is yours for ever, on every device signed in to this Apple Account.";
+"paywall.privacy" = "Privacy policy";
+"paywall.terms" = "Terms of use (EULA)";
+"paywall.privacy_note" = "No account, no server, no tracking. The purchase is handled by the App Store; Petites Dents never sees your payment details.";
+
+"keepsake.eyebrow" = "KEEPSAKE";
+"keepsake.untitled_child" = "My child";
+"keepsake.stat.erupted" = "teeth erupted";
+"keepsake.stat.shed" = "teeth fallen out";
+"keepsake.stat.permanent" = "permanent teeth";
+"keepsake.photos_title" = "Photos";
+"keepsake.photos_empty" = "No photo yet — every photo added to a tooth appears here.";
+"keepsake.timeline_title" = "Timeline";
+"keepsake.date_with_age" = "%1$@ — %2$@";
+"keepsake.footer" = "Petites Dents · created %@ · kept on this device";
+"keepsake.filename" = "petites-dents-keepsake.pdf";
+"keepsake.error_empty" = "Record a first date or add a photo to create the keepsake.";
+"keepsake.event.erupted" = "Erupted";
+"keepsake.event.shed" = "Fell out";
+"keepsake.event.permanent" = "Permanent tooth";
 
 "pdf.title" = "Petites Dents — baby teeth summary";
 "pdf.generated" = "Generated %@";
@@ -102,7 +177,7 @@
 "pdf.erupted" = "Erupted: %@";
 "pdf.note" = "Note: %@";
 "pdf.filename" = "petites-dents-summary.pdf";
-"pdf.incomplete" = "The complete 20-tooth catalog is required to export a PDF.";
+"pdf.incomplete" = "The complete 20-tooth catalogue is required to export a PDF.";
 
 "age.month.one" = "%d month";
 "age.month.other" = "%d months";
@@ -113,9 +188,11 @@
 "event_before_birth_date" = "The selected date must be on or after the birth date.";
 
 "seed.note.71" = "Red cheeks and a restless night.";
-"seed.note.81" = "The second central incisor appeared this week.";
+"seed.note.81" = "It wobbled for a week before it finally came out.";
 "seed.note.61" = "Cold teething ring helped.";
 "seed.note.51" = "Gums look slightly swollen.";
+"seed.note.41" = "The replacement arrived four days later.";
+"seed.note.46" = "First permanent tooth, at the very back.";
 "seed.note.secondary" = "A first sign, kept separate in this child’s timeline.";
 "seed.profile.primary" = "Emma";
 "seed.profile.secondary" = "Noah";

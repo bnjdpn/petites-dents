@@ -32,16 +32,23 @@ def parse_options(argv)
   options
 end
 
+def read_utf8(path)
+  # Sans encodage explicite, `File.read` hérite de la locale du shell et lève
+  # `invalid byte sequence in US-ASCII` sur un release_config.json accentué.
+  # Un garde qui plante n'est pas un garde.
+  File.read(path, encoding: "UTF-8")
+end
+
 def capture(path, pattern)
-  match = File.read(path).match(pattern)
+  match = read_utf8(path).match(pattern)
   match && match[1].strip
 end
 
 def local_release_state(root)
   android = File.join(root, "app", "build.gradle.kts")
   ios = File.join(root, "ios", "project.yml")
-  config = JSON.parse(File.read(File.join(root, "ios", "fastlane", "release_config.json")))
-  signing = JSON.parse(File.read(File.join(root, "release", "android_release.json")))
+  config = JSON.parse(read_utf8(File.join(root, "ios", "fastlane", "release_config.json")))
+  signing = JSON.parse(read_utf8(File.join(root, "release", "android_release.json")))
   {
     "android_version" => capture(android, /versionName\s*=\s*"([^"]+)"/),
     "android_version_code" => capture(android, /versionCode\s*=\s*(\d+)/)&.to_i,
@@ -115,7 +122,7 @@ end
 
 def validate_checksum(path, details)
   return ["Checksum missing at #{path}"] unless path && File.file?(path)
-  line = File.read(path).strip
+  line = read_utf8(path).strip
   expected = "#{details['sha256']}  #{details['file_name']}"
   line == expected ? [] : ["Checksum must be exactly #{expected.inspect}"]
 end
@@ -128,7 +135,7 @@ end
 
 def validate_provenance(path, state, details, root: nil)
   return ["Provenance missing at #{path}"] unless path && File.file?(path)
-  payload = JSON.parse(File.read(path))
+  payload = JSON.parse(read_utf8(path))
   expected = {
     "schema_version" => 1,
     "app" => state["artifact_slug"],
@@ -174,7 +181,7 @@ end
 
 def validate_asc_json(path, state)
   return ["ASC readback JSON is required"] unless path && File.file?(path)
-  payload = JSON.parse(File.read(path))
+  payload = JSON.parse(read_utf8(path))
   version = payload["version"]
   build = payload["selected_build"]
   failures = []
@@ -195,7 +202,7 @@ end
 
 def validate_release_json(path, state, details)
   return ["GitHub Release readback JSON is required"] unless path && File.file?(path)
-  payload = JSON.parse(File.read(path))
+  payload = JSON.parse(read_utf8(path))
   tag = payload["tag_name"] || payload["tagName"]
   assets = payload["assets"]
   assets = [] unless assets.is_a?(Array)

@@ -30,7 +30,7 @@ def parse_options(argv)
     opts.on("--primary-locale LOCALE") { |value| options[:primary_locale] = value }
   end.parse!(argv)
 
-  config = File.file?(options[:config]) ? JSON.parse(File.read(options[:config])) : {}
+  config = File.file?(options[:config]) ? JSON.parse(File.read(options[:config], encoding: "UTF-8")) : {}
   options[:config_data] = config
   options[:bundle_id] ||= config["bundle_id"]
   options[:bundle_name] ||= config["app_name"] || config["name"] || options[:bundle_id]
@@ -432,7 +432,7 @@ begin
   unless File.file?(options[:age_rating_path])
     abort "Missing age rating declaration: #{options[:age_rating_path]}"
   end
-  ensure_age_rating(client, app.id, JSON.parse(File.read(options[:age_rating_path])))
+  ensure_age_rating(client, app.id, JSON.parse(File.read(options[:age_rating_path], encoding: "UTF-8")))
   unless definitions.empty?
     detail = ensure_game_center_detail(client, app.id)
     puts "Game Center detail exists: #{detail.fetch("id")}"

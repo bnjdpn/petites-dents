@@ -21,7 +21,7 @@ end
 def load_config(path)
   return {} unless path && File.file?(path)
 
-  JSON.parse(File.read(path))
+  JSON.parse(File.read(path, encoding: "UTF-8"))
 end
 
 def parse_options(argv)
@@ -46,6 +46,7 @@ def parse_options(argv)
   options[:bundle_id] ||= config["bundle_id"]
   options[:version] ||= config["version"]
   options[:expected_iap] = config.fetch("iap", [])
+  options[:retired_iap] = config.fetch("retired_iap", [])
   options[:expected_leaderboards] = config.fetch("leaderboard_ids", [])
   options[:leaderboard_definitions] = config.fetch("leaderboards", [])
   options[:expected_price] = config["price"]
@@ -156,10 +157,11 @@ def review_submissions(client, app_id)
     "limit" => "10"
   }).fetch("data").map do |submission|
     items = client.get_all("/v1/reviewSubmissions/#{submission.fetch("id")}/items", {
-      "include" => "appStoreVersion,gameCenterLeaderboardVersion",
-      "fields[reviewSubmissionItems]" => "state,appStoreVersion,gameCenterLeaderboardVersion",
+      "include" => "appStoreVersion,gameCenterLeaderboardVersion,inAppPurchaseVersion",
+      "fields[reviewSubmissionItems]" => "state,appStoreVersion,gameCenterLeaderboardVersion,inAppPurchaseVersion",
       "fields[appStoreVersions]" => "versionString,appStoreState,platform",
       "fields[gameCenterLeaderboardVersions]" => "version,state",
+      "fields[inAppPurchaseVersions]" => "version,state",
       "limit" => "200"
     })
     included = included_index(items.fetch("included", []))
@@ -170,7 +172,8 @@ def review_submissions(client, app_id)
       "items" => items.fetch("data").map do |item|
         app_version = item.dig("relationships", "appStoreVersion", "data")
         leaderboard_version = item.dig("relationships", "gameCenterLeaderboardVersion", "data")
-        resource = app_version || leaderboard_version
+        iap_version = item.dig("relationships", "inAppPurchaseVersion", "data")
+        resource = app_version || leaderboard_version || iap_version
         version = app_version && included[[app_version.fetch("type"), app_version.fetch("id")]]
         {
           "id" => item.fetch("id"),
@@ -480,7 +483,30 @@ def game_center_status(client, app_id, expected_ids)
   }
 end
 
-def iap_status(client, app_id, expected_iap)
+def iap_status_from_items(actual, expected_iap, retired_iap)
+  expected_ids = expected_iap.map { |item| item["product_id"] || item["productId"] || item["id"] }.compact
+  retired_ids = Array(retired_iap).filter_map do |item|
+    item.is_a?(Hash) ? (item["product_id"] || item["productId"] || item["id"]) : item
+  end
+  actual_ids = actual.map { |item| item["product_id"] }.compact
+  active_actual_ids = actual_ids - retired_ids
+  retired_items = actual.select { |item| retired_ids.include?(item["product_id"]) }
+
+  {
+    "expected_count" => expected_iap.length,
+    "actual_count" => actual.length,
+    "missing_product_ids" => expected_ids - active_actual_ids,
+    "unexpected_product_ids" => active_actual_ids - expected_ids,
+    "retired_product_ids" => retired_ids,
+    "missing_retired_product_ids" => retired_ids - actual_ids,
+    "retired_products_not_removed_from_sale" => retired_items.filter_map do |item|
+      item["product_id"] unless item["state"] == "DEVELOPER_REMOVED_FROM_SALE"
+    end,
+    "items" => actual
+  }
+end
+
+def iap_status(client, app_id, expected_iap, retired_iap)
   actual = client.get_all("/v1/apps/#{app_id}/inAppPurchasesV2", {
     "fields[inAppPurchases]" => "name,productId,inAppPurchaseType,state,reviewNote",
     "limit" => "200"
@@ -493,16 +519,19 @@ def iap_status(client, app_id, expected_iap)
       "state" => item.dig("attributes", "state")
     }
   end
-  expected_ids = expected_iap.map { |item| item["product_id"] || item["productId"] || item["id"] }.compact
-  actual_ids = actual.map { |item| item["product_id"] }.compact
+  payload = iap_status_from_items(actual, expected_iap, retired_iap)
+  payload["review_version_ids"] = expected_iap.filter_map do |expected|
+    product_id = expected["product_id"] || expected["productId"] || expected["id"]
+    product = actual.find { |item| item["product_id"] == product_id }
+    next unless product
 
-  {
-    "expected_count" => expected_iap.length,
-    "actual_count" => actual.length,
-    "missing_product_ids" => expected_ids - actual_ids,
-    "unexpected_product_ids" => actual_ids - expected_ids,
-    "items" => actual
-  }
+    versions = client.get_all("/v2/inAppPurchases/#{product.fetch("id")}/versions", {
+      "fields[inAppPurchaseVersions]" => "version,state",
+      "limit" => "200"
+    }).fetch("data")
+    versions.max_by { |version| version.dig("attributes", "version").to_i }&.fetch("id")
+  end
+  payload
 end
 
 def strict_errors(payload, options)
@@ -546,6 +575,12 @@ def strict_errors(payload, options)
   iap = payload.fetch("iap")
   unless iap["missing_product_ids"].empty? && iap["unexpected_product_ids"].empty?
     errors << "IAP configuration drift: missing=#{iap["missing_product_ids"].join(',')} unexpected=#{iap["unexpected_product_ids"].join(',')}"
+  end
+  unless Array(iap["missing_retired_product_ids"]).empty?
+    errors << "retired IAP products are missing: #{iap["missing_retired_product_ids"].join(',')}"
+  end
+  unless Array(iap["retired_products_not_removed_from_sale"]).empty?
+    errors << "retired IAP products remain for sale: #{iap["retired_products_not_removed_from_sale"].join(',')}"
   end
 
 
@@ -653,6 +688,7 @@ def strict_errors(payload, options)
     required_leaderboard_version_ids = game_center.fetch("items", []).map do |item|
       item["version_id"]
     end.compact
+    required_iap_version_ids = iap.fetch("review_version_ids", [])
     submitted_states = %w[WAITING_FOR_REVIEW IN_REVIEW]
     submitted = payload.fetch("review_submissions").any? do |submission|
       items = submission.fetch("items")
@@ -662,12 +698,16 @@ def strict_errors(payload, options)
       leaderboard_ids = items.select do |item|
         item["resource_type"] == "gameCenterLeaderboardVersions"
       end.map { |item| item["resource_id"] }
+      iap_version_ids = items.select do |item|
+        item["resource_type"] == "inAppPurchaseVersions"
+      end.map { |item| item["resource_id"] }
       submitted_states.include?(submission["state"]) &&
         has_version &&
-        (required_leaderboard_version_ids - leaderboard_ids).empty?
+        (required_leaderboard_version_ids - leaderboard_ids).empty? &&
+        (required_iap_version_ids - iap_version_ids).empty?
     end
     unless submitted
-      errors << "no submitted review submission contains #{options[:version]} and all Game Center versions"
+      errors << "no submitted review submission contains #{options[:version]} and all required review items"
     end
   end
   errors
@@ -707,6 +747,7 @@ def print_human(payload)
   puts "Pricing: schedule=#{pricing["schedule_id"]} base=#{pricing["base_territory"]} currency=#{pricing["base_currency"]} manual=#{pricing["manual_price_count"]} automatic=#{pricing["automatic_price_count"]} current=#{price_summary} expected=#{pricing["expected_price"]} matches=#{pricing["matches_expected"]}"
   iap = payload.fetch("iap")
   puts "IAP: expected=#{iap["expected_count"]} actual=#{iap["actual_count"]} missing=#{iap["missing_product_ids"].join(",")} unexpected=#{iap["unexpected_product_ids"].join(",")}"
+  puts "Retired IAP: missing=#{Array(iap["missing_retired_product_ids"]).join(",")} still_for_sale=#{Array(iap["retired_products_not_removed_from_sale"]).join(",")}"
   game_center = payload.fetch("game_center")
   puts "Game Center: configured=#{game_center["configured"]} missing=#{game_center["missing_ids"].join(",")} unexpected=#{game_center.fetch("unexpected_ids", []).join(",")}"
   game_center.fetch("items", []).each do |item|
@@ -757,7 +798,12 @@ begin
     "review_submissions" => review_submissions(client, app.fetch("id")),
     "assets" => app_store_assets(client, version),
     "pricing" => pricing_status(client, app.fetch("id"), options.fetch(:expected_price)),
-    "iap" => iap_status(client, app.fetch("id"), options.fetch(:expected_iap)),
+    "iap" => iap_status(
+      client,
+      app.fetch("id"),
+      options.fetch(:expected_iap),
+      options.fetch(:retired_iap)
+    ),
     "age_rating" => age_rating_status(client, app.fetch("id"), options.fetch(:expected_age_rating)),
     "app_privacy" => app_privacy_status(options.fetch(:app_privacy_declaration)),
     "game_center" => game_center_status(client, app.fetch("id"), options.fetch(:expected_leaderboards)),

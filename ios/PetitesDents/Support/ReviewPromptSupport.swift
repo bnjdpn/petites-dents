@@ -35,7 +35,7 @@ enum ReviewPromptTracker {
     /// When it returns true the prompt is recorded immediately, so callers can
     /// request the review without a second bookkeeping call.
     static func registerValueEvent(
-        defaults: UserDefaults = .standard,
+        defaults: UserDefaults = AppDefaults.shared,
         currentVersion: String = ReviewPromptTracker.currentAppVersion,
         now: Date = .now
     ) -> Bool {

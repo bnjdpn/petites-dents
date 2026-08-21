@@ -84,3 +84,46 @@ final class TeethPDFExporterTests: XCTestCase {
         XCTAssertTrue(url.lastPathComponent.contains("lina-rose"), url.lastPathComponent)
     }
 }
+
+extension TeethPDFExporterTests {
+    /// The commercial border of the whole offer: the free clinical sheet is a
+    /// document of data for a healthcare professional and never carries an
+    /// image. It is defended by the machine, not by discipline.
+    func testTheFreeClinicalSheetNeverContainsAPhotoEvenWhenEveryToothHasOne() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("petites-dents-clinical-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        var records: [String: ToothRecord] = [:]
+        for definition in ToothCatalog.all {
+            let record = ToothRecord(
+                toothID: definition.id,
+                teethingDate: Date(),
+                eruptedDate: Date(),
+                note: "Photographed tooth"
+            )
+            record.photoIDs = [
+                try ToothPhotoStore.store(
+                    imageData: ToothPhotoStoreTests.sampleImageData(),
+                    childID: ToothRecord.primaryChildID,
+                    toothID: definition.id,
+                    root: root
+                )
+            ]
+            records[definition.id] = record
+        }
+        let snapshots = ToothCatalog.all.map {
+            ToothSnapshot(definition: $0, record: records[$0.id])
+        }
+
+        let url = try TeethPDFExporter.create(
+            snapshots: snapshots,
+            birthDate: Date(),
+            profileName: "Emma"
+        )
+        let raw = String(decoding: try Data(contentsOf: url), as: UTF8.self)
+
+        XCTAssertFalse(raw.contains("/Image"), "the free sheet must never embed an image")
+        XCTAssertFalse(raw.contains("/DCTDecode"), "the free sheet must never embed a JPEG")
+    }
+}

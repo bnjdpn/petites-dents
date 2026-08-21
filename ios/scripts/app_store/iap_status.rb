@@ -12,7 +12,7 @@ end
 def load_config(path)
   return {} unless path && File.file?(path)
 
-  JSON.parse(File.read(path))
+  JSON.parse(File.read(path, encoding: "UTF-8"))
 end
 
 def parse_options(argv)
@@ -30,6 +30,7 @@ def parse_options(argv)
   config = load_config(options[:config])
   options[:bundle_id] ||= config["bundle_id"]
   options[:expected_iap] = config.fetch("iap", [])
+  options[:retired_iap] = config.fetch("retired_iap", [])
 
   abort "--bundle-id is required" if options[:bundle_id].to_s.empty?
   abort "Provide ASC_API_KEY_PATH or APP_STORE_CONNECT_API_KEY_* environment credentials" unless AutonomousAscCredentials.available?(key_path: options[:key_path])
@@ -66,12 +67,25 @@ def expected_product_ids(expected_iap)
   expected_iap.map { |item| item["product_id"] || item["productId"] || item["id"] }.compact
 end
 
-def status_payload(app, actual_items, expected_iap)
+def status_payload(app, actual_items, expected_iap, retired_iap)
   expected_ids = expected_product_ids(expected_iap)
   actual_ids = actual_items.map { |item| item["product_id"] }.compact
-  missing = expected_ids - actual_ids
-  unexpected = actual_ids - expected_ids
-  state = missing.empty? && unexpected.empty? ? "ok" : "drift"
+  retired_ids = Array(retired_iap).filter_map do |item|
+    item.is_a?(Hash) ? (item["product_id"] || item["productId"] || item["id"]) : item
+  end
+  active_actual_ids = actual_ids - retired_ids
+  missing = expected_ids - active_actual_ids
+  unexpected = active_actual_ids - expected_ids
+  missing_retired = retired_ids - actual_ids
+  retired_for_sale = actual_items.filter_map do |item|
+    item["product_id"] if retired_ids.include?(item["product_id"]) &&
+                          item["state"] != "DEVELOPER_REMOVED_FROM_SALE"
+  end
+  state = if missing.empty? && unexpected.empty? && missing_retired.empty? && retired_for_sale.empty?
+            "ok"
+          else
+            "drift"
+          end
 
   {
     "status" => state,
@@ -85,6 +99,9 @@ def status_payload(app, actual_items, expected_iap)
       "actual_count" => actual_items.length,
       "missing_product_ids" => missing,
       "unexpected_product_ids" => unexpected,
+      "retired_product_ids" => retired_ids,
+      "missing_retired_product_ids" => missing_retired,
+      "retired_products_not_removed_from_sale" => retired_for_sale,
       "items" => actual_items
     }
   }
@@ -94,6 +111,7 @@ def print_human(payload)
   puts "App: #{payload.dig("app", "name")} (#{payload.dig("app", "bundle_id")}) id=#{payload.dig("app", "id")}"
   iap = payload.fetch("iap")
   puts "IAP: expected=#{iap["expected_count"]} actual=#{iap["actual_count"]} missing=#{iap["missing_product_ids"].join(",")} unexpected=#{iap["unexpected_product_ids"].join(",")}"
+  puts "Retired IAP: missing=#{iap["missing_retired_product_ids"].join(",")} still_for_sale=#{iap["retired_products_not_removed_from_sale"].join(",")}"
   iap.fetch("items").each do |item|
     puts "  #{item["product_id"]}: state=#{item["state"]} type=#{item["type"]} name=#{item["name"]}"
   end
@@ -104,7 +122,12 @@ begin
   options = parse_options(ARGV)
   client = AutonomousAscClient.new(key_path: options.fetch(:key_path))
   app = find_app(client, options.fetch(:bundle_id))
-  payload = status_payload(app, asc_iap_items(client, app.fetch("id")), options.fetch(:expected_iap))
+  payload = status_payload(
+    app,
+    asc_iap_items(client, app.fetch("id")),
+    options.fetch(:expected_iap),
+    options.fetch(:retired_iap)
+  )
 
   if options[:json]
     puts JSON.pretty_generate(payload)

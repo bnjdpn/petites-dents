@@ -19,13 +19,6 @@ enum ScreenshotDataService {
             ),
             ToothRecord(
                 childID: ChildProfile.primaryChildID,
-                toothID: "tooth-81",
-                teethingDate: calendar.date(byAdding: .day, value: -9, to: base),
-                eruptedDate: calendar.date(byAdding: .day, value: -4, to: base),
-                note: NSLocalizedString("seed.note.81", comment: "Screenshot seed note")
-            ),
-            ToothRecord(
-                childID: ChildProfile.primaryChildID,
                 toothID: "tooth-61",
                 teethingDate: calendar.date(byAdding: .day, value: -3, to: base),
                 note: NSLocalizedString("seed.note.61", comment: "Screenshot seed note")
@@ -35,6 +28,28 @@ enum ScreenshotDataService {
                 toothID: "tooth-51",
                 teethingDate: calendar.date(byAdding: .day, value: -1, to: base),
                 note: NSLocalizedString("seed.note.51", comment: "Screenshot seed note")
+            ),
+            // Second dentition: the first baby incisor has fallen and its
+            // replacement is through, next to a six-year molar.
+            ToothRecord(
+                childID: ChildProfile.primaryChildID,
+                toothID: "tooth-81",
+                teethingDate: calendar.date(byAdding: .day, value: -9, to: base),
+                eruptedDate: calendar.date(byAdding: .day, value: -4, to: base),
+                sheddingDate: base,
+                note: NSLocalizedString("seed.note.81", comment: "Screenshot seed note")
+            ),
+            ToothRecord(
+                childID: ChildProfile.primaryChildID,
+                toothID: "tooth-41",
+                eruptedDate: calendar.date(byAdding: .day, value: 4, to: base),
+                note: NSLocalizedString("seed.note.41", comment: "Screenshot seed note")
+            ),
+            ToothRecord(
+                childID: ChildProfile.primaryChildID,
+                toothID: "tooth-46",
+                eruptedDate: calendar.date(byAdding: .day, value: -20, to: base),
+                note: NSLocalizedString("seed.note.46", comment: "Screenshot seed note")
             ),
         ]
         records.forEach(context.insert)

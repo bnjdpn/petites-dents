@@ -7,7 +7,7 @@
   "team_id": "767SX34A7Z",
   "project": "ios/PetitesDents.xcodeproj",
   "scheme": "PetitesDents",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "primary_locale": "en-US",
   "artifact_root": "Builds/AppStore/PetitesDents",
   "temporary_state_root": "/private/tmp/apps-factory/PetitesDents",
@@ -35,7 +35,8 @@
     "01_Mouth",
     "02_ToothDetail",
     "03_History",
-    "04_ExportAndSupport"
+    "04_ExportAndSupport",
+    "05_Definitives"
   ],
   "simulator_runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
   "simulators": [
@@ -65,72 +66,31 @@
   },
   "iap": [
     {
-      "product_id": "com.bnjdpn.petitesdents.tip.cafe",
-      "reference_name": "Petites Dents Tip Cafe",
-      "type": "CONSUMABLE",
-      "price_fra": "0.99",
-      "localizations": {
-        "en-US": {
-          "name": "Coffee",
-          "description": "Optional tip. Unlocks no features."
-        },
-        "en-GB": {
-          "name": "Coffee",
-          "description": "Optional tip. Unlocks no features."
-        },
-        "fr-FR": {
-          "name": "Café",
-          "description": "Don facultatif. Ne débloque aucune fonctionnalité."
-        }
-      }
-    },
-    {
-      "product_id": "com.bnjdpn.petitesdents.tip.merci",
-      "reference_name": "Petites Dents Tip Merci",
-      "type": "CONSUMABLE",
-      "price_fra": "2.99",
-      "localizations": {
-        "en-US": {
-          "name": "Big thanks",
-          "description": "Optional tip. Unlocks no features."
-        },
-        "en-GB": {
-          "name": "Big thanks",
-          "description": "Optional tip. Unlocks no features."
-        },
-        "fr-FR": {
-          "name": "Grand merci",
-          "description": "Don facultatif. Ne débloque aucune fonctionnalité."
-        }
-      }
-    },
-    {
-      "product_id": "com.bnjdpn.petitesdents.tip.soutien",
-      "reference_name": "Petites Dents Tip Soutien",
-      "type": "CONSUMABLE",
+      "product_id": "com.bnjdpn.petitesdents.souvenirs",
+      "reference_name": "Petites Dents Souvenirs",
+      "type": "NON_CONSUMABLE",
       "price_fra": "5.99",
+      "family_sharable": true,
       "localizations": {
         "en-US": {
-          "name": "Strong support",
-          "description": "Optional tip. Unlocks no features."
+          "name": "Keepsake Page & Photos",
+          "description": "Second teeth, every photo, printable page."
         },
         "en-GB": {
-          "name": "Strong support",
-          "description": "Optional tip. Unlocks no features."
+          "name": "Keepsake Page & Photos",
+          "description": "Second teeth, every photo, printable page."
         },
         "fr-FR": {
-          "name": "Beau soutien",
-          "description": "Don facultatif. Ne débloque aucune fonctionnalité."
+          "name": "Carnet Souvenirs",
+          "description": "Dents définitives, photos, page à imprimer."
         }
       }
     }
   ],
   "iap_products": [
-    "com.bnjdpn.petitesdents.tip.cafe",
-    "com.bnjdpn.petitesdents.tip.merci",
-    "com.bnjdpn.petitesdents.tip.soutien"
+    "com.bnjdpn.petitesdents.souvenirs"
   ],
-  "iap_review_screenshot": "../Builds/AppStore/PetitesDents/iap-review/tip-jar-settings.png",
+  "iap_review_screenshot": "review_assets/souvenirs-paywall.png",
   "leaderboard_ids": [],
   "leaderboards": [],
   "release_pipeline": {
@@ -140,5 +100,28 @@
     "media_expectations": "fastlane/media_expectations.json",
     "select_build_script": "scripts/app_store/select_build.rb",
     "simulator_requirements": "fastlane/simulator_requirements.json"
-  }
+  },
+  "monetization_strategy": {
+    "model": "one_time_unlock",
+    "app_price": "0.00",
+    "primary_product_id": "com.bnjdpn.petitesdents.souvenirs",
+    "target_price_eur": "5.99",
+    "family_sharable": true,
+    "subscriptions": false,
+    "tips": false,
+    "free_tier": "Twenty baby teeth with teething and eruption dates, exact age to the day, unlimited child profiles, the clinical dental record PDF, and the first photo of each child - free for ever.",
+    "paid_tier": "Second dentition (shedding of the 20 baby teeth, their replacements and the four six-year molars), unlimited photos, and the printable A4 keepsake page.",
+    "grandfathering": "LegacyEntitlement flags any install that already carried usage data before 2.0.0 and grants the unlock permanently, device-local.",
+    "retired_products": [
+      "com.bnjdpn.petitesdents.tip.cafe",
+      "com.bnjdpn.petitesdents.tip.merci",
+      "com.bnjdpn.petitesdents.tip.soutien"
+    ],
+    "retired_products_action": "DEVELOPER_REMOVED_FROM_SALE in App Store Connect - the tip jar is gone from the binary."
+  },
+  "retired_iap": [
+    "com.bnjdpn.petitesdents.tip.cafe",
+    "com.bnjdpn.petitesdents.tip.merci",
+    "com.bnjdpn.petitesdents.tip.soutien"
+  ]
 }

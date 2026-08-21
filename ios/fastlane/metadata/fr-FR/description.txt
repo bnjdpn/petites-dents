@@ -1,7 +1,12 @@
-Retenez la date exacte de chaque dent percée, et l'âge de votre enfant ce jour-là. Petites Dents transforme les 20 dents de lait en une chronologie calme et privée — un profil par enfant, une dent en un geste.
+Retenez la date exacte de chaque dent percée, et l'âge de votre enfant ce jour-là. Petites Dents tient la chronologie des 20 dents de lait, sans compte et sans réseau — un profil par enfant, une dent en un geste.
+
+CE QUI EST GRATUIT, CE QUI SE PAIE
+Gratuit, sans compte ni limite de temps : les 20 dents de lait, les dates de poussée et de percée, l'âge exact au jour près, les notes, l'historique, autant de profils enfants que nécessaire, la fiche dentaire PDF à montrer au professionnel de santé, et la première photo de chaque enfant.
+Un achat unique, sans abonnement, avec le Partage familial : la deuxième dentition, les photos sans limite et le carnet souvenir imprimable.
+Rien de ce qui était gratuit avant n'est passé derrière ce paiement. Et si vous notiez déjà les dents de votre enfant ici avant que le carnet existe, il vous est acquis : rien à acheter, rien à restaurer.
 
 UNE CHRONOLOGIE PAR ENFANT
-Créez un profil pour chaque enfant — y compris des jumeaux — puis changez-en d’un geste. Dates de naissance, suivi des dents, notes, historique, suppression et exports PDF restent strictement séparés pour chaque profil.
+Créez un profil pour chaque enfant — y compris des jumeaux — puis changez-en d'un geste. Dates de naissance, suivi des dents, notes, historique, suppression et exports PDF restent strictement séparés pour chaque profil.
 
 BOUCHE INTERACTIVE
 Visualisez les arcades du haut et du bas dans l'ordre anatomique. Chaque dent possède un état clair : pas commencée, en poussée ou percée.
@@ -10,14 +15,21 @@ DATES, ÂGES ET OBSERVATIONS
 Ajoutez la date de naissance de votre bébé pour connaître son âge exact à chaque percée. Touchez une dent pour noter le début de la poussée, la date de percée et toute observation utile. Vous pouvez saisir directement une percée ou réinitialiser une dent à tout moment.
 
 HISTORIQUE CHRONOLOGIQUE
-Retrouvez les dents percées par date, avec l'âge exact de votre bébé, et gardez les étapes importantes à portée de main.
+Retrouvez chaque événement noté par date, avec l'âge exact de votre enfant, et gardez les étapes importantes à portée de main.
 
-RÉCAPITULATIF PDF LOCAL
-Créez un PDF au nom de l’enfant sélectionné, avec le schéma complet, la date de naissance, les âges à la percée, les dates et les notes. Partagez-le via la feuille système avec le pédiatre ou conservez-le avec le carnet de santé.
+PHOTOS PAR DENT
+Ajoutez une photo à une dent, visible dans l'éditeur et dans l'historique. Vos photos restent sur votre appareil et n'existent ailleurs que dans votre propre sauvegarde Apple chiffrée. La première photo de chaque enfant ne coûte rien et ne vous sera jamais retirée.
+
+FICHE DENTAIRE POUR LE PROFESSIONNEL DE SANTÉ
+Créez un PDF gratuit au nom de l'enfant sélectionné, avec le schéma complet, la date de naissance, les âges à la percée, les dates et les notes — à montrer ou à envoyer au pédiatre ou au dentiste lors d'une visite. Ce document ne contient jamais de photo.
+
+CARNET SOUVENIRS — L'ACHAT UNIQUE, EN DÉTAIL
+La deuxième dentition : la date de chute de chacune des 20 dents de lait, l'arrivée de sa remplaçante et les quatre premières molaires définitives de 6 ans, sur une seconde arcade de 12 emplacements par mâchoire.
+L'album photo complet : autant de photos par dent que vous voulez, en plus de la première qui reste gratuite.
+Le carnet imprimable : une page A4 illustrée par enfant, jumeaux compris, avec les vraies arcades, les photos, le prénom, la date de naissance et chaque date suivie de l'âge en mois et en jours. C'est le seul document de l'app qui contient des photos.
+Les deuxièmes molaires définitives (17/27/37/47) et les dents de sagesse ne sont pas suivies : elles sortent après 12 ans, et l'app le dit à l'écran plutôt que de faire semblant.
 
 PRIVÉE PAR CONCEPTION
 Aucun compte, serveur applicatif, publicité, outil d'analyse ou suivi. Le carnet dentaire reste sur votre appareil.
-
-Dans cette version, trois dons consommables facultatifs permettent de soutenir le développement ; leur achat ne change pas l’accès aux fonctionnalités de cette version.
 
 Petites Dents est un carnet personnel, pas un dispositif médical ni un outil de diagnostic. En cas d'inquiétude concernant la santé d'un enfant, contactez un professionnel de santé qualifié.

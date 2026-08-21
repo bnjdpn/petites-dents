@@ -1,5 +1,24 @@
-Petites Dents is a private local log for the 20 primary teeth. In the More tab, set the baby's date of birth. Tap a tooth to record a teething date, an eruption date, and a free-form note. The History tab lists erupted teeth chronologically and shows the baby's exact age for every erupted tooth. The PDF export includes the birth date, eruption ages, dates, and notes and opens through the system share sheet.
+Petites Dents is a private local log for children's teeth. In the More tab, set the child's date of birth. Tap a tooth to record a teething date, an eruption date, a photo, and a free-form note. The History tab lists every recorded event chronologically with the child's exact age. The dental record PDF opens through the system share sheet.
 
-No account, server, advertising, analytics, tracking, or demo credentials are required. All dental records remain on the device. The app is a personal log and does not diagnose or provide medical treatment.
+No account, server, advertising, analytics, tracking, or demo credentials are required. All dental records and photos remain on the device; photos are stored in Application Support and are included in the user's own encrypted Apple backup. The app is a personal log and does not diagnose or provide medical treatment. Photos are picked with PhotosPicker, which runs out of process, so the app requests no photo library permission.
 
-For this submitted build, the zero App Store price tier and three configured consumable tips are the current monetization surface: Coffee, Big thanks, and Strong support. In this build they change no feature, content, entitlement, service, or account. Tap any listed amount to display Apple's standard StoreKit purchase confirmation.
+MONETIZATION IN THIS BUILD. The app is free to download. There is exactly one in-app purchase, a non-consumable with Family Sharing enabled: com.bnjdpn.petitesdents.souvenirs, shown as "Keepsake Page & Photos" in English and "Carnet Souvenirs" in French. There is no subscription and no auto-renewal. The price on the paywall always comes from StoreKit (Product.displayPrice); no price is hard-coded in the binary or in the App Store listing. The three consumable tips of previous versions are removed from this binary and are being taken off sale; past tip purchases are unaffected.
+
+HOW TO REACH THE PAYWALL, three ways.
+1) Teeth tab > "Dents définitives" / "Permanent teeth" segment > "Voir le carnet" / "See the keepsake".
+2) More tab > "Créer le carnet" / "Create the keepsake".
+3) Any tooth > photo section > "Débloquer l'album complet" / "Unlock the full album", once the free first photo has been used.
+The paywall shows a live preview of the reviewer's own keepsake page, the price from StoreKit, a Restore button, the privacy policy, and the standard Apple EULA. Restoring is also available outside the paywall, in the More tab; both buttons call AppStore.sync().
+
+WHAT THE PURCHASE UNLOCKS, AND NOTHING ELSE.
+1) The second dentition: the shedding date of each of the 20 baby teeth, the eruption of its replacement, and the four six-year molars (16/26/36/46), on a second 12-slot arch per jaw. Second permanent molars (17/27/37/47) and wisdom teeth are not tracked, and the paywall, the description and this note all say so.
+2) Unlimited tooth photos. The first photo of each child is free and is never removed, purchase or no purchase.
+3) The printable A4 keepsake page, the only document of the app that contains photos.
+
+WHAT STAYS FREE. Everything that shipped in 1.0.8 remains free and unmetered: the 20 baby teeth with teething and eruption dates, the exact age to the day, the interactive mouth, notes, resetting a tooth, the chronological history, unlimited child profiles including twins, the birth date, and the dental record PDF, unchanged and never containing a photo.
+
+GRANDFATHERING. Any install that already carried usage data before this version — a saved tooth, a date of birth, a second child profile, or the profile-switching and rating keys written by earlier versions — keeps the full unlock permanently, device-local, with no account. A fresh install carries none of those traces, so a review device sees the real paywall with the real StoreKit price, not a bypass.
+
+TESTING THE PURCHASE. Any sandbox Apple ID works; no demo account or code is needed. The product is bought once and then restored: delete and reinstall the app, tap "Restaurer l'achat" / "Restore purchase" in the More tab, and the keepsake comes back.
+
+TEST-ONLY LAUNCH ARGUMENTS, none reachable from the App Store build's interface: "--ui-testing" (in-memory store), "--screenshots" (capture fixtures), "--store-bypass" (opens paid gates, honoured only together with "--ui-testing", which already forces an in-memory store) and "-paywall-screenshot" (opens the paywall at launch to produce the review screenshot, and disables the bypass so the real unpurchased state is shown).

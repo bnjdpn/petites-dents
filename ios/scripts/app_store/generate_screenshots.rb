@@ -95,14 +95,14 @@ module PetitesDentsScreenshots
       end
       @candidate_id = candidate_id.freeze
       @config = JSON.parse(
-        File.read(File.join(@app_root, "ios", "fastlane", "release_config.json"))
+        File.read(File.join(@app_root, "ios", "fastlane", "release_config.json"), encoding: "UTF-8")
       )
       @schedule = DeviceSchedule.new(
         locales: @config.fetch("media_locales"),
         simulators: @config.fetch("simulators"),
         device_udids: device_udids
       )
-      @run_root = bounded_path(@config.fetch("artifact_root"), @run_id)
+      @run_root = bounded_path("ios", @config.fetch("artifact_root"), @run_id)
       @temporary_root = File.join(
         @config.fetch("temporary_state_root"),
         @run_id,
@@ -311,7 +311,7 @@ module PetitesDentsScreenshots
     def update_receipt(path, state, error = nil)
       return unless path && File.file?(path)
 
-      payload = JSON.parse(File.read(path))
+      payload = JSON.parse(File.read(path, encoding: "UTF-8"))
       payload["state"] = state
       payload["updated_at"] = Time.now.utc.iso8601
       payload["error"] = error if error
@@ -322,7 +322,7 @@ module PetitesDentsScreenshots
       manifest_path = File.join(attachment_root, "manifest.json")
       raise Error, "xcresult attachment manifest is missing" unless File.file?(manifest_path)
 
-      attachments = JSON.parse(File.read(manifest_path)).flat_map { |test| test.fetch("attachments", []) }
+      attachments = JSON.parse(File.read(manifest_path, encoding: "UTF-8")).flat_map { |test| test.fetch("attachments", []) }
       @config.fetch("screenshot_scenes").each do |scene|
         attachment = attachments.find do |candidate|
           candidate.fetch("suggestedHumanReadableName", "").start_with?("#{scene}_")

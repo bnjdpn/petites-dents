@@ -100,7 +100,7 @@ enum TeethPDFExporter {
             }
             y += 12
 
-            let erupted = snapshots.filter { $0.status == .erupted }.count
+            let erupted = snapshots.filter(\.hasErupted).count
             let teething = snapshots.filter { $0.status == .teething }.count
             let summary = String(
                 format: NSLocalizedString("pdf.summary", comment: "Tooth status summary"),
@@ -222,7 +222,7 @@ enum TeethPDFExporter {
                 let color: UIColor = switch snapshot.status {
                 case .ghost: UIColor.systemGray5
                 case .teething: UIColor(red: 1, green: 0.84, blue: 0.70, alpha: 1)
-                case .erupted: UIColor(red: 0.51, green: 0.61, blue: 0.48, alpha: 1)
+                case .erupted, .shed: UIColor(red: 0.51, green: 0.61, blue: 0.48, alpha: 1)
                 }
                 context.setFillColor(color.cgColor)
                 context.addPath(UIBezierPath(roundedRect: rect, cornerRadius: 9).cgPath)
@@ -232,7 +232,7 @@ enum TeethPDFExporter {
                     in: rect.insetBy(dx: 0, dy: 8),
                     withAttributes: [
                         .font: UIFont.systemFont(ofSize: 8, weight: .semibold),
-                        .foregroundColor: snapshot.status == .erupted ? UIColor.white : UIColor.label,
+                        .foregroundColor: snapshot.hasErupted ? UIColor.white : UIColor.label,
                         .paragraphStyle: centeredParagraphStyle,
                     ]
                 )

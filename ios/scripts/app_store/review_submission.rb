@@ -472,27 +472,51 @@ def review_leaderboard_version_ids(client, app_id, expected_vendor_ids)
   versions
 end
 
+# The product type is never assumed here: it is read from the `type` declared
+# for that product in release_config.json. Petites Dents used to sell three
+# consumable tips; since 2.0.0 it sells one NON_CONSUMABLE unlock, and a
+# hardcoded "CONSUMABLE" would block every submission.
+IAP_TYPES = %w[CONSUMABLE NON_CONSUMABLE NON_RENEWING_SUBSCRIPTION].freeze
+
+def review_iap_expected_types(expected_products)
+  expected_products.each_with_object({}) do |product, types|
+    product_id, declared_type = if product.is_a?(Hash)
+                                  [product["product_id"], product["type"]]
+                                else
+                                  [product, nil]
+                                end
+    next if product_id.to_s.empty?
+
+    if declared_type && !IAP_TYPES.include?(declared_type)
+      raise ReviewSubmissionError, "IAP has an unknown declared type: #{product_id}:#{declared_type}"
+    end
+
+    types[product_id] = declared_type
+  end
+end
+
 def review_iap_version_ids(client, app_id, expected_products)
-  expected_ids = expected_products.map do |product|
-    product.is_a?(Hash) ? product["product_id"] : product
-  end.compact
-  return [] if expected_ids.empty?
+  expected_types = review_iap_expected_types(expected_products)
+  return [] if expected_types.empty?
 
   iaps = client.get_all("/v1/apps/#{app_id}/inAppPurchasesV2", {
     "fields[inAppPurchases]" => "name,productId,inAppPurchaseType,state",
     "limit" => "200"
   }).fetch("data")
-  expected_ids.map do |product_id|
+  expected_types.map do |product_id, declared_type|
     iap = iaps.find do |candidate|
       candidate.dig("attributes", "productId") == product_id
     end
-    raise ReviewSubmissionError, "tip IAP is missing: #{product_id}" unless iap
-    unless iap.dig("attributes", "inAppPurchaseType") == "CONSUMABLE"
-      raise ReviewSubmissionError, "tip IAP must be consumable: #{product_id}"
+    raise ReviewSubmissionError, "IAP is missing: #{product_id}" unless iap
+
+    live_type = iap.dig("attributes", "inAppPurchaseType")
+    if declared_type && live_type != declared_type
+      raise ReviewSubmissionError,
+            "IAP type does not match release_config.json: #{product_id}:#{live_type}, expected #{declared_type}"
     end
     state = iap.dig("attributes", "state")
     unless %w[READY_TO_SUBMIT WAITING_FOR_REVIEW IN_REVIEW APPROVED].include?(state)
-      raise ReviewSubmissionError, "tip IAP is not ready for review: #{product_id}:#{state}"
+      raise ReviewSubmissionError, "IAP is not ready for review: #{product_id}:#{state}"
     end
     versions = client.get_all("/v2/inAppPurchases/#{iap.fetch('id')}/versions", {
       "fields[inAppPurchaseVersions]" => "version,state",
@@ -501,12 +525,12 @@ def review_iap_version_ids(client, app_id, expected_products)
     version = versions.max_by do |candidate|
       candidate.dig("attributes", "version").to_i
     end
-    raise ReviewSubmissionError, "tip IAP has no reviewable version: #{product_id}" unless version
+    raise ReviewSubmissionError, "IAP has no reviewable version: #{product_id}" unless version
 
     version_state = version.dig("attributes", "state")
     unless %w[PREPARE_FOR_SUBMISSION READY_FOR_REVIEW WAITING_FOR_REVIEW IN_REVIEW ACCEPTED APPROVED].include?(version_state)
       raise ReviewSubmissionError,
-            "tip IAP version is not ready for review: #{product_id}:#{version_state}"
+            "IAP version is not ready for review: #{product_id}:#{version_state}"
     end
     version.fetch("id")
   end
@@ -535,7 +559,7 @@ if __FILE__ == $PROGRAM_NAME
     parser.on("--json") { options[:json] = true }
   end.parse!(ARGV)
 
-  config = File.file?(options[:config]) ? JSON.parse(File.read(options[:config])) : {}
+  config = File.file?(options[:config]) ? JSON.parse(File.read(options[:config], encoding: "UTF-8")) : {}
   options[:bundle_id] ||= config["bundle_id"]
   options[:version] ||= config["version"]
   supported_commands = %w[prepare select-build submit]

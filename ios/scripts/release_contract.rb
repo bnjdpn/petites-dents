@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require "digest"
 require "json"
 require "bigdecimal"
 require "open3"
@@ -14,18 +15,25 @@ module PetitesDentsReleaseContract
   APP_NAME = "Petites Dents"
   BUNDLE_ID = "com.bnjdpn.petitesdents"
   TEAM_ID = "767SX34A7Z"
-  VERSION = "1.0.8"
+  VERSION = "2.0.0"
   SUPPORT_URL = "https://bnjdpn.github.io/petites-dents/#contact"
   PRIVACY_URL = "https://bnjdpn.github.io/petites-dents/privacy.html"
   FORMSPREE_ENDPOINT = "https://formspree.io/f/mykqbyyw"
   LOCALES = %w[en-US en-GB fr-FR].freeze
-  SCENES = %w[01_Mouth 02_ToothDetail 03_History 04_ExportAndSupport].freeze
+  SCENES = %w[
+    01_Mouth 02_ToothDetail 03_History 04_ExportAndSupport 05_Definitives
+  ].freeze
   DISPLAY_TYPES = %w[APP_IPHONE_67 APP_IPAD_PRO_3GEN_129].freeze
   REQUIRED_LANES = %w[
     setup_asc release_contract asc_status metadata screenshots
     upload_screenshots upload_previews build_release upload_release
     submit_review release_quick pricing iap_status iap_sync
+    iap_review_screenshot
   ].freeze
+  # App Store Connect refuses a review screenshot below this size, and App
+  # Review refuses a purchase screen it cannot read.
+  REVIEW_CAPTURE_MIN_SIZE = [640, 920].freeze
+  CURRENCY_SYMBOLS = { "€" => "EUR", "$" => "USD", "£" => "GBP", "¥" => "JPY" }.freeze
   METADATA_LIMITS = {
     "name.txt" => 30,
     "subtitle.txt" => 30,
@@ -36,6 +44,16 @@ module PetitesDentsReleaseContract
   }.freeze
 
   module_function
+
+  # "5,99 €", "€5.99", "EUR 5.99" -> ["5.99", "EUR"].
+  def parse_price(text)
+    symbol = CURRENCY_SYMBOLS.keys.find { |candidate| text.include?(candidate) }
+    currency = symbol ? CURRENCY_SYMBOLS.fetch(symbol) : text[/\b(EUR|USD|GBP|JPY)\b/, 1]
+    digits = text[/\d+(?:[.,]\d{1,2})?/]
+    return [nil, currency] if digits.nil?
+
+    [format("%.2f", Float(digits.tr(",", "."))), currency]
+  end
 
   def monetization_errors(config)
     errors = []
@@ -91,6 +109,7 @@ module PetitesDentsReleaseContract
       validate_privacy
       validate_support
       validate_product_contract
+      validate_review_capture
       validate_ci
       validate_credentials
       validate_config_products(config) if config
@@ -126,8 +145,8 @@ module PetitesDentsReleaseContract
       android = read("app/build.gradle.kts")
       if android
         add("Android application id mismatch") unless android.include?('applicationId = "com.bnjdpn.petitesdents"')
-        add("Android version mismatch") unless android.include?('versionName = "1.0.8"')
-        add("Android version code mismatch") unless android.include?("versionCode = 9")
+        add("Android version mismatch") unless android.include?('versionName = "2.0.0"')
+        add("Android version code mismatch") unless android.include?("versionCode = 10")
         add("Android target SDK must be 36") unless android.include?("targetSdk = 36")
       end
 
@@ -189,10 +208,21 @@ module PetitesDentsReleaseContract
         add("forbidden TestFlight token: #{label}") if fastfile.match?(pattern)
       end
       add("build number must come from live App Store builds") unless fastfile.include?("app_store_build_number")
-      add("release must select the exact uploaded build") unless fastfile.include?("select-build") && fastfile.include?("--expected-build")
+      selector = read("ios/scripts/app_store/review_submission.rb")
+      unless selector&.include?("select-build") && selector.include?("--expected-build")
+        add("release must select the exact uploaded build")
+      end
       add("release must reread strict ASC state") unless fastfile.include?("--strict") && fastfile.include?("--require-selected-build")
       add("metadata must upload age rating") unless fastfile.include?("app_rating_config_path")
       add("screenshots must use the app-local generator") unless fastfile.include?("generate_screenshots.rb")
+      # Sans capture de review, App Store Connect laisse l'IAP en
+      # MISSING_METADATA et il ne peut pas être attaché à la soumission.
+      unless fastfile.include?("iap_review_screenshot.rb")
+        add("the IAP review screenshot must come from the app-local generator")
+      end
+      unless fastfile.match?(/lane :iap_sync do\s*\n\s*screenshot = petites_dents_iap_review_screenshot/)
+        add("iap_sync must refuse to run without the IAP review screenshot")
+      end
       add("review contact must stay in private environment values") unless %w[
         ASC_REVIEW_FIRST_NAME ASC_REVIEW_LAST_NAME ASC_REVIEW_PHONE_NUMBER ASC_REVIEW_EMAIL_ADDRESS
       ].all? { |key| fastfile.include?(key) }
@@ -294,6 +324,105 @@ module PetitesDentsReleaseContract
       add("missing Android Play icon") unless File.file?(android_icon)
     end
 
+    # The review capture is the one artefact of this release that states a price
+    # in pixels, and pixels cannot be diffed. Three things have gone wrong on
+    # sibling apps and each is checked here: a capture taken from the live
+    # catalogue showing a storefront price instead of the spec's (BrewMeter
+    # shipped "$29.99" against a 6,99 € spec), a capture left in a gitignored
+    # directory so it vanished at the first clone (8 apps out of 9), and a
+    # capture of the paywall's failure state, which reads to App Review as
+    # "we were unable to locate the in-app purchase".
+    def validate_review_capture
+      spec = read("ios/fastlane/pro_products.json")
+      return unless spec
+
+      spec = JSON.parse(spec)
+      product = spec.fetch("products", []).first
+      return add("pro_products.json declares no product") unless product
+
+      declared = product["review_screenshot"].to_s
+      if declared.empty?
+        return add("pro_products.json must declare review_screenshot for #{product['product_id']}")
+      end
+
+      png = File.expand_path(declared, absolute("ios/fastlane"))
+      unless File.file?(png)
+        return add("IAP review screenshot missing: #{declared} — run the iap_review_screenshot lane")
+      end
+      unless File.binread(png, 8) == "\x89PNG\r\n\x1a\n".b
+        return add("IAP review screenshot is not a PNG: #{declared}")
+      end
+
+      validate_review_capture_tracked(png)
+      validate_review_capture_sidecar(png, spec, product)
+    end
+
+    # A capture nobody clones is not evidence. `pre_submission_gate.rb` blocks
+    # on this too; failing here means the app-local contract catches it first,
+    # before a release run has been started on it.
+    def validate_review_capture_tracked(png)
+      relative = Pathname.new(png).relative_path_from(Pathname.new(@root)).to_s
+      _, _, status = Open3.capture3("git", "-C", @root, "ls-files", "--error-unmatch", "--", relative)
+      return if status.success?
+
+      add(
+        "IAP review screenshot is not tracked by Git: #{relative} — it disappears at the " \
+        "first clone, so it does not prove anything to App Review"
+      )
+    end
+
+    def validate_review_capture_sidecar(png, spec, product)
+      sidecar = png.sub(/\.png\z/, ".json")
+      unless File.file?(sidecar)
+        return add(
+          "IAP review capture sidecar missing: #{File.basename(sidecar)} — run the " \
+          "iap_review_screenshot lane, which writes the rendered price and the image digest"
+        )
+      end
+
+      payload = JSON.parse(File.read(sidecar, encoding: "UTF-8"))
+      digest = Digest::SHA256.hexdigest(File.binread(png))
+      if payload["screenshot_sha256"] != digest
+        return add(
+          "IAP review capture sidecar describes a different image than the one committed " \
+          "(#{payload['screenshot_sha256']} vs #{digest}) — recapture instead of editing the sidecar"
+        )
+      end
+
+      if payload["product_id"] != product["product_id"]
+        add("IAP review capture is for #{payload['product_id'].inspect}, spec sells #{product['product_id'].inspect}")
+      end
+      expected_territory = spec.fetch("base_territory", "FRA")
+      if payload["storefront"] != expected_territory
+        add("IAP review capture was taken on storefront #{payload['storefront'].inspect}, spec base territory is #{expected_territory.inspect}")
+      end
+
+      width, height = payload["screenshot_size"]
+      if width.to_i < REVIEW_CAPTURE_MIN_SIZE[0] || height.to_i < REVIEW_CAPTURE_MIN_SIZE[1]
+        add("IAP review capture is #{width}x#{height}, below the App Store Connect minimum #{REVIEW_CAPTURE_MIN_SIZE.join('x')}")
+      end
+
+      validate_review_capture_price(payload, spec, product)
+    end
+
+    def validate_review_capture_price(payload, spec, product)
+      displayed = payload["displayed_price"].to_s
+      amount, currency = PetitesDentsReleaseContract.parse_price(displayed)
+      if amount.nil?
+        return add("IAP review capture states no readable price (#{displayed.inspect})")
+      end
+
+      expected_amount = format("%.2f", Float(product.fetch("base_price")))
+      expected_currency = spec.fetch("base_currency", "EUR")
+      return if amount == expected_amount && currency == expected_currency
+
+      add(
+        "IAP review capture shows #{displayed.inspect} (#{amount} #{currency}) but " \
+        "pro_products.json sells at #{expected_amount} #{expected_currency} — App Review " \
+        "would be shown a price the App Store does not have"
+      )
+    end
+
     def validate_ci
       PagesWorkflowContract.errors(@root, source_dir: "docs").each do |message|
         add("Pages workflow contract: #{message}")
@@ -330,7 +459,7 @@ module PetitesDentsReleaseContract
         add("missing required release file: #{relative}")
         return nil
       end
-      File.read(path)
+      File.read(path, encoding: "UTF-8")
     end
 
     def absolute(relative)

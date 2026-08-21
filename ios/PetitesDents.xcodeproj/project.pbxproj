@@ -7,14 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0090240E3A46EEA9C762F2E6 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A32D397FCB44DB8D75E0339 /* PaywallView.swift */; };
+		0157401102A47FFA6DDC4A59 /* LaunchEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CAB2226BBB69F28AD3CA60 /* LaunchEnvironment.swift */; };
 		1A1F0698F8831C606C0C421C /* ReviewPromptSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255EFBD88BD359E722510343 /* ReviewPromptSupport.swift */; };
 		1ABB4ED609B54949238AF08E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C455106D1EA77DDB6F85966 /* Assets.xcassets */; };
+		1B349C1726BB699A4141A1FB /* ToothPhotoStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD969FFCF5E46F6A65E714D /* ToothPhotoStoreTests.swift */; };
 		1F70C9DAD4FC9BEBB02ECBF6 /* DentalArchGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F64B6A88E25B869DC4AEF4 /* DentalArchGeometryTests.swift */; };
 		24F4089AFA65053AEA8F9459 /* ToothCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E30DBF52BC4E95F07E2EC1F /* ToothCatalog.swift */; };
+		3272979EA75EEB7F73D49622 /* LegacyEntitlement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26D8D23BEF2C3769B853C5F7 /* LegacyEntitlement.swift */; };
 		34D2075BCC4E7DF7C909AADB /* PetitesDents.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 92CD675C5550CC88974CBA8B /* PetitesDents.storekit */; };
+		41D944F038A49C35BD0049C9 /* PermanentToothCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F27D475EAF0C30AD047AC8 /* PermanentToothCatalogTests.swift */; };
 		43BF3A88F66A4F226F01E2D2 /* ToothEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58C05C5D53C29EF700CB223 /* ToothEditorView.swift */; };
 		4481ADB8E1D36EF132734A95 /* ScreenshotDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13BC13AF8E8E99D847CBF2B /* ScreenshotDataService.swift */; };
-		46F9B37088DF3786FD60E1BD /* TipJarSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49E1A9A0F3D11819866CE6F /* TipJarSection.swift */; };
 		4733C26D6EE65325E776E4D4 /* ChildProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F30FE2B17C511AF1ABDE3F0 /* ChildProfileTests.swift */; };
 		4B64BDC59449D66E9E7FE1C3 /* ToothRecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFB82227ABA286149317558 /* ToothRecordTests.swift */; };
 		4CAB01CFC3D4C2A982060B32 /* ChildProfileMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8E9EAA5592AA50B8190E0A /* ChildProfileMigration.swift */; };
@@ -24,19 +28,29 @@
 		762B7DF7569384F81385C865 /* ProfileSwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B682D9733CAEC3A9031676F /* ProfileSwitcherView.swift */; };
 		77C7CEEAE5B1C2E39CD93768 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359FF02DBB15CE9326743D5E /* MoreView.swift */; };
 		7C2A8D86AFEB46E9D87D461C /* ToothCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E73483FC6A698476DD0C6E5 /* ToothCatalogTests.swift */; };
+		7C51E42822C872B20750956E /* PaywallContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E23765A507975F59DFE21B3 /* PaywallContractTests.swift */; };
 		7E367DC47ADC2D93635D1483 /* PetitesDentsStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4317FF52AA318F807502EFEF /* PetitesDentsStyle.swift */; };
+		85A010DE459526DC20C20040 /* LegacyEntitlementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437E4BDC7BE2C3BDE0177BF0 /* LegacyEntitlementTests.swift */; };
 		89EDFFABF7578D915978D961 /* ChildProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC1444343D4200B1C794D1C /* ChildProfile.swift */; };
 		948D73F48C7EC3DD5CC4C30D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3F811E9E110B986461F9AD5D /* PrivacyInfo.xcprivacy */; };
 		993B4135F05A97E7237F7EC1 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7B8B79A885DA30B919525 /* HistoryView.swift */; };
 		9987EA33F2B9DC3D61CA87E8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 52608376F1014A433653CA7E /* Localizable.strings */; };
+		9E82984944C5DAEDC3AB77C2 /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD4FC3F8C749DAEC758496B /* StoreService.swift */; };
 		9F8D23983C8B1602A979A708 /* TeethPDFExporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CA318CEB3E724F1F370B97 /* TeethPDFExporterTests.swift */; };
 		A40EF501F2F2D637B9A84AF3 /* CalendarAgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6F1AF14DD149150E8EE478 /* CalendarAgeTests.swift */; };
+		AC081F6562BFDDC68F060C64 /* KeepsakePDFRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529BC31AB4C235BD694373E1 /* KeepsakePDFRendererTests.swift */; };
 		B4737183DA46C1E1C0E52C2B /* CalendarAge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7C31AC1D4A0CC255FB97E3 /* CalendarAge.swift */; };
+		B4ED3033438350F3B4C48453 /* PetitesDents.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 92CD675C5550CC88974CBA8B /* PetitesDents.storekit */; };
 		C299F681B9BAE91FDDC3F83B /* ToothRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCD2F3373541262A7BEEF5F /* ToothRecord.swift */; };
 		C3AA6E9AC834FB79C8E3D2E1 /* LocalizationParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16510C3B81F12C83587FDF1B /* LocalizationParityTests.swift */; };
+		C5C699D21BCE59F608301CFF /* AppBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 894384A2AF86B3897E01F89E /* AppBootstrap.swift */; };
 		CB41B1BD5DF8E276540934DB /* MouthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D351CD04BCD3F9E510FEAE7 /* MouthView.swift */; };
+		D27E74A3E1E0C2A9E49AA69A /* StoreKitTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77C03065FC409AE90D1077EB /* StoreKitTest.framework */; };
+		D30C6032A461C5A319FDC4CE /* KeepsakePDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B259995A3A08F5AE08741F /* KeepsakePDFRenderer.swift */; };
 		D57769E30676D07E333ED62E /* ReviewPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9109B9B8F8612FDF208FD7 /* ReviewPromptTests.swift */; };
+		DAAA1E01B5289F3F72A9E75B /* ToothPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B0C316F710E7EBCBB1DB95 /* ToothPhotoStore.swift */; };
 		DEDEAE19D949CF60444325B2 /* DentalArchGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015327E2C4E099A214093231 /* DentalArchGeometry.swift */; };
+		E48C7C9074E30486240E75E3 /* PermanentToothCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A435EB301849A82A700D5F1 /* PermanentToothCatalog.swift */; };
 		E63AF12D3117CAF21EE69EAE /* TeethPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A5553F89A2FCAD2B4C4332 /* TeethPDFExporter.swift */; };
 		F4B1B5A65D31260C9923B480 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3961E4976EA406815B8E2932 /* ContentView.swift */; };
 		FED3212760A79016F2E3D3F5 /* ChildProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76CE66E3B728C1746EF5CEC1 /* ChildProfileStore.swift */; };
@@ -67,6 +81,7 @@
 		16510C3B81F12C83587FDF1B /* LocalizationParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationParityTests.swift; sourceTree = "<group>"; };
 		177D8FFBC0195B26F77649DD /* DateStorageMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateStorageMigration.swift; sourceTree = "<group>"; };
 		255EFBD88BD359E722510343 /* ReviewPromptSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptSupport.swift; sourceTree = "<group>"; };
+		26D8D23BEF2C3769B853C5F7 /* LegacyEntitlement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEntitlement.swift; sourceTree = "<group>"; };
 		2D351CD04BCD3F9E510FEAE7 /* MouthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouthView.swift; sourceTree = "<group>"; };
 		359FF02DBB15CE9326743D5E /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
 		36C4EFEAE57A3DE9662B49CB /* PetitesDents.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PetitesDents.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,29 +91,52 @@
 		3F7C31AC1D4A0CC255FB97E3 /* CalendarAge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarAge.swift; sourceTree = "<group>"; };
 		3F811E9E110B986461F9AD5D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4317FF52AA318F807502EFEF /* PetitesDentsStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetitesDentsStyle.swift; sourceTree = "<group>"; };
+		437E4BDC7BE2C3BDE0177BF0 /* LegacyEntitlementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEntitlementTests.swift; sourceTree = "<group>"; };
 		48A5553F89A2FCAD2B4C4332 /* TeethPDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeethPDFExporter.swift; sourceTree = "<group>"; };
 		4B75279D7B631595D91C3F97 /* PetitesDentsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetitesDentsApp.swift; sourceTree = "<group>"; };
+		529BC31AB4C235BD694373E1 /* KeepsakePDFRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepsakePDFRendererTests.swift; sourceTree = "<group>"; };
 		53B7B8B79A885DA30B919525 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		54B259995A3A08F5AE08741F /* KeepsakePDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepsakePDFRenderer.swift; sourceTree = "<group>"; };
+		57B0C316F710E7EBCBB1DB95 /* ToothPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothPhotoStore.swift; sourceTree = "<group>"; };
 		5E30DBF52BC4E95F07E2EC1F /* ToothCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothCatalog.swift; sourceTree = "<group>"; };
 		5E8DE6B91A78340DFB8F6646 /* PetitesDentsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetitesDentsUITests.swift; sourceTree = "<group>"; };
 		650E16CA91846C33C6BC03EE /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		6A32D397FCB44DB8D75E0339 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		6E23765A507975F59DFE21B3 /* PaywallContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallContractTests.swift; sourceTree = "<group>"; };
 		76CE66E3B728C1746EF5CEC1 /* ChildProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfileStore.swift; sourceTree = "<group>"; };
+		77C03065FC409AE90D1077EB /* StoreKitTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKitTest.framework; path = System/Library/Frameworks/StoreKitTest.framework; sourceTree = SDKROOT; };
+		7A435EB301849A82A700D5F1 /* PermanentToothCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermanentToothCatalog.swift; sourceTree = "<group>"; };
+		83CAB2226BBB69F28AD3CA60 /* LaunchEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchEnvironment.swift; sourceTree = "<group>"; };
+		894384A2AF86B3897E01F89E /* AppBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBootstrap.swift; sourceTree = "<group>"; };
 		8A3E72B22179320021B1C165 /* PetitesDentsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PetitesDentsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		92CD675C5550CC88974CBA8B /* PetitesDents.storekit */ = {isa = PBXFileReference; path = PetitesDents.storekit; sourceTree = "<group>"; };
 		9AF44EF46B850CB63EF8ED7D /* PetitesDentsUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PetitesDentsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B6F1AF14DD149150E8EE478 /* CalendarAgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarAgeTests.swift; sourceTree = "<group>"; };
 		9C455106D1EA77DDB6F85966 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9F30FE2B17C511AF1ABDE3F0 /* ChildProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfileTests.swift; sourceTree = "<group>"; };
+		A7F27D475EAF0C30AD047AC8 /* PermanentToothCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermanentToothCatalogTests.swift; sourceTree = "<group>"; };
 		ADCD2F3373541262A7BEEF5F /* ToothRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothRecord.swift; sourceTree = "<group>"; };
 		B58C05C5D53C29EF700CB223 /* ToothEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothEditorView.swift; sourceTree = "<group>"; };
 		BD9109B9B8F8612FDF208FD7 /* ReviewPromptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptTests.swift; sourceTree = "<group>"; };
 		C13BC13AF8E8E99D847CBF2B /* ScreenshotDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDataService.swift; sourceTree = "<group>"; };
-		C49E1A9A0F3D11819866CE6F /* TipJarSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarSection.swift; sourceTree = "<group>"; };
 		CBFB82227ABA286149317558 /* ToothRecordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothRecordTests.swift; sourceTree = "<group>"; };
 		D170C77FDA79DD477F1B64C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		DBD969FFCF5E46F6A65E714D /* ToothPhotoStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToothPhotoStoreTests.swift; sourceTree = "<group>"; };
 		E5CA318CEB3E724F1F370B97 /* TeethPDFExporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeethPDFExporterTests.swift; sourceTree = "<group>"; };
+		EAD4FC3F8C749DAEC758496B /* StoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreService.swift; sourceTree = "<group>"; };
 		ECC1444343D4200B1C794D1C /* ChildProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfile.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C8E7FA5E8484F4184B7E91AE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D27E74A3E1E0C2A9E49AA69A /* StoreKitTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		069E1467687920B651EAF17F /* Theme */ = {
@@ -123,6 +161,7 @@
 				6A3A1C8C3BF8568C56CFEB3D /* PetitesDents */,
 				62789A9BBFB75AD94C8C497B /* PetitesDentsTests */,
 				0AE392873934ECAE37DDDBEB /* PetitesDentsUITests */,
+				4DF5D9AFF61A484677293EC6 /* Frameworks */,
 				1D6E42CD93C1AAB3FCB6B176 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -140,10 +179,19 @@
 		4806A02A0A3A7E352CB7BF05 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				894384A2AF86B3897E01F89E /* AppBootstrap.swift */,
 				3961E4976EA406815B8E2932 /* ContentView.swift */,
 				4B75279D7B631595D91C3F97 /* PetitesDentsApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		4DF5D9AFF61A484677293EC6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				77C03065FC409AE90D1077EB /* StoreKitTest.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		62789A9BBFB75AD94C8C497B /* PetitesDentsTests */ = {
@@ -152,10 +200,15 @@
 				9B6F1AF14DD149150E8EE478 /* CalendarAgeTests.swift */,
 				9F30FE2B17C511AF1ABDE3F0 /* ChildProfileTests.swift */,
 				14F64B6A88E25B869DC4AEF4 /* DentalArchGeometryTests.swift */,
+				529BC31AB4C235BD694373E1 /* KeepsakePDFRendererTests.swift */,
+				437E4BDC7BE2C3BDE0177BF0 /* LegacyEntitlementTests.swift */,
 				16510C3B81F12C83587FDF1B /* LocalizationParityTests.swift */,
+				6E23765A507975F59DFE21B3 /* PaywallContractTests.swift */,
+				A7F27D475EAF0C30AD047AC8 /* PermanentToothCatalogTests.swift */,
 				BD9109B9B8F8612FDF208FD7 /* ReviewPromptTests.swift */,
 				E5CA318CEB3E724F1F370B97 /* TeethPDFExporterTests.swift */,
 				3E73483FC6A698476DD0C6E5 /* ToothCatalogTests.swift */,
+				DBD969FFCF5E46F6A65E714D /* ToothPhotoStoreTests.swift */,
 				CBFB82227ABA286149317558 /* ToothRecordTests.swift */,
 			);
 			path = PetitesDentsTests;
@@ -180,6 +233,7 @@
 			children = (
 				3F7C31AC1D4A0CC255FB97E3 /* CalendarAge.swift */,
 				ECC1444343D4200B1C794D1C /* ChildProfile.swift */,
+				7A435EB301849A82A700D5F1 /* PermanentToothCatalog.swift */,
 				5E30DBF52BC4E95F07E2EC1F /* ToothCatalog.swift */,
 				ADCD2F3373541262A7BEEF5F /* ToothRecord.swift */,
 			);
@@ -189,8 +243,9 @@
 		8435DCACD740F69365B07C3A /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				83CAB2226BBB69F28AD3CA60 /* LaunchEnvironment.swift */,
+				26D8D23BEF2C3769B853C5F7 /* LegacyEntitlement.swift */,
 				255EFBD88BD359E722510343 /* ReviewPromptSupport.swift */,
-				C49E1A9A0F3D11819866CE6F /* TipJarSection.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -202,6 +257,7 @@
 				53B7B8B79A885DA30B919525 /* HistoryView.swift */,
 				359FF02DBB15CE9326743D5E /* MoreView.swift */,
 				2D351CD04BCD3F9E510FEAE7 /* MouthView.swift */,
+				6A32D397FCB44DB8D75E0339 /* PaywallView.swift */,
 				3B682D9733CAEC3A9031676F /* ProfileSwitcherView.swift */,
 				B58C05C5D53C29EF700CB223 /* ToothEditorView.swift */,
 			);
@@ -214,8 +270,11 @@
 				0B8E9EAA5592AA50B8190E0A /* ChildProfileMigration.swift */,
 				76CE66E3B728C1746EF5CEC1 /* ChildProfileStore.swift */,
 				177D8FFBC0195B26F77649DD /* DateStorageMigration.swift */,
+				54B259995A3A08F5AE08741F /* KeepsakePDFRenderer.swift */,
 				C13BC13AF8E8E99D847CBF2B /* ScreenshotDataService.swift */,
+				EAD4FC3F8C749DAEC758496B /* StoreService.swift */,
 				48A5553F89A2FCAD2B4C4332 /* TeethPDFExporter.swift */,
+				57B0C316F710E7EBCBB1DB95 /* ToothPhotoStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -257,6 +316,8 @@
 			buildConfigurationList = E15F33D68953C7E1DD1C78C1 /* Build configuration list for PBXNativeTarget "PetitesDentsUITests" */;
 			buildPhases = (
 				084750C180EB1B2DAC24747F /* Sources */,
+				298592DB97F54133915EF8D3 /* Resources */,
+				C8E7FA5E8484F4184B7E91AE /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -333,6 +394,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		298592DB97F54133915EF8D3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4ED3033438350F3B4C48453 /* PetitesDents.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8C7EE0A30D301B8AD623E08F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -359,6 +428,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5C699D21BCE59F608301CFF /* AppBootstrap.swift in Sources */,
 				B4737183DA46C1E1C0E52C2B /* CalendarAge.swift in Sources */,
 				89EDFFABF7578D915978D961 /* ChildProfile.swift in Sources */,
 				4CAB01CFC3D4C2A982060B32 /* ChildProfileMigration.swift in Sources */,
@@ -367,17 +437,23 @@
 				592930EBFAD2B2E15FC80642 /* DateStorageMigration.swift in Sources */,
 				DEDEAE19D949CF60444325B2 /* DentalArchGeometry.swift in Sources */,
 				993B4135F05A97E7237F7EC1 /* HistoryView.swift in Sources */,
+				D30C6032A461C5A319FDC4CE /* KeepsakePDFRenderer.swift in Sources */,
+				0157401102A47FFA6DDC4A59 /* LaunchEnvironment.swift in Sources */,
+				3272979EA75EEB7F73D49622 /* LegacyEntitlement.swift in Sources */,
 				77C7CEEAE5B1C2E39CD93768 /* MoreView.swift in Sources */,
 				CB41B1BD5DF8E276540934DB /* MouthView.swift in Sources */,
+				0090240E3A46EEA9C762F2E6 /* PaywallView.swift in Sources */,
+				E48C7C9074E30486240E75E3 /* PermanentToothCatalog.swift in Sources */,
 				6495F0023FD024F05B0FCF62 /* PetitesDentsApp.swift in Sources */,
 				7E367DC47ADC2D93635D1483 /* PetitesDentsStyle.swift in Sources */,
 				762B7DF7569384F81385C865 /* ProfileSwitcherView.swift in Sources */,
 				1A1F0698F8831C606C0C421C /* ReviewPromptSupport.swift in Sources */,
 				4481ADB8E1D36EF132734A95 /* ScreenshotDataService.swift in Sources */,
+				9E82984944C5DAEDC3AB77C2 /* StoreService.swift in Sources */,
 				E63AF12D3117CAF21EE69EAE /* TeethPDFExporter.swift in Sources */,
-				46F9B37088DF3786FD60E1BD /* TipJarSection.swift in Sources */,
 				24F4089AFA65053AEA8F9459 /* ToothCatalog.swift in Sources */,
 				43BF3A88F66A4F226F01E2D2 /* ToothEditorView.swift in Sources */,
+				DAAA1E01B5289F3F72A9E75B /* ToothPhotoStore.swift in Sources */,
 				C299F681B9BAE91FDDC3F83B /* ToothRecord.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -389,10 +465,15 @@
 				A40EF501F2F2D637B9A84AF3 /* CalendarAgeTests.swift in Sources */,
 				4733C26D6EE65325E776E4D4 /* ChildProfileTests.swift in Sources */,
 				1F70C9DAD4FC9BEBB02ECBF6 /* DentalArchGeometryTests.swift in Sources */,
+				AC081F6562BFDDC68F060C64 /* KeepsakePDFRendererTests.swift in Sources */,
+				85A010DE459526DC20C20040 /* LegacyEntitlementTests.swift in Sources */,
 				C3AA6E9AC834FB79C8E3D2E1 /* LocalizationParityTests.swift in Sources */,
+				7C51E42822C872B20750956E /* PaywallContractTests.swift in Sources */,
+				41D944F038A49C35BD0049C9 /* PermanentToothCatalogTests.swift in Sources */,
 				D57769E30676D07E333ED62E /* ReviewPromptTests.swift in Sources */,
 				9F8D23983C8B1602A979A708 /* TeethPDFExporterTests.swift in Sources */,
 				7C2A8D86AFEB46E9D87D461C /* ToothCatalogTests.swift in Sources */,
+				1B349C1726BB699A4141A1FB /* ToothPhotoStoreTests.swift in Sources */,
 				4B64BDC59449D66E9E7FE1C3 /* ToothRecordTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -445,7 +526,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.8;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bnjdpn.petitesdents;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -581,7 +662,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.8;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bnjdpn.petitesdents;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

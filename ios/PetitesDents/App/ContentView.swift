@@ -8,9 +8,12 @@ struct ContentView: View {
     @Query private var storedRecords: [ToothRecord]
     @Query private var storedProfiles: [ChildProfile]
 
-    @AppStorage("selectedChildID") private var selectedChildID = ChildProfile.primaryChildID
+    @AppStorage("selectedChildID", store: AppDefaults.shared) private var selectedChildID = ChildProfile.primaryChildID
+    @State private var store = StoreService()
     @State private var selectedTab: AppTab = .teeth
     @State private var selectedTooth: ToothDefinition?
+    @State private var phase: ToothPhase = .primary
+    @State private var isShowingPaywall = false
 
     private var sortedProfiles: [ChildProfile] {
         storedProfiles.sorted {
@@ -29,6 +32,10 @@ struct ContentView: View {
             ?? sortedProfiles.first
     }
 
+    private var activeChildID: String {
+        selectedProfile?.childID ?? ChildProfile.primaryChildID
+    }
+
     private var recordByToothID: [String: ToothRecord] {
         Dictionary(
             uniqueKeysWithValues: storedRecords
@@ -41,6 +48,16 @@ struct ContentView: View {
         ToothCatalog.all.map {
             ToothSnapshot(definition: $0, record: recordByToothID[$0.id])
         }
+    }
+
+    private var permanentSnapshots: [ToothSnapshot] {
+        PermanentToothCatalog.all.map {
+            ToothSnapshot(definition: $0, record: recordByToothID[$0.id])
+        }
+    }
+
+    private var photoCountForChild: Int {
+        recordByToothID.values.reduce(0) { $0 + $1.photoIDs.count }
     }
 
     private var birthDate: Date? {
@@ -63,7 +80,14 @@ struct ContentView: View {
 
             TabView(selection: $selectedTab) {
                 NavigationStack {
-                    MouthView(snapshots: snapshots, onSelect: select)
+                    MouthView(
+                        snapshots: snapshots,
+                        permanentSnapshots: permanentSnapshots,
+                        canTrackPermanentTeeth: store.canTrackPermanentTeeth,
+                        phase: $phase,
+                        onSelect: select,
+                        onRequestUnlock: presentPaywall
+                    )
                 }
                 .tabItem {
                     Label("tab.teeth", systemImage: "face.smiling")
@@ -74,8 +98,17 @@ struct ContentView: View {
                 NavigationStack {
                     HistoryView(
                         snapshots: snapshots,
+                        permanentSnapshots: permanentSnapshots,
                         birthDate: birthDate,
-                        onSelect: select
+                        onSelect: select,
+                        photoThumbnail: { snapshot, photoID in
+                            ToothPhotoStore.data(
+                                photoID: photoID,
+                                childID: activeChildID,
+                                toothID: snapshot.definition.id,
+                                thumbnail: true
+                            )
+                        }
                     )
                 }
                 .tabItem {
@@ -87,9 +120,13 @@ struct ContentView: View {
                 NavigationStack {
                     MoreView(
                         snapshots: snapshots,
+                        permanentSnapshots: permanentSnapshots,
                         profileName: selectedProfile?.name ?? "",
                         birthDate: birthDate,
-                        onSaveBirthDate: saveBirthDate
+                        store: store,
+                        onSaveBirthDate: saveBirthDate,
+                        makeKeepsakeDocument: makeKeepsakeDocument,
+                        onRequestUnlock: presentPaywall
                     )
                 }
                 .tabItem {
@@ -100,18 +137,30 @@ struct ContentView: View {
             }
         }
         .tint(PetitesDentsStyle.coral)
-        .task { repairSelectionIfNeeded() }
+        .task {
+            await store.refreshEntitlements()
+            await store.loadProductsIfNeeded()
+            repairSelectionIfNeeded()
+            if LaunchEnvironment.shouldOpenPaywallAtLaunch() {
+                isShowingPaywall = true
+            }
+        }
         .onChange(of: storedProfiles.map(\.childID).sorted()) {
             repairSelectionIfNeeded()
         }
         .onChange(of: selectedChildID) {
             selectedTooth = nil
         }
+        .sheet(isPresented: $isShowingPaywall) {
+            PaywallView(store: store, document: makeKeepsakeDocument())
+        }
         .sheet(item: $selectedTooth) { definition in
             ToothEditorView(
                 definition: definition,
                 record: recordByToothID[definition.id],
                 birthDate: birthDate,
+                canAddPhoto: store.canAddPhoto(existingPhotoCount: photoCountForChild),
+                canRecordShedding: store.canTrackPermanentTeeth,
                 onSaveNote: { note in
                     let record = record(for: definition)
                     record.note = note.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -129,14 +178,67 @@ struct ContentView: View {
                     try modelContext.save()
                     registerToothValueEvent()
                 },
+                onMarkShed: { date, note in
+                    try validateEventDate(date)
+                    try record(for: definition).markShed(on: date, note: note)
+                    try modelContext.save()
+                    registerToothValueEvent()
+                },
                 onReset: {
                     if let record = recordByToothID[definition.id] {
+                        ToothPhotoStore.deleteAll(
+                            childID: activeChildID,
+                            toothID: definition.id
+                        )
                         modelContext.delete(record)
                         try modelContext.save()
                     }
-                }
+                },
+                onAddPhoto: { data in
+                    let photoID = try ToothPhotoStore.store(
+                        imageData: data,
+                        childID: activeChildID,
+                        toothID: definition.id
+                    )
+                    let record = record(for: definition)
+                    record.photoIDs.append(photoID)
+                    try modelContext.save()
+                },
+                onDeletePhoto: { photoID in
+                    guard let record = recordByToothID[definition.id] else { return }
+                    record.photoIDs.removeAll { $0 == photoID }
+                    try modelContext.save()
+                    ToothPhotoStore.delete(
+                        photoID: photoID,
+                        childID: activeChildID,
+                        toothID: definition.id
+                    )
+                },
+                photoThumbnail: { photoID in
+                    ToothPhotoStore.data(
+                        photoID: photoID,
+                        childID: activeChildID,
+                        toothID: definition.id,
+                        thumbnail: true
+                    )
+                },
+                onRequestUnlock: presentPaywall
             )
         }
+    }
+
+    private func presentPaywall() {
+        isShowingPaywall = true
+    }
+
+    private func makeKeepsakeDocument() -> KeepsakeDocument {
+        KeepsakeDocumentBuilder.make(
+            profileName: selectedProfile?.name ?? "",
+            birthDate: birthDate,
+            childID: activeChildID,
+            primary: snapshots,
+            permanent: permanentSnapshots
+        )
     }
 
     private func select(_ snapshot: ToothSnapshot) {
@@ -145,7 +247,8 @@ struct ContentView: View {
 
     private func registerToothValueEvent() {
         let arguments = ProcessInfo.processInfo.arguments
-        guard !arguments.contains("--ui-testing"), !arguments.contains("--screenshots") else {
+        guard !LaunchEnvironment.isUITesting(arguments),
+              !LaunchEnvironment.isScreenshotRun(arguments) else {
             return
         }
         guard ReviewPromptTracker.registerValueEvent() else { return }
@@ -160,7 +263,7 @@ struct ContentView: View {
             return existing
         }
         let record = ToothRecord(
-            childID: selectedProfile?.childID ?? ChildProfile.primaryChildID,
+            childID: activeChildID,
             toothID: definition.id
         )
         modelContext.insert(record)
@@ -194,7 +297,9 @@ struct ContentView: View {
     }
 
     private func deleteProfile(_ childID: String) throws -> String {
-        try ChildProfileStore.delete(childID: childID, in: modelContext)
+        let next = try ChildProfileStore.delete(childID: childID, in: modelContext)
+        ToothPhotoStore.deleteAll(childID: childID)
+        return next
     }
 
     private func repairSelectionIfNeeded() {

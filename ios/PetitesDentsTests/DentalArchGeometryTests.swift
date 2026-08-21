@@ -101,6 +101,93 @@ final class DentalArchGeometryTests: XCTestCase {
         XCTAssertEqual(ToothKind.canine.familyOutline, .canine)
         XCTAssertEqual(ToothKind.firstMolar.familyOutline, .firstMolar)
         XCTAssertEqual(ToothKind.secondMolar.familyOutline, .secondMolar)
-        XCTAssertEqual(Set(ToothKind.allCases.map(\.familyOutline)).count, 5)
+        XCTAssertEqual(Set(ToothKind.allCases.map(\.familyOutline)).count, 7)
+    }
+}
+
+extension DentalArchGeometryTests {
+    func testTheTwelveSlotArchKeepsTheBabyArchGeometryOfTheDefaultOne() {
+        let primary = DentalArchGeometry.placements(for: .upper)
+        let permanent = DentalArchGeometry.placements(
+            for: .upper,
+            slots: DentalArchGeometry.permanentSlots
+        )
+
+        XCTAssertEqual(primary.count, 10)
+        XCTAssertEqual(permanent.count, 12)
+        // Same outermost and innermost centres, so the two arches are concentric.
+        XCTAssertEqual(permanent[0].xFraction, primary[0].xFraction, accuracy: 0.000001)
+        XCTAssertEqual(permanent[11].xFraction, primary[9].xFraction, accuracy: 0.000001)
+        XCTAssertEqual(permanent[5].xFraction, primary[4].xFraction, accuracy: 0.000001)
+        XCTAssertEqual(permanent[6].xFraction, primary[5].xFraction, accuracy: 0.000001)
+        XCTAssertEqual(permanent[0].yFraction, primary[0].yFraction, accuracy: 0.000001)
+        XCTAssertEqual(permanent[5].yFraction, primary[4].yFraction, accuracy: 0.000001)
+    }
+
+    func testTheTwelveSlotArchStaysSymmetricAndMonotonic() {
+        let upper = DentalArchGeometry.placements(
+            for: .upper,
+            slots: DentalArchGeometry.permanentSlots
+        )
+        let lower = DentalArchGeometry.placements(
+            for: .lower,
+            slots: DentalArchGeometry.permanentSlots
+        )
+
+        for index in upper.indices {
+            let mirrored = upper.index(before: upper.endIndex) - index
+            XCTAssertEqual(
+                upper[index].xFraction + upper[mirrored].xFraction,
+                1,
+                accuracy: 0.0001
+            )
+            XCTAssertEqual(upper[index].yFraction, upper[mirrored].yFraction, accuracy: 0.0001)
+            XCTAssertEqual(
+                upper[index].rotationDegrees + upper[mirrored].rotationDegrees,
+                360,
+                accuracy: 0.0001
+            )
+            XCTAssertEqual(
+                lower[index].rotationDegrees + lower[mirrored].rotationDegrees,
+                0,
+                accuracy: 0.0001
+            )
+            XCTAssertEqual(upper[index].yFraction + lower[index].yFraction, 1, accuracy: 0.0001)
+        }
+        for index in 0..<5 {
+            XCTAssertGreaterThan(upper[index].xFraction, 0)
+            XCTAssertLessThan(upper[index].xFraction, upper[index + 1].xFraction)
+            XCTAssertGreaterThan(upper[index].yFraction, upper[index + 1].yFraction)
+        }
+    }
+
+    func testTheOuterTouchInsetIsPreservedOnTheTwelveSlotArch() {
+        let placements = DentalArchGeometry.placements(
+            for: .upper,
+            slots: DentalArchGeometry.permanentSlots
+        )
+        XCTAssertGreaterThanOrEqual(placements[0].xFraction * 280, 22)
+        XCTAssertGreaterThanOrEqual((1 - placements[11].xFraction) * 280, 22)
+    }
+
+    func testSlotPitchShrinksExactlyWithTheNumberOfSlots() {
+        XCTAssertEqual(DentalArchGeometry.slotPitch(slots: 10), 0.09, accuracy: 0.000001)
+        XCTAssertEqual(DentalArchGeometry.slotPitch(slots: 12), 0.072, accuracy: 0.000001)
+        XCTAssertEqual(
+            DentalArchGeometry.layoutWidth(slots: 12, availableWidth: 320),
+            400,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            DentalArchGeometry.layoutWidth(slots: 10, availableWidth: 320),
+            320,
+            accuracy: 0.001
+        )
+    }
+
+    func testEveryToothFamilyKeepsItsOwnOutlineIncludingPremolars() {
+        XCTAssertEqual(ToothKind.firstPremolar.familyOutline, .firstPremolar)
+        XCTAssertEqual(ToothKind.secondPremolar.familyOutline, .secondPremolar)
+        XCTAssertEqual(Set(ToothKind.allCases.map(\.familyOutline)).count, ToothKind.allCases.count)
     }
 }

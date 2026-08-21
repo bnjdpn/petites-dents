@@ -1,69 +1,32 @@
 # Petites Dents
 
-Petites Dents is a private baby-teething log for Android and iOS. It turns the
-20 primary teeth into a simple interactive timeline without an account,
-advertising, analytics, or a remote server.
+Petites Dents is a private keepsake timeline for baby and permanent teeth on
+iOS and Android. Families can record dates and observations, add photos and
+prepare a portable PDF without creating an online profile.
 
-## Features
+- Timeline for 20 primary teeth and the permanent-tooth transition
+- Dates, notes, photos and chronological history
+- Local keepsake PDF preview and export
+- One-time Souvenirs unlock; no subscription
+- No advertising or third-party tracking
 
-- Anatomically ordered upper and lower arches for all 20 primary teeth.
-- Three clear states: not started, teething, and erupted.
-- Start and eruption dates, free-form notes, reset, and chronological history.
-- A local PDF summary that can be shared with a paediatrician or kept with the
-  child's health record.
-- French, US English, and British English on iOS; French and English on Android.
-- The optional iOS tips configured for the current release do not change feature access.
+The app preserves family memories; it does not provide dental guidance.
 
-Release pricing and purchases are governed by the app-specific commercial plan
-and `ios/fastlane/release_config.json`, with future commercial changes requiring
-an app-specific approved plan.
+## Technology and development
 
-Petites Dents is a personal log, not a medical device or a diagnostic tool.
-
-## Privacy
-
-Records remain on the device. The app has no account, tracking SDK, analytics,
-advertising, or application server. Read the full
-[privacy policy](https://bnjdpn.github.io/petites-dents/privacy.html) or use the
-[support form](https://bnjdpn.github.io/petites-dents/#contact).
-
-## Build
-
-Android requires JDK 17:
+Android uses Kotlin, Jetpack Compose and Room at the repository root. The iOS
+app under `ios/` uses Swift 6 and SwiftUI; `ios/project.yml` generates Xcode.
 
 ```sh
 ./gradlew test
 ./gradlew assembleDebug
-```
-
-iOS requires Xcode 26 and XcodeGen:
-
-```sh
 cd ios
+bundle install
 xcodegen generate
 xcodebuild -scheme PetitesDents -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-The signed Android APK is published with each
-[GitHub release](https://github.com/bnjdpn/petites-dents/releases).
+The platforms keep one aligned public version. `marketing/` generates `docs/`;
+iOS release automation is in `ios/fastlane/`.
 
-## Release alignment
-
-Android `versionName`, iOS `MARKETING_VERSION` and
-`ios/fastlane/release_config.json.version` must be identical. Validate the
-candidate before building it:
-
-```sh
-rtk proxy /opt/homebrew/opt/ruby/bin/ruby scripts/release_alignment_guard.rb --expected-tag vX.Y.Z
-```
-
-Prepare the signed APK, checksum and provenance under the isolated run scratch
-with `scripts/prepare_android_release.rb`. The final
-`release_alignment_guard.rb --final` gate requires ASC and GitHub readback JSON
-plus all three assets, and rejects a missing side, wrong tag or APK manifest,
-changed signer certificate, or checksum/provenance mismatch.
-
-Before any tag or GitHub mutation, a read-only authenticated GET
-(`gh api user --jq .login`) must succeed. Create the tag/release at the exact
-`source_commit` recorded in provenance; never overwrite or automatically retry
-an existing or ambiguous release.
+[Product site](https://bnjdpn.github.io/petites-dents/) · [Privacy](https://bnjdpn.github.io/petites-dents/privacy.html)

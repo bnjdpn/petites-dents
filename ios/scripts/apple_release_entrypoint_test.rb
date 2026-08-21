@@ -12,7 +12,7 @@ class AppleReleaseEntrypointTest
   end
 
   def test_signing_consumes_only_wrapper_injected_identity
-    source = File.read(FASTFILE)
+    source = File.read(FASTFILE, encoding: "UTF-8")
     refute_match(/\bget_certificates\s*\(/, source)
     refute_match(/\bimport_certificate\s*\(/, source)
     refute_match(/\bmatch\s+nuke\b/, source)
@@ -24,6 +24,15 @@ class AppleReleaseEntrypointTest
     assert_includes source, "readonly: true"
     assert_includes source, "cert_id: certificate_id"
     assert_includes source, '"-xcconfig #{@petites_dents_release_xcconfig.shellescape}"'
+  end
+
+  def test_upload_release_stops_after_transport
+    source = File.read(FASTFILE, encoding: "UTF-8")
+    body = source[/lane :upload_release do\n(.*?)^  end$/m, 1]
+    refute_nil body, "missing upload_release lane"
+    assert_includes body, "upload_to_app_store("
+    refute_includes body, "petites_dents_review_workflow"
+    refute_includes body, "petites_dents_strict_status"
   end
 
   private

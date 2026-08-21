@@ -13,7 +13,7 @@ end
 def load_config(path)
   return {} unless path && File.file?(path)
 
-  JSON.parse(File.read(path))
+  JSON.parse(File.read(path, encoding: "UTF-8"))
 end
 
 def parse_price(value)

@@ -17,11 +17,11 @@ PETITES_DENTS_CONFIG_PATH = File.join(PETITES_DENTS_FASTLANE_ROOT, "release_conf
 PETITES_DENTS_METADATA_ROOT = File.join(PETITES_DENTS_FASTLANE_ROOT, "metadata")
 PETITES_DENTS_BUNDLE_ID = "com.bnjdpn.petitesdents"
 PETITES_DENTS_SCHEME = "PetitesDents"
-PETITES_DENTS_VERSION = "1.0.8"
+PETITES_DENTS_VERSION = "2.0.0"
 PETITES_DENTS_TEAM_ID = "767SX34A7Z"
 
 def petites_dents_config
-  @petites_dents_config ||= JSON.parse(File.read(PETITES_DENTS_CONFIG_PATH))
+  @petites_dents_config ||= JSON.parse(File.read(PETITES_DENTS_CONFIG_PATH, encoding: "UTF-8"))
 end
 
 def petites_dents_run_id
@@ -53,6 +53,7 @@ end
 
 def petites_dents_run_root
   petites_dents_repo_path(
+    "ios",
     petites_dents_config.fetch("artifact_root"),
     petites_dents_run_id
   )
@@ -60,6 +61,7 @@ end
 
 def petites_dents_release_path(name)
   petites_dents_repo_path(
+    "ios",
     petites_dents_config.fetch("artifact_root"),
     petites_dents_run_id,
     name
@@ -252,12 +254,11 @@ rescue JSON::ParserError => error
   UI.user_error!("Invalid review helper result: #{error.message}")
 end
 
+# La capture de review de l'IAP n'est pas une capture marketing : elle vit à un
+# chemin stable, hors run, déclaré par `release_config.json.iap_review_screenshot`
+# et produit par `scripts/app_store/iap_review_screenshot.rb`.
 def petites_dents_iap_review_screenshot
-  File.join(
-    petites_dents_release_path("screenshots"),
-    "fr-FR",
-    "PetitesDents_APP_IPHONE_67_04_ExportAndSupport.png"
-  )
+  petites_dents_repo_path("ios", petites_dents_config.fetch("iap_review_screenshot"))
 end
 
 platform :ios do
@@ -311,6 +312,20 @@ platform :ios do
       "--candidate-id", ENV.fetch("APPS_FACTORY_CANDIDATE_ID"),
       "--device-udids-json", ENV.fetch("APPS_FACTORY_DEVICE_UDIDS_JSON")
     )
+    iap_review_screenshot
+  end
+
+  desc "Capture the App Store Connect review screenshot of the in-app purchase"
+  lane :iap_review_screenshot do
+    sh(
+      RbConfig.ruby,
+      File.join(PETITES_DENTS_IOS_ROOT, "scripts", "app_store", "iap_review_screenshot.rb"),
+      "--device-udids-json", ENV.fetch("APPS_FACTORY_DEVICE_UDIDS_JSON"),
+      "--execution-id", petites_dents_run_id
+    )
+    path = petites_dents_iap_review_screenshot
+    UI.user_error!("IAP review screenshot was not produced: #{path}") unless File.file?(path)
+    UI.success("IAP review screenshot: #{path}")
   end
 
   desc "Document that App Preview video is not applicable for this release"
@@ -378,7 +393,7 @@ platform :ios do
     petites_dents_write_release_manifest(build_number: build_number, ipa: ipa)
   end
 
-  desc "Upload the exact run IPA and attach its processed build to the configured version"
+  desc "Upload the exact run IPA; selection and readback are separate pipeline checkpoints"
   lane :upload_release do
     manifest = petites_dents_release_manifest
     ipa = manifest.fetch("ipa")
@@ -393,11 +408,6 @@ platform :ios do
       force: true,
       run_precheck_before_submit: false
     )
-    petites_dents_review_workflow(
-      command: "select-build",
-      expected_build: manifest.fetch("build")
-    )
-    petites_dents_strict_status(expected_build: manifest.fetch("build"))
   end
 
   desc "Submit the exact selected build and configured IAP versions for App Review"
@@ -442,6 +452,14 @@ platform :ios do
 
   desc "Verify configured IAPs; mutation requires PETITES_DENTS_APPLY_ASC=1"
   lane :iap_sync do
+    screenshot = petites_dents_iap_review_screenshot
+    unless File.file?(screenshot)
+      UI.user_error!(
+        "IAP review screenshot introuvable (#{screenshot}) — lancer la lane " \
+        "iap_review_screenshot avant iap_sync, sinon App Store Connect laisse " \
+        "le produit en MISSING_METADATA."
+      )
+    end
     arguments = []
     arguments << "--apply" if ENV["PETITES_DENTS_APPLY_ASC"] == "1"
     petites_dents_run_asc_tool("iap_sync", *arguments)

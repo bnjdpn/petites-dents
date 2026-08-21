@@ -102,6 +102,47 @@ class IapVersionAscClient
   end
 end
 
+# Serves whatever product ids and types it is given, so a test can reproduce the
+# live shape of any release_config.json `iap` block.
+class ConfiguredIapAscClient
+  attr_reader :calls
+
+  def initialize(products)
+    @calls = []
+    @products = products
+  end
+
+  def get_all(path, params = {})
+    @calls << [:get_all, path, params]
+    if path == "/v1/apps/app-1/inAppPurchasesV2"
+      return {
+        "data" => @products.each_with_index.map do |product, index|
+          {
+            "type" => "inAppPurchases",
+            "id" => "iap-#{index}",
+            "attributes" => {
+              "productId" => product.fetch("product_id"),
+              "inAppPurchaseType" => product.fetch("live_type", product.fetch("type")),
+              "state" => "READY_TO_SUBMIT"
+            }
+          }
+        end
+      }
+    end
+
+    index = path[%r{\A/v2/inAppPurchases/iap-(\d+)/versions\z}, 1]
+    raise "Unexpected get_all call: #{path}" unless index
+
+    {
+      "data" => [{
+        "type" => "inAppPurchaseVersions",
+        "id" => "iap-#{index}-v1",
+        "attributes" => { "version" => 1, "state" => "PREPARE_FOR_SUBMISSION" }
+      }]
+    }
+  end
+end
+
 class DraftReviewAscClient
   attr_reader :calls
 
@@ -237,6 +278,54 @@ class ReleaseHelpersTest
     assert_equal "version,state", versions_call.fetch(2).fetch("fields[inAppPurchaseVersions]")
   end
 
+  # Regression: the helper used to hardcode inAppPurchaseType == "CONSUMABLE",
+  # a leftover of the tip jar. Petites Dents 2.0.0 sells one NON_CONSUMABLE
+  # unlock, so that assertion made every submit_review raise.
+  def test_review_iap_version_ids_accepts_the_non_consumable_declared_in_release_config
+    products = [{
+      "product_id" => "com.bnjdpn.petitesdents.souvenirs",
+      "type" => "NON_CONSUMABLE"
+    }]
+    client = ConfiguredIapAscClient.new(products)
+
+    assert_equal ["iap-0-v1"], review_iap_version_ids(client, "app-1", products)
+  end
+
+  # The real release_config.json is the contract: whatever it declares must go
+  # through, so this test fails the day the type assertion is narrowed again.
+  def test_review_iap_version_ids_accepts_every_product_declared_by_the_real_release_config
+    config = JSON.parse(
+      File.read(File.expand_path("../../../fastlane/release_config.json", __dir__), encoding: "UTF-8")
+    )
+    products = config.fetch("iap")
+    assert(!products.empty?, "release_config.json declares no IAP")
+    assert(products.any? { |product| product.fetch("type") == "NON_CONSUMABLE" },
+           "release_config.json no longer declares a non-consumable product")
+    client = ConfiguredIapAscClient.new(products)
+
+    ids = review_iap_version_ids(client, "app-1", products)
+
+    assert_equal products.length, ids.length
+  end
+
+  def test_review_iap_version_ids_rejects_a_live_type_that_diverges_from_release_config
+    products = [{
+      "product_id" => "com.bnjdpn.petitesdents.souvenirs",
+      "type" => "NON_CONSUMABLE",
+      "live_type" => "CONSUMABLE"
+    }]
+    client = ConfiguredIapAscClient.new(products)
+
+    error = nil
+    begin
+      review_iap_version_ids(client, "app-1", products)
+    rescue ReviewSubmissionError => raised
+      error = raised
+    end
+    refute error.nil?, "Expected a diverging live IAP type to be rejected"
+    assert_includes error.message, "expected NON_CONSUMABLE"
+  end
+
   def test_submit_reuses_partial_draft_and_attaches_only_missing_iap_versions
     client = DraftReviewAscClient.new
     coordinator = ReviewSubmissionCoordinator.new(
@@ -287,6 +376,34 @@ class ReleaseHelpersTest
     assert_empty errors
   end
 
+  def test_iap_status_accepts_declared_products_retired_from_sale
+    actual = [
+      { "product_id" => "active", "state" => "WAITING_FOR_REVIEW" },
+      { "product_id" => "old-tip", "state" => "DEVELOPER_REMOVED_FROM_SALE" }
+    ]
+
+    payload = iap_status_from_items(
+      actual,
+      [{ "product_id" => "active" }],
+      ["old-tip"]
+    )
+
+    assert_empty payload.fetch("missing_product_ids")
+    assert_empty payload.fetch("unexpected_product_ids")
+    assert_empty payload.fetch("missing_retired_product_ids")
+    assert_empty payload.fetch("retired_products_not_removed_from_sale")
+  end
+
+  def test_iap_status_rejects_a_retired_product_that_remains_for_sale
+    payload = iap_status_from_items(
+      [{ "product_id" => "old-tip", "state" => "READY_TO_SUBMIT" }],
+      [],
+      ["old-tip"]
+    )
+
+    assert_equal ["old-tip"], payload.fetch("retired_products_not_removed_from_sale")
+  end
+
   def test_strict_status_still_rejects_unexpected_leaderboards
     payload = base_payload
     payload["game_center"]["unexpected_ids"] = ["unexpected.board"]
@@ -322,8 +439,31 @@ class ReleaseHelpersTest
     assert_empty errors
   end
 
+  def test_review_submission_requires_every_configured_iap_version
+    options = base_options.merge(require_review_submission: true)
+    payload = base_payload
+    payload["iap"]["review_version_ids"] = ["iap-version-1"]
+    payload["review_submissions"] = [
+      {
+        "state" => "WAITING_FOR_REVIEW",
+        "items" => [
+          { "resource_type" => "appStoreVersions", "version" => "1.0.6" }
+        ]
+      }
+    ]
+
+    errors = strict_errors(payload, options)
+    assert_includes errors, "no submitted review submission contains 1.0.6 and all required review items"
+
+    payload["review_submissions"].first["items"] << {
+      "resource_type" => "inAppPurchaseVersions",
+      "resource_id" => "iap-version-1"
+    }
+    assert_empty strict_errors(payload, options)
+  end
+
   def test_fastfile_uses_repository_absolute_metadata_paths
-    fastfile = File.read(File.expand_path("../../../fastlane/Fastfile", __dir__))
+    fastfile = File.read(File.expand_path("../../../fastlane/Fastfile", __dir__), encoding: "UTF-8")
 
     assert_includes fastfile, 'PETITES_DENTS_METADATA_ROOT = File.join(PETITES_DENTS_FASTLANE_ROOT, "metadata")'
     refute fastfile.include?('File.join(__dir__, "metadata"')

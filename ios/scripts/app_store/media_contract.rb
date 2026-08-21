@@ -19,7 +19,7 @@ module PetitesDentsMediaContract
       @candidate_id = candidate_id
       @repo_root = File.realpath(File.join(@run_root, "..", "..", "..", ".."))
       @config = JSON.parse(
-        File.read(File.join(@repo_root, "ios", "fastlane", "release_config.json"))
+        File.read(File.join(@repo_root, "fastlane", "release_config.json"), encoding: "UTF-8")
       )
       @manifest_path = File.join(@run_root, "logs", "media-manifest.json")
     end
@@ -51,7 +51,7 @@ module PetitesDentsMediaContract
     def read_manifest!
       raise Error, "missing media manifest: #{@manifest_path}" unless File.file?(@manifest_path)
 
-      JSON.parse(File.read(@manifest_path))
+      JSON.parse(File.read(@manifest_path, encoding: "UTF-8"))
     rescue JSON::ParserError => error
       raise Error, "invalid media manifest: #{error.message}"
     end

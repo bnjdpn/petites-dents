@@ -1,0 +1,15 @@
+{
+  "captured_at": "2026-08-20T23:02:11Z",
+  "screenshot": "souvenirs-paywall.png",
+  "screenshot_sha256": "e874c783fda3e555fabc2f05c91b160c0d2ceb2fc8a5e60df7bb40f262da666a",
+  "screenshot_size": [
+    1320,
+    2868
+  ],
+  "product_id": "com.bnjdpn.petitesdents.souvenirs",
+  "displayed_price": "5,99 €",
+  "storefront": "FRA",
+  "expected_base_price": "5.99",
+  "expected_base_currency": "EUR",
+  "price_source": "PetitesDents.storekit via SKTestSession, storefront pinned to the base territory of fastlane/pro_products.json"
+}

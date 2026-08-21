@@ -1,4 +1,9 @@
-Remember exactly when each baby tooth came in, and how old your child was that day. Baby Teeth turns the 20 primary teeth into a calm, private timeline — one profile per child, one tap per tooth.
+Remember exactly when each baby tooth came in, and how old your child was that day. Baby Teeth keeps the timeline of the 20 primary teeth, with no account and no network — one profile per child, one tap per tooth.
+
+WHAT IS FREE, AND WHAT COSTS MONEY
+Free, with no account and no time limit: the 20 baby teeth, teething and eruption dates, the exact age to the day, notes, history, as many child profiles as you need, the PDF dental record to show your healthcare professional, and the first photo of each child.
+One purchase, no subscription, Family Sharing on: the second dentition, unlimited photos, and the printable keepsake page.
+Nothing that used to be free moved behind that purchase. And if you were already logging your child's teeth here before the keepsake existed, it is yours — nothing to buy, nothing to restore.
 
 ONE TIMELINE PER CHILD
 Create a profile for each child — including twins — then switch in one tap. Birth dates, tooth progress, notes, history, deletion, and PDF exports stay strictly separate for every profile.
@@ -10,14 +15,21 @@ DATES, AGES, AND NOTES
 Add your baby's date of birth to see their exact age at each eruption. Tap any tooth to record when teething began, when the tooth erupted, and any observation you want to remember. You can record an eruption directly or reset a tooth at any time.
 
 CHRONOLOGICAL HISTORY
-Review erupted teeth in date order, with the baby's exact age, and keep important milestones easy to find.
+Review every recorded event in date order, with your child's exact age, and keep important milestones easy to find.
 
-LOCAL PDF SUMMARY
-Create a readable PDF named for the selected child, with the full diagram, birth date, eruption ages, dates, and notes. Share it through the system sheet with a pediatrician or keep it with the child's health record.
+PHOTOS ON A TOOTH
+Add a photo to a tooth and see it in the editor and in the history. Your photos stay on your device and exist nowhere else than in your own encrypted Apple backup. The first photo of each child costs nothing and is never taken away from you.
+
+DENTAL RECORD FOR YOUR HEALTHCARE PROFESSIONAL
+Create a free PDF named for the selected child, with the full diagram, birth date, eruption ages, dates, and notes — to show or send to a pediatrician or dentist at a visit. This document never contains a photo.
+
+SOUVENIRS KEEPSAKE — THE ONE-TIME PURCHASE, IN DETAIL
+The second dentition: the day each of the 20 baby teeth falls out, the arrival of its replacement, and the four first permanent six-year molars, on a second 12-slot arch per jaw.
+The full photo album: as many photos per tooth as you like, on top of the first one that stays free.
+The printable keepsake: one illustrated A4 page per child, twins included, with the real arches, the photos, the first name, the date of birth, and every date followed by the age in months and days. It is the only document in the app that contains photos.
+Second permanent molars (17/27/37/47) and wisdom teeth are not tracked: they arrive after age twelve, and the app says so on screen instead of pretending otherwise.
 
 PRIVATE BY DESIGN
 No account, application server, advertising, analytics, or tracking. Dental records remain on your device.
-
-In this version, three optional consumable tips are available for people who want to support development; buying one does not change feature access in this version.
 
 Baby Teeth is a personal log, not a medical device or diagnostic tool. Contact a qualified healthcare professional if you have concerns about a child's health.

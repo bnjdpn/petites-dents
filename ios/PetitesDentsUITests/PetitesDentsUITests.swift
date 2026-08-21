@@ -1,7 +1,19 @@
+import StoreKitTest
 import XCTest
 
 @MainActor
 final class PetitesDentsUITests: XCTestCase {
+
+    /// `base_territory` of `fastlane/pro_products.json`. The base territory is
+    /// the only storefront where the displayed price is the spec's `base_price`
+    /// itself rather than an equalization of it, so it is the only storefront
+    /// whose capture can be checked against the spec.
+    static let baseTerritory = "FRA"
+    /// The locale that formats the base-territory price. Pinned for the same
+    /// reason: the string on the PNG has to be reproducible, not a function of
+    /// whatever the capturing machine was left in.
+    static let basePriceLocale = "fr_FR"
+
     func testAllTeethAreExposedAndRepresentativeTargetsOpenTheEditor() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
@@ -31,6 +43,7 @@ final class PetitesDentsUITests: XCTestCase {
         app.launchArguments = [
             "--ui-testing",
             "--screenshots",
+            "--store-bypass",
         ]
         app.launch()
         dismissAppleIntelligenceBannerIfNeeded()
@@ -52,6 +65,136 @@ final class PetitesDentsUITests: XCTestCase {
         tapTab(in: app, identifier: "tab.more", labels: ["More", "Plus"])
         XCTAssertTrue(app.scrollViews["screen.more"].waitForExistence(timeout: 5))
         capture("04_ExportAndSupport")
+
+        tapTab(in: app, identifier: "tab.teeth", labels: ["Teeth", "Dents"])
+        XCTAssertTrue(app.scrollViews["screen.mouth"].waitForExistence(timeout: 5))
+        selectPermanentDentition(in: app)
+        XCTAssertTrue(app.buttons["tooth-46"].waitForExistence(timeout: 5))
+        capture("05_Definitives")
+    }
+
+    /// Produces the App Store Connect review screenshot of the in-app
+    /// purchase. It is not part of the marketing matrix: the offer needs a
+    /// StoreKit configuration or a sandbox account to show a real price, and
+    /// the paywall never hardcodes one.
+    ///
+    /// App Review has to see what is being sold, so the capture is taken with
+    /// the purchase block on screen — the buy button carrying
+    /// `Product.displayPrice`, and Restore right under it. The exported PNG is
+    /// the `iap_review_screenshot` of `release_config.json`; the extraction is
+    /// done by `scripts/app_store/iap_review_screenshot.rb`.
+    ///
+    /// Two attachments leave this test: `Paywall`, the screen itself, and
+    /// `PaywallPrice`, the exact price string that was on it. The second one
+    /// is what makes the first one checkable by machine —
+    /// `scripts/release_contract.rb` compares it to `fastlane/pro_products.json`
+    /// and refuses a capture that shows a price the App Store does not have.
+    func testPaywallScreenshot() throws {
+        continueAfterFailure = false
+        // `xcodebuild test` runs without the scheme's StoreKit configuration,
+        // so the catalogue would be empty and the paywall would show its
+        // "offer unavailable" state. SKTestSession loads the very same
+        // PetitesDents.storekit, and the price still comes from StoreKit.
+        let session = try SKTestSession(configurationFileNamed: "PetitesDents")
+        session.disableDialogs = true
+        session.clearTransactions()
+        session.resetToDefaultState()
+        // `base_territory` of `fastlane/pro_products.json`: the one storefront
+        // where the displayed price is the spec's `base_price` itself and not
+        // an equalization of it. Left to the simulator's own storefront, the
+        // capture states whatever price that machine happened to be set to —
+        // which is how a sibling app shipped "$29.99" to App Review while the
+        // whole repository said 6,99 €.
+        session.storefront = Self.baseTerritory
+        session.locale = Locale(identifier: Self.basePriceLocale)
+        defer { session.clearTransactions() }
+
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--ui-testing",
+            "--screenshots",
+            "-paywall-screenshot",
+        ]
+        app.launch()
+        dismissAppleIntelligenceBannerIfNeeded()
+
+        let restore = app.buttons["paywall.restore"]
+        XCTAssertTrue(restore.waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons["paywall.close"].exists)
+
+        let buy = app.buttons["paywall.buy"]
+        if !buy.waitForExistence(timeout: 30) {
+            // A capture without the offer on it is a rejected in-app purchase
+            // ("we were unable to locate the in-app purchase"). When the offer
+            // never loads, say what was on screen instead of leaving a bare
+            // boolean behind.
+            capture("PaywallFailure")
+            XCTFail(
+                "The paywall never loaded the product: App Review would see no offer. "
+                + "loading state on screen: \(app.descendants(matching: .any)["paywall.loading"].exists), "
+                + "unavailable state on screen: \(app.descendants(matching: .any)["paywall.unavailable"].exists), "
+                + "already-owned state on screen: \(app.descendants(matching: .any)["paywall.owned"].exists)"
+            )
+            return
+        }
+        // Scrolling all the way to the legal block puts the whole purchase card
+        // — buy, price, Restore — above it, inside the frame.
+        scrollUntilHittable(app.buttons["paywall.terms"], in: app)
+        XCTAssertTrue(buy.isHittable, "The buy button never reached the visible area")
+        XCTAssertTrue(restore.isHittable, "Restore must be visible on the review capture")
+
+        // Every state the reviewer must not be shown. The purchase card renders
+        // exactly one of them, so any of these on screen means the offer is not.
+        for forbidden in ["paywall.loading", "paywall.unavailable", "paywall.owned", "paywall.message"] {
+            XCTAssertFalse(
+                app.descendants(matching: .any)[forbidden].exists,
+                "The review capture must show the loaded offer, never \(forbidden)"
+            )
+        }
+
+        let displayedPrice = app.staticTexts["paywall.price"].label
+        XCTAssertFalse(
+            displayedPrice.isEmpty,
+            "The price must come from Product.displayPrice; without it the capture cannot be "
+            + "checked against pro_products.json"
+        )
+
+        capture("Paywall")
+        attach("PaywallPrice", string: displayedPrice)
+    }
+
+    private func scrollUntilHittable(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        attempts: Int = 6
+    ) {
+        var remaining = attempts
+        while !element.isHittable, remaining > 0 {
+            app.swipeUp()
+            remaining -= 1
+        }
+    }
+
+    func testTheSecondDentitionIsBehindThePaywallWithoutTheUnlock() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        dismissAppleIntelligenceBannerIfNeeded()
+
+        XCTAssertTrue(app.scrollViews["screen.mouth"].waitForExistence(timeout: 10))
+        selectPermanentDentition(in: app)
+
+        let unlock = app.buttons["mouth.unlock"]
+        XCTAssertTrue(unlock.waitForExistence(timeout: 8))
+        unlock.tap()
+        XCTAssertTrue(app.buttons["paywall.restore"].waitForExistence(timeout: 15))
+    }
+
+    private func selectPermanentDentition(in app: XCUIApplication) {
+        let picker = app.segmentedControls["mouth.phase"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 5))
+        picker.buttons.element(boundBy: 1).tap()
     }
 
     func testProfilesKeepTwinToothProgressIsolatedInEnglish() throws {
@@ -183,6 +326,16 @@ final class PetitesDentsUITests: XCTestCase {
 
         banner.swipeUp()
         XCTAssertFalse(banner.waitForExistence(timeout: 2), "System notification remained visible")
+    }
+
+    /// Attaches a plain string next to the screenshots. Used for the price the
+    /// paywall actually rendered: a PNG states a price in pixels, and nothing
+    /// but a sidecar makes that price comparable to the spec by machine.
+    private func attach(_ name: String, string: String) {
+        let attachment = XCTAttachment(string: string)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     private func capture(_ name: String) {

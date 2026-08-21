@@ -16,7 +16,7 @@ def review_note(product)
 end
 
 def load_config(path)
-  JSON.parse(File.read(path))
+  JSON.parse(File.read(path, encoding: "UTF-8"))
 end
 
 def parse_options(argv)
@@ -39,6 +39,14 @@ def parse_options(argv)
   screenshot_input = ENV["IAP_REVIEW_SCREENSHOT"] || config.fetch("iap_review_screenshot")
   screenshot = File.expand_path(screenshot_input, APP_ROOT)
   abort "IAP review screenshot escaped repository root" unless screenshot.start_with?("#{REPO_ROOT}/")
+  # Without this, the run only fails much later inside File.binread, with a bare
+  # ENOENT. App Review leaves an in-app purchase in MISSING_METADATA when no
+  # review screenshot is attached, so the file is a hard precondition: produce
+  # it with `scripts/app_store/iap_review_screenshot.rb` (lane `screenshots`,
+  # or the standalone `iap_review_screenshot` lane).
+  unless File.file?(screenshot)
+    abort "IAP review screenshot introuvable : #{screenshot} — lancer la lane iap_review_screenshot"
+  end
   options[:review_screenshot] = screenshot
 
   abort "--bundle-id is required" if options[:bundle_id].to_s.empty?

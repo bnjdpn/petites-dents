@@ -1,14 +1,78 @@
 import SwiftUI
 
+struct HistoryEntry: Identifiable {
+    enum Kind {
+        case erupted
+        case shed
+        case permanentErupted
+
+        var localizedLabel: String {
+            switch self {
+            case .erupted: NSLocalizedString("history.kind.erupted", comment: "")
+            case .shed: NSLocalizedString("history.kind.shed", comment: "")
+            case .permanentErupted: NSLocalizedString("history.kind.permanent", comment: "")
+            }
+        }
+
+        var symbol: String {
+            switch self {
+            case .erupted: "sparkles"
+            case .shed: "wind"
+            case .permanentErupted: "arrow.up.circle"
+            }
+        }
+    }
+
+    let id: String
+    let snapshot: ToothSnapshot
+    let date: Date
+    let kind: Kind
+}
+
 struct HistoryView: View {
     let snapshots: [ToothSnapshot]
+    let permanentSnapshots: [ToothSnapshot]
     let birthDate: Date?
     let onSelect: (ToothSnapshot) -> Void
+    let photoThumbnail: (ToothSnapshot, String) -> Data?
 
-    private var history: [ToothSnapshot] {
-        snapshots
-            .filter { $0.record?.eruptedDate != nil }
-            .sorted { ($0.record?.eruptedDate ?? .distantPast) > ($1.record?.eruptedDate ?? .distantPast) }
+    static func entries(
+        primary: [ToothSnapshot],
+        permanent: [ToothSnapshot]
+    ) -> [HistoryEntry] {
+        var entries: [HistoryEntry] = []
+        for snapshot in primary + permanent {
+            guard let record = snapshot.record else { continue }
+            if let eruptedDate = record.eruptedDate {
+                entries.append(
+                    HistoryEntry(
+                        id: "\(snapshot.id)-erupted",
+                        snapshot: snapshot,
+                        date: eruptedDate,
+                        kind: snapshot.definition.phase == .permanent ? .permanentErupted : .erupted
+                    )
+                )
+            }
+            if let sheddingDate = record.sheddingDate {
+                entries.append(
+                    HistoryEntry(
+                        id: "\(snapshot.id)-shed",
+                        snapshot: snapshot,
+                        date: sheddingDate,
+                        kind: .shed
+                    )
+                )
+            }
+        }
+        return entries.sorted {
+            $0.date == $1.date
+                ? $0.snapshot.definition.fdi < $1.snapshot.definition.fdi
+                : $0.date > $1.date
+        }
+    }
+
+    private var history: [HistoryEntry] {
+        Self.entries(primary: snapshots, permanent: permanentSnapshots)
     }
 
     var body: some View {
@@ -29,11 +93,15 @@ struct HistoryView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 40)
                 } else {
-                    ForEach(history) { snapshot in
+                    ForEach(history) { entry in
                         Button {
-                            onSelect(snapshot)
+                            onSelect(entry.snapshot)
                         } label: {
-                            HistoryCard(snapshot: snapshot, birthDate: birthDate)
+                            HistoryCard(
+                                entry: entry,
+                                birthDate: birthDate,
+                                photoThumbnail: photoThumbnail
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -51,45 +119,43 @@ struct HistoryView: View {
 }
 
 private struct HistoryCard: View {
-    let snapshot: ToothSnapshot
+    let entry: HistoryEntry
     let birthDate: Date?
+    let photoThumbnail: (ToothSnapshot, String) -> Data?
+
+    private var thumbnail: UIImage? {
+        guard let photoID = entry.snapshot.photoIDs.first else { return nil }
+        return photoThumbnail(entry.snapshot, photoID).flatMap(UIImage.init(data:))
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
-            Image(systemName: "sparkles")
-                .font(.title3)
-                .foregroundStyle(PetitesDentsStyle.sage)
-                .frame(width: 30)
+            if let thumbnail {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 46, height: 46)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .accessibilityHidden(true)
+            } else {
+                Image(systemName: entry.kind.symbol)
+                    .font(.title3)
+                    .foregroundStyle(
+                        entry.kind == .shed ? PetitesDentsStyle.coral : PetitesDentsStyle.sage
+                    )
+                    .frame(width: 30)
+                    .accessibilityHidden(true)
+            }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(snapshot.definition.localizedName)
+                Text(entry.snapshot.definition.localizedName)
                     .font(.headline)
                     .foregroundStyle(.primary)
-                if let eruptedDate = snapshot.record?.eruptedDate {
-                    let formattedDate = CivilDate.formatted(eruptedDate, style: .medium)
-                    let age = birthDate.flatMap {
-                        CalendarAgeFormatter.string(birthDate: $0, eventDate: eruptedDate)
-                    }
-                    Text(
-                        age.map {
-                            String(
-                                format: NSLocalizedString(
-                                    "history.erupted_on_with_age",
-                                    comment: "Eruption date and baby age"
-                                ),
-                                formattedDate,
-                                $0
-                            )
-                        } ?? String(
-                            format: NSLocalizedString("history.erupted_on", comment: "Eruption date"),
-                            formattedDate
-                        )
-                    )
+                Text(dateLine)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("history.age.\(snapshot.definition.fdi)")
-                }
-                if let note = snapshot.record?.note, !note.isEmpty {
+                    .accessibilityIdentifier("history.age.\(entry.snapshot.definition.fdi)")
+                if let note = entry.snapshot.record?.note, !note.isEmpty {
                     Text(note)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
@@ -102,6 +168,26 @@ private struct HistoryCard: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .accessibilityIdentifier("history.\(snapshot.definition.fdi)")
+        .accessibilityIdentifier("history.\(entry.snapshot.definition.fdi)")
+    }
+
+    private var dateLine: String {
+        let formattedDate = CivilDate.formatted(entry.date, style: .medium)
+        let age = birthDate.flatMap {
+            CalendarAgeFormatter.string(birthDate: $0, eventDate: entry.date)
+        }
+        guard let age else {
+            return String(
+                format: NSLocalizedString("history.event_on", comment: "Event date"),
+                entry.kind.localizedLabel,
+                formattedDate
+            )
+        }
+        return String(
+            format: NSLocalizedString("history.event_on_with_age", comment: "Event date and age"),
+            entry.kind.localizedLabel,
+            formattedDate,
+            age
+        )
     }
 }
